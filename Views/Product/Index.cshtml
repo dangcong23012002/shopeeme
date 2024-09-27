@@ -1,0 +1,105 @@
+@model ShopeeViewModel
+@inject IHttpContextAccessor accesser
+
+@{
+    ViewData["Title"] = "Sản phẩm";
+}
+<link rel="stylesheet" href="~/css/product.css">
+<div class="app__container">
+    <div class="grid wide">
+        <div class="product__slider">
+            <div class="product__slider-list">
+                <a href="#" class="product__slider-item"
+                    style="background-image: url(/img/category/slider/product_slider_2.jpg);">
+
+                </a>
+                <a href="#" class="product__slider-item"
+                    style="background-image: url(/img/category/slider/product_slider_1.jpg);">
+
+                </a>
+                <a href="#" class="product__slider-item"
+                    style="background-image: url(/img/category/slider/product_slider_3.jpg);">
+
+                </a>
+            </div>
+            <div class="product__slider-dots">
+
+            </div>
+        </div>
+        <div class="product__mall">
+            <div class="product__mall-header">
+                <div class="product__mall-title">SHOP MALL</div>
+                <a href="#" class="product__mall-more">
+                    <div class="product__mall-more-name">Xem tất cả</div>
+                    <i class="uil uil-angle-right-b product__mall-more-icon"></i>
+                </a>
+            </div>
+            <div class="product__mall-body">
+                <div class="product__mall-body-list">
+                    
+                </div>
+            </div>
+        </div>
+        <div class="row sm-gutter app__content">
+            <div class="col l-2 m-0 c-0">
+
+                <nav class="product-category">
+                    <h3 class="product-category__heading">
+                        <i class="category__heading-icon fa-solid fa-list"></i>
+                        Danh mục
+                    </h3>
+                    <ul class="category-list">
+                        
+                    </ul>
+                </nav>
+            </div>
+            <div class="col l-10 m-12 c-12">
+                <div class="home-filter hide-on-mobile-table">
+                    <span class="home-filter__label">Sắp xếp theo</span>
+                    <button class="home-filter__btn btn">Phổ biến</button>
+                    <button class="home-filter__btn btn btn--primary">Mới nhất</button>
+                    <button class="home-filter__btn btn">Bán chạy</button>
+                    <div class="select-input">
+                        <span class="select-input__label">
+                            Giá
+                        </span>
+                        <i class="select-input-icon fa-solid fa-chevron-down"></i>
+                        <!--List options-->
+                        <ul class="select-input__list">
+                            <li class="select-input__item">
+                                <a href="/product/sort/asc" class="select-input__link">Giá: Thấp đến cao</a>
+                            </li>
+                            <li class="select-input__item">
+                                <a href="/product/sort/desc" class="select-input__link">Giá: Cao đến thấp</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="home-filter__page">
+                        <span class="home-filter__page-num">
+                            <span class="home-filter__page-current">1</span>
+                            /
+                            14
+                        </span>
+                        <div class="home-filter__page-control">
+                            <a href="" class="home-filter__page-btn home-filter__page-btn--disabled "><i
+                                    class=" home-filter__page-icon fas fa-angle-left"></i></a>
+                            <a href="" class="home-filter__page-btn"><i
+                                    class="home-filter__page-icon fas fa-angle-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="home-product">
+                    <!--Grid -> Row -> Column-->
+                    <div class="row sm-gutter product__container">
+                        <!--Product item-->
+                        
+                    </div>
+                </div>
+                <ul class="pagination home-product__pagination">
+                    
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/js/product.js"></script>

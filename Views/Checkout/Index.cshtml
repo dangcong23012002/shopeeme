@@ -1,0 +1,101 @@
+@model ShopeeViewModel
+
+@{
+    Layout = "_SecondLayout";
+    ViewData["Title"] = "Thanh toán";
+}
+
+<link rel="stylesheet" href="~/css/checkout.css">
+<div class="app__container">
+    <div class="grid wide">
+        <div class="checkout">
+            <div class="checkout__label">
+                <div class="checkout__label-box"></div>
+            </div>
+            <div class="checkout__address">
+                <div class="checkout__address-title">
+                    <i class="uil uil-map-marker checkout__address-title-icon"></i>
+                    <span>Địa chỉ nhận hàng</span>
+                </div>
+                <div class="checkout__address-detail">
+                    <div class="checkout__address-desc">
+                        <div class="checkout__address-desc-name">Đặng Văn Công</div>
+                        <div class="checkout__address-desc-phone">(+84) 347797502</div>
+                        <div class="checkout__address-desc-direction">Số 20, Ngõ 259 Định Công, Phường Định Công, Quận Hoàng
+                            Mai, Hà Nội</div>
+                        <div class="checkout__address-desc-sub">Mặc định</div>
+                        <a href="javascript:openAddressModal()" class="checkout__address-desc-change">Thay đổi</a>
+                    </div>
+                </div>
+            </div>
+            <div class="checkout__list">
+                
+            </div>
+            <div class="checkout__voucher">
+                <div class="checkout__voucher-sub">
+                    <i class="uil uil-store checkout__voucher-sub-icon"></i>
+                    <span>Shopee Voucher</span>
+                </div>
+                <a href="#" class="checkout__voucher-choice">
+                    Chọn Voucher
+                </a>
+            </div>
+            <div class="checkout__payment">
+                <div class="checkout__payment-header">
+                    
+                </div>
+                <div class="checkout__payment-sub">
+                    <div class="checkout__payment-sub-logo">
+                        
+                    </div>
+                    <div class="checkout__payment-sub-money">
+                        <input type="radio" class="checkout__payment-sub-money-input">
+                        <div class="checkout__payment-sub-money-currenry">
+                            <span>đ</span>
+                        </div>
+                        <div class="checkout__payment-sub-money-desc">
+                            <div class="checkout__payment-sub-money-desc-sub">Ví VNPay Số dư</div>
+                            <div class="checkout__payment-sub-money-desc-value">0đ</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="checkout__payment-money">
+                    <div class="checkout__payment-money-row">
+                        <div class="checkout__payment-money-row-left"> <span>Tổng tiền hàng</span></div>
+                        <div class="checkout__payment-money-row-right checkout__payment-money-total-item-price">121.000 đ</div>
+                    </div>
+                    <div class="checkout__payment-money-row">
+                        <div class="checkout__payment-money-row-left"> <span>Phí vận chuyển</span></div>
+                        <div class="checkout__payment-money-row-right checkout__payment-money-total-transport-price">15.000 đ</div>
+                    </div>
+                    <div class="checkout__payment-money-row">
+                        <div class="checkout__payment-money-row-left"><span>Giảm giá phí vận chuyển</span> <i
+                                class="uil uil-exclamation-octagon checkout__payment-money-row-left-icon"></i></div>
+                        <div class="checkout__payment-money-row-right">-0 đ</div>
+                    </div>
+                    <div class="checkout__payment-money-row-bottom">
+                        <div class="checkout__payment-money-row-bottom-left"><span>Thành tiền</span></div>
+                        <div class="checkout__payment-money-row-bottom-right checkout__payment-money-total-price">121.000 đ</div>
+                    </div>
+                </div>
+                <div class="checkout__payment-order">
+                    <div class="checkout__payment-order-sub">Nhấn "đặt hàng" đồng nghĩa với việc bạn đồng ý tuân theo <a
+                            href="#" class="checkout__payment-order-sub-link">Điều khoản Shopee</a></div>
+                    <div class="checkout__payment-order-btn">
+                        <button type="button" class="btn btn--primary checkout__payment-order-btn-submit">Đặt hàng</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal">
+    <div class="modal__overlay">
+
+    </div>
+    <div class="modal__body">
+        
+    </div>
+</div>
+<script src="~/js/validate_address.js"></script>
+<script src="~/js/checkout.js"></script>

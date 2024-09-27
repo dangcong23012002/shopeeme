@@ -1,0 +1,56 @@
+/* Admin Order */
+.admin-order {
+    margin: 16px 0;
+}
+
+.admin-order__payment-header {
+    border-bottom: 1px solid transparent !important;
+}
+
+.admin-order__status {
+    min-height: 90px;
+    display: flex;
+    align-items: center;
+    padding: 0 30px;
+    border-top: 1px dotted var(--border-color);
+}
+
+.admin-order__times {
+    background-color: var(--white-color);
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, .1);
+    padding: 28px 30px 24px 30px;
+    display: flex;
+    margin-bottom: 12px;
+    display: flex;
+    column-gap: 10px;
+    color: var(--primary-color);
+}
+
+.admin-order__times-title {
+    font-size: 20px;
+}
+
+.admin-order__times-value {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.admin-order__item-bottom {
+    border-top: 1px dashed var(--border-color);
+}
+
+.checkout__payment-order-btn-container {
+    display: flex;
+    align-items: center;
+    column-gap: 10px;
+    margin-left: auto;
+}
+
+.checkout__payment-order-btn-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #dedede;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spinner .7s linear infinite;
+}

@@ -1,0 +1,593 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ShopeeMe - @ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/css/styles.css">
+    <link rel="sortcut icon" href="~/img/shopee_logo.png">
+    <link rel="stylesheet" href="~/css/base.css">
+    <link rel="stylesheet" href="~/css/grid.css">
+    <link rel="stylesheet" href="~/css/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <!--=============== ICONSCOUT ===============-->
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" />
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/solid.css" />
+</head>
+@inject IHttpContextAccessor accesser
+@model ShopeeViewModel
+<body>
+    <div class="app">
+        <header class="header hide-on-table">
+            <div class="grid wide">
+                <nav class="header__navbar hide-on-mobile-table">
+                    <ul class="header__navbar-list">
+                        <li class="header__navbar-item header__navbar-item--separate">
+                            <a class="header__navbar-item-link" href="/seller/login">Kênh người bán</a>
+                        </li>
+                        <li class="header__navbar-item header__navbar-item--has-qr header__navbar-item--separate">Ứng dụng ShopeeMe
+                            <div class="header__qr">
+                                <img src="~/img/qr_code.png" alt="" class="header__qr-img">
+                                <div class="header__qr-apps">
+                                    <a href="" class="header__qr-link">
+                                        <img src="~/img/app-store.png" alt="App Store"
+                                            class="header__qr-download-img">
+                                    </a>
+                                    <a href="" class="header__qr-link">
+                                        <img src="~/img/google_play.png" alt="Google Play"
+                                            class="header__qr-download-img">
+                                    </a>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="header__navbar-item">
+                            <span class="header__navbar-item--no-pointer">Kết nối</span>
+                            <a href="" class="header__navbar-icon-link"><i
+                                    class=" header__navbar-icon fa-brands fa-facebook"></i></a>
+                            <a href="" class="header__navbar-icon-link"><i
+                                    class=" header__navbar-icon fa-brands fa-instagram"></i></i></a>
+
+                        </li>
+                    </ul>
+                    <ul class="header__navbar-list">
+                        <li class="header__navbar-item header__navbar-item--has-notify">
+                            <a href="" class="header__navbar-item-link">
+                                <a href="" class="header__navbar-icon-link"><i
+                                        class=" header__navbar-icon fa-regular fa-bell"></i></a>
+                                Thông báo
+                            </a>
+                            <div class="header__notify">
+                                <header class="header__notify-header">
+                                    <h3>Thông báo mới nhận</h3>
+                                </header>
+                                <ul class="header__notify-list">
+                                    <li class="header__notify-item header__notify-item--viewed ">
+                                        <a href="" class="header__notify-link">
+                                            <div class="header__notify-img"><img src="~/img/iphone_12.png" alt=""
+                                                    class=""></div>
+                                            <div class="header__notify-info">
+                                                <span class="header__notify-name">Xác thực chính hãnh nguồn gốc của các
+                                                    sản
+                                                    phẩm 0hui</span>
+                                                <span class="header__notify-descriotion">Hidden tag là giải pháp xác
+                                                    thực
+                                                    hàng chính hãng bằng công nghệ tiên tiến nhất hiện nay</span>
+                                            </div>
+                                        </a>
+                                    </li>
+                                    <li class="header__notify-item header__notify-item--viewed ">
+                                        <a href="" class="header__notify-link">
+                                            <div class="header__notify-img"><img src="~/img/sac_du_phong.png" alt=""
+                                                    class=""></div>
+                                            <div class="header__notify-info">
+                                                <span class="header__notify-name">Sale Sốc bộ dưỡng 0hui The First tái
+                                                    tạo
+                                                    trẻ hoá da SALE OFF 70%</span>
+                                                <span class="header__notify-descriotion">Mô tả mỹ phẩm 0hui chính
+                                                    hãng</span>
+                                            </div>
+                                        </a>
+                                    </li>
+                                    <li class="header__notify-item header__notify-item--viewed ">
+                                        <a href="" class="header__notify-link">
+                                            <div class="header__notify-img"><img src="~/img/tai_nghe_eport.jpg" alt=""
+                                                    class=""></div>
+                                            <div class="header__notify-info">
+                                                <span class="header__notify-name">Mỹ phẩm chính 0thui hãng</span>
+                                                <span class="header__notify-descriotion">Mô tả mỹ phẩm 0hui chính
+                                                    hãng</span>
+                                            </div>
+                                        </a>
+                                    </li>
+                                </ul>
+                                <footer class="header__notify-footer">
+                                    <a href="" class="header__notify-footer-btn">Xem tất cả</a>
+                                </footer>
+                            </div>
+                        </li>
+                        <li class="header__navbar-item">
+                            <a href="" class="header__navbar-item-link"> <a href="" class="header__navbar-icon-link">
+                                <i class="header__navbar-icon fa-regular fa-circle-question"></i>
+                                </a> Trợ giúp
+                            </a>
+                        </li>
+                        <div class="header__navbar-auth">
+                            
+                        </div>
+                    </ul>
+                </nav>
+                <!--Header with search-->
+                <div class="header-with-search">
+                    <div class="header__logo hide-on-mobile">
+                        <a href="/" class="header__logo-link">
+                            <img class="header__logo-img" src="~/img/shopeeme_logo_white.png" alt="ShopeeMe Logo">
+                        </a>
+                    </div>
+
+                    <div class="header__mobile-back hide-on-home hide-on-destop">
+                        <a href="javascript:backHistory()" class="header__mobile-back-link">
+                            <i class="uil uil-arrow-left header__mobile-back-icon"></i>
+                        </a>
+                    </div>
+
+                    <div class="header__mobile-title hide-on-destop hide-on-home hide-on-product-detail hide-on-shop hide-on-detail">
+                        Giỏ hàng
+                    </div>
+
+                    <div class="header__mobile-fix hide-on-destop hide-on-home hide-on-product-detail hide-on-shop hide-on-detail" onclick="changeBottomCheckout(this)">Sửa</div>
+                    @if (ViewData["Title"] == "Chi tiết") {
+                        <div class="header__mobile-product-name">Sạc dự phòng E893</div>
+                    }
+
+                    <div class="header__search hide-on-cart hide-on-detail">
+                        <div class="header__search-input-wrap">
+                            <i class="uil uil-search header__search-input-icon hide-on-destop"></i>
+                            <input type="text" class="header__search-input" onkeyup="searchProducts(this)"
+                                placeholder="Tìm kiếm Shopee">
+
+                            <!--Search history-->
+                            <div class="header__search-history">
+                                <ul class="header__search-history-list">
+
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="header__search-select hide-on-mobile">
+                            <span class="header__search-select-label">Trong shop</span>
+                            <i class="header__search-select-icon fa-solid fa-chevron-down"></i>
+                            <ul class="header__search-option">
+                                <li class="header__search-option-item header__search-option-item--active">
+                                    <span>Trong shop</span>
+                                    <i class="fa-solid fa-check"></i>
+                                </li>
+                                <li class="header__search-option-item header__search-option-item--active">
+                                    <span>Ngoài shop</span>
+                                    <i class="fa-solid fa-check"></i>
+                                </li>
+                            </ul>
+                        </div>
+                        <button class="header__search-btn hide-on-mobile">
+                            <i class="header__search-btn-icon uil uil-search"></i>
+                        </button>
+                    </div>
+                    <!--Cart layout-->
+                    <div class="header__cart hide-on-cart">
+                        <div class="header__cart-wrap">
+                            <a href="/cart" class="header__cart-wrap-link">
+                                <i class="header__cart-icon fa-solid fa-cart-shopping"></i>
+                                <span class="header__cart-notice">0</span>
+                            </a>
+                            <div class="header__cart-container">
+                                <!--No cart: header__cart-list--no-cart-->
+
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (ViewData["Title"] == "Trang chủ") {
+                        <!-- User  -->
+                        <div class="header__mobile-user">
+                            
+                        </div>
+                    }
+
+                    @if (ViewData["Title"] == "Chi tiết") {
+                        <div class="header__mobile-more">
+                            <a href="javascript:openModalOrderMe()" class="header__mobile-more-link">
+                                <i class="uil uil-ellipsis-h header__mobile-more-icon"></i>
+                            </a>
+                        </div>
+                        <div class="header__mobile-more-modal hide-on-destop">
+                            <div class="header__mobile-more-modal-container">
+                                <a href="#" class="header__mobile-more-modal-order-me">
+                                    <i class="uil uil-clipboard-alt header__mobile-more-modal-order-me-icon"></i>
+                                    <span>Đơn hàng của tôi</span>
+                                </a>
+                                <a href="/" class="header__mobile-more-modal-order-me">
+                                    <i class="uil uil-shopping-bag header__mobile-more-modal-order-me-icon"></i>
+                                    <span>Trở về trang chủ</span>
+                                </a>
+                                <a href="#" class="header__mobile-more-modal-order-me">
+                                    <i class="uil uil-question-circle header__mobile-more-modal-order-me-icon"></i>
+                                    <span>Bạn cần trợ giúp</span>
+                                </a>
+                            </div>
+                        </div>
+                    }
+
+                    @if (ViewData["Title"] == "Shop") {
+                        <div class="header__mobile-more hide-on-destop">
+                            <a href="javascript:openModalOrderMe()" class="header__mobile-more-link">
+                                <i class="uil uil-ellipsis-h header__mobile-more-icon"></i>
+                            </a>
+                        </div>
+                        <div class="header__mobile-more-modal hide-on-destop">
+                            <div class="header__mobile-more-modal-container">
+                                <a href="#" class="header__mobile-more-modal-order-me">
+                                    <i class="uil uil-clipboard-alt header__mobile-more-modal-order-me-icon"></i>
+                                    <span>Đơn hàng của tôi</span>
+                                </a>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </header>
+        <div class="home__table hide-on-mobile hide-on-destop">
+            Sản phẩm chưa được tối ưu trên máy tính bảng, vui lòng sử dụng điện thoại và laptop 
+            để có trả nghiệm tốt hơn!
+        </div>
+        @RenderBody()
+        <footer class="footer">
+            <div class="grid wide footer__content">
+                <div class="row">
+                    <div class="col l-2-4 c-6 m-4">
+                        <h3 class="footer__heading">Chăm sóc khách hàng</h3>
+                        <ul class="footer-list">
+                            <li class="footer-item">
+                                <a href="" class="footer-item__link">Trung tâm trợ giúp</a>
+                            </li>
+                            <li class="footer-item">
+                                <a href="" class="footer-item__link">F4 Shop Mail</a>
+                            </li>
+                            <li class="footer-item">
+                                <a href="" class="footer-item__link">Hướng dẫn mua hàng</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col l-2-4 c-6 m-4">
+                        <h3 class="footer__heading">Giới thiệu</h3>
+                        <ul class="footer-list">
+                            <li class="footer-item">
+                                <a href="" class="footer-item__link">Giới thiệu</a>
+                            </li>
+                            <li class="footer-item">
+                                <a href="" class="footer-item__link">Tuyển dụng </a>
+                            </li>
+                            <li class="footer-item">
+                                <a href="" class="footer-item__link">Điều khoản</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col l-2-4 c-6 m-4">
+                        <h3 class="footer__heading">Danh mục</h3>
+                        <ul class="footer-list">
+                            <li class="footer-item">
+                                <a href="" class="footer-item__link">
+                                    <i class="footer-item__icon fab fa-facebook"></i>
+                                    Facebook
+                                </a>
+                            </li>
+                            <li class="footer-item">
+                                <a href="" class=" footer-item__link">
+                                    <i class="footer-item__icon fab fa-instagram"></i>
+                                    Instagram
+                                </a>
+                            </li>
+                            <li class="footer-item">
+                                <a href="" class="footer-item__link">
+                                    <i class="footer-item__icon fa-brands fa-linkedin"></i>
+                                    Linking
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col l-2-4 c-6 m-4">
+                        <h3 class="footer__heading">Thep dõi khách hàng</h3>
+                        <ul class="footer-list">
+                            <li class="footer-item">
+                                <a href="" class="footer-item__link">Trung tâm trợ giúp</a>
+                            </li>
+                            <li class="footer-item">
+                                <a href="" class="footer-item__link">Shopee Mail</a>
+                            </li>
+                            <li class="footer-item">
+                                <a href="" class="footer-item__link">Hướng dẫn mua hàng</a>
+                            </li>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col l-2-4 c-12 m-4">
+                        <h3 class="footer__heading">Vào cửa hàng Shopee</h3>
+                        <div class="footer__download">
+                            <img src="~/img/qr_code.png" alt="" class="footer__download-qr">
+                            <div class="footer__download-apps">
+                                <a href="#" class="footer__download-apps-link">
+                                    <img src="~/img/google_play.png" alt="Google Play" class="footer__download-apps-img">
+                                </a>
+                                <a href="#" class="footer__download-apps-link">
+                                    <img src="~/img/app-store.png" alt="App Store" class="footer__download-apps-img">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer__bottom">
+                    <div class="grid wide">
+                        <p class="footer__text">2022 - Bản quyền thuộc về ShopeeMe (Đồ án tốt nghiệp)</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+    <div class="chat">
+        <div class="chat__mobile-window hide-on-destop">
+            <div class="chat__body-search">
+                <div class="chat__body-search-box">
+                    <i class="uil uil-search chat__body-search-icon"></i>
+                    <input type="text" class="chat__body-search-input" onblur="displaySearchSub()"
+                        onclick="hideSearchSub()" placeholder="Tìm kiếm">
+                </div>
+                <div class="chat__body-search-sub" onclick="displaySubList()">
+                    <span>Tất cả</span>
+                    <i class="uil uil-angle-down chat__body-search-sub-icon"></i>
+                    <ul class="chat__body-search-sub-list">
+                        <li class="chat__body-search-sub-item">
+                            Tất cả
+                        </li>
+                        <li class="chat__body-search-sub-item">
+                            Chưa đọc
+                        </li>
+                        <li class="chat__body-search-sub-item">
+                            Đã ghim
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="chat__body-shop">
+                <ul class="chat__shop-list">
+                    
+                </ul>
+            </div>
+        </div>
+        <div class="chat__header">
+            <div class="chat__header-title">Chat</div>
+            <div class="chat__header-btns">
+                <div class="chat__header-btn hide-on-mobile" onclick="hideChatWindow()">
+                    <i class="uil uil-arrow-right chat__header-btn-arrow"></i>
+                </div>
+                <div class="chat__header-menu-bar hide-on-destop" onclick="showChatWindowMobile()">
+                    <span></span>
+                </div>
+                <div class="chat__header-btn">
+                    <i class="uil uil-angle-down chat__header-btn-down" onclick="hideChat()"></i>
+                </div>
+            </div>
+        </div>
+        <div class="chat__body">
+            <div class="chat__body-left">
+                <div class="chat__body-search">
+                    <div class="chat__body-search-box">
+                        <i class="uil uil-search chat__body-search-icon"></i>
+                        <input type="text" class="chat__body-search-input" onblur="displaySearchSub()"
+                            onclick="hideSearchSub()" placeholder="Tìm kiếm">
+                    </div>
+                    <div class="chat__body-search-sub" onclick="displaySubList()">
+                        <span>Tất cả</span>
+                        <i class="uil uil-angle-down chat__body-search-sub-icon"></i>
+                        <ul class="chat__body-search-sub-list">
+                            <li class="chat__body-search-sub-item">
+                                Tất cả
+                            </li>
+                            <li class="chat__body-search-sub-item">
+                                Chưa đọc
+                            </li>
+                            <li class="chat__body-search-sub-item">
+                                Đã ghim
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="chat__body-shop">
+                    <ul class="chat__shop-list">
+                        
+                    </ul>
+                </div>
+            </div>
+            <div class="chat__body-right">
+                <div class="chat__body-shop-name">
+                    <span>vietmark_store</span>
+                    <i class="uil uil-angle-down chat__body-shop-name-icon"></i>
+                    <div class="chat__body-shop-name-sub">
+                        <div class="chat__body-shop-name-sub-header">
+                            <div class="chat__body-shop-name-sub-header-img"
+                                style="background-image: url(/img/vietmark/vietmark_logo.png);"></div>
+                            <div class="chat__body-shop-name-sub-header-title">Viet Mark</div>
+                        </div>
+                        <ul class="chat__body-shop-name-sub-list">
+                            <li class="chat__body-shop-name-sub-item">
+                                <span>Tắt thông báo</span>
+                                <div class="chat__body-shop-name-sub-control">
+                                    <div class="chat__body-shop-name-sub-control-circle"></div>
+                                </div>
+                            </li>
+                            <li class="chat__body-shop-name-sub-item">
+                                <span>Chặn người dùng</span>
+                                <div class="chat__body-shop-name-sub-control">
+                                    <div class="chat__body-shop-name-sub-control-circle"></div>
+                                </div>
+                            </li>
+                            <li class="chat__body-shop-name-sub-item">
+                                <a href="#" class="chat__body-shop-name-sub-item-link">
+                                    <span>Tố cáo người dùng</span>
+                                    <i class="uil uil-angle-right-b chat__body-shop-name-sub-item-icon"></i>
+                                </a>
+                            </li>
+                        </ul>
+                        <div class="chat__body-shop-name-sub-bottom">
+                            <a href="#" class="chat__body-shop-name-sub-bottm-link">
+                                <span>Xem thông tin cá nhân</span>
+                                <i class="uil uil-angle-right-b chat__body-shop-name-sub-item-icon"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="chat__body-message">
+                    <div class="chat__body-message-container">
+                        <div class="chat__message-time">
+                            <span>23 Th05</span>
+                        </div>
+                        <div class="chat__message-node">
+                            <div class="chat__message-node-text">
+                                <i class="uil uil-exclamation-octagon chat__message-node-icon"></i>
+                                LƯU Ý: Shopee KHÔNG cho phép các hành vi: Đặt cọc/chuyển khoản riêng
+                                cho người bán/Giao dịch ngoài hệ thống Shopee/Cung cấp thông tin liên hiệ
+                                cho người bán/Các hoạt động tuyển CTV/Tặng quà miễn phí,... Vui lòng chỉ
+                                mua bán hàng trực tiếp trên ứng dụng Shopee để tránh nguy cơ bị lừa đảo bạn nhé!
+                                <a href="#" class="chat__message-node-link">Tìm hiểu thêm</a>
+                            </div>
+                        </div>
+                        <div class="chat__message-shop">
+                            <div class="chat__message-shop-msg">
+                                <div class="chat__message-shop-remind">
+                                    <div class="chat__message-remind-title">Nhắc nhở đánh giá đơn hàng</div>
+                                    <a href="#" class="chat__message-remind-product-link">
+                                        <div class="chat__message-remind-product">
+                                            <div class="chat__message-remind-product-img"
+                                                style="background-image: url(/img/tai_nghe.png);"></div>
+                                            <div class="chat__message-remind-product-info">
+                                                <div class="chat__message-remind-product-name">
+                                                    Bút Laze Trình Chiếu PowerPoint Kèm Remote Điều Khiển Không Dây Cho
+                                                    Laptop RF 2.4GHz
+                                                </div>
+                                                <div class="chat__message-remind-product-status">Hoàn tất</div>
+                                                <div class="chat__message-remind-product-numb">
+                                                    1 sản phẩm, Tổng cộng: 81.000 đ
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <a href="#" class="chat__message-remind-rate-now">
+                                        <span>Đánh giá ngay</span>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="chat__message-shop-time">13:28</div>
+                        </div>
+                        <div class="chat__message-time">
+                            <span>23 Th05</span>
+                        </div>
+                        <div class="chat__message-customer">
+                            <div class="chat__message-customer-msg">
+                                <span>Đồ dùng tốt Lorem ipsum dolor sit amet consectetur adipisicing elit. Minima,
+                                    adipisci, voluptatum omnis maiores odit aut fugit iure sunt, doloremque iste illum.
+                                    Dicta tenetur maiores assumenda rem soluta facere adipisci quas?</span>
+                            </div>
+                            <div class="chat__message-customer-time">13:28</div>
+                        </div>
+                        <div class="chat__message-shop">
+                            <div class="chat__message-shop-msg">
+                                <div class="chat__message-shop-msg-text">
+                                    Chào bạn, hiện tại bộ phận CSKH của VietMark đã hết giờ làm việc.
+                                    Bạn vui lòng liên hệ vào khung giờ <b>8:00 - 17:00 (T2 - T6) & 8:00 - 14:00 Thứ
+                                        7</b>
+                                    hoặc để lại lời nhắn, chúng mình sẽ phản hồi ngay với bạn vào giờ làm việc kế tiếp.
+                                    VietMark Shop xin cảm ơn ❤️
+                                </div>
+                                <div class="chat__message-shop-after-hour">Tin nhắn Tự động Ngoài giờ làm việc</div>
+                            </div>
+                            <div class="chat__message-shop-time">13:28</div>
+                        </div>
+                        <div class="chat__message-customer">
+                            <div class="chat__message-customer-msg">
+                                <span>Giao hàng nhanh!</span>
+                            </div>
+                            <div class="chat__message-customer-time-short">13:28</div>
+                        </div>
+                        <div class="chat__message-shop">
+                            <div class="chat__message-shop-msg-text">
+                                <div class="chat__message-shop-felling">😘</div>
+                            </div>
+                            <div class="chat__message-shop-time-short">13:28</div>
+                        </div>
+                        <div class="chat__message-customer">
+                            <div class="chat__message-customer-msg">
+                                <span>Chất lượng đó Shop!</span>
+                            </div>
+                            <div class="chat__message-customer-time-short">13:28</div>
+                        </div>
+                        <div class="chat__message-shop">
+                            <div class="chat__message-shop-msg-short">
+                                <span>VietMark Shop xin cảm ơn ❤️</span>
+                            </div>
+                            <div class="chat__message-shop-time-short">13:28</div>
+                        </div>
+                    </div>
+                    <div class="chat__body-message-bottom">
+                        <div class="chat__body-message-bottom-box">
+                            <textarea type="text" class="chat__body-message-bottom-input"
+                                placeholder="Nhập nội dung tin nhắn"></textarea>
+                        </div>
+                        <div class="chat__body-message-bottom-btns">
+                            <div class="chat__body-message-bottom-btns-left">
+                                <ul class="chat__body-message-bottom-list">
+                                    <li class="chat__body-message-bottom-item">
+                                        <i class="uil uil-grin chat__body-message-bottom-item-icon"></i>
+                                    </li>
+                                    <li class="chat__body-message-bottom-item">
+                                        <i class="uil uil-image-plus chat__body-message-bottom-item-icon"></i>
+                                    </li>
+                                    <li class="chat__body-message-bottom-item">
+                                        <i class="uil uil-youtube chat__body-message-bottom-item-icon"></i>
+                                    </li>
+                                    <li class="chat__body-message-bottom-item">
+                                        <i class="uil uil-shopping-bag chat__body-message-bottom-item-icon"></i>
+                                    </li>
+                                    <li class="chat__body-message-bottom-item">
+                                        <i class="uil uil-clipboard chat__body-message-bottom-item-icon"></i>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="chat__body-message-bottom-btns-right">
+                                <div class="chat__body-message-bottom-item">
+                                    <i class="uil uil-message chat__body-message-bottom-item-icon"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="chat__btn" onclick="displayChat()">
+        <i class="uil uil-comments-alt"></i>
+        <span>Chat</span>
+    </div>
+    <div class="" id="toast">
+        @* <div class="toast toast--success">
+            <div class="toast__icon">
+                <i class="uil uil-check-circle"></i>
+            </div>
+            <div class="toast__body">
+                <h3 class="toast__title">Thành công</h3>
+                <p class="toast__msg">Thêm thành công</p>
+            </div>
+            <div class="toast__close">
+                <i class="uil uil-times"></i>
+            </div>
+        </div> *@
+    </div>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
