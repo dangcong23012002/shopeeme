@@ -4,12 +4,20 @@ public class SellerController : Controller
 {
     private readonly IUserResponsitory _userResponsitory;
     private readonly ISellerResponsitory _sellerResponsitory;
+    private readonly IShopResponsitory _shopResponsitory;
+    private readonly IOrderResponsitory _orderResponsitory;
+    private readonly IShippingOrderRepository _shippingOrderRepository;
+    private readonly ICheckoutResponsitory _checkoutResponsitory;
     private readonly IHttpContextAccessor _accessor;
-    public SellerController(IHttpContextAccessor accessor, IUserResponsitory userResponsitory, ISellerResponsitory sellerResponsitory)
+    public SellerController(IHttpContextAccessor accessor, IUserResponsitory userResponsitory, ISellerResponsitory sellerResponsitory, IShopResponsitory shopResponsitory, IOrderResponsitory orderResponsitory, IShippingOrderRepository shippingOrderRepository, ICheckoutResponsitory checkoutResponsitory)
     {
         _accessor = accessor;
         _userResponsitory = userResponsitory;
         _sellerResponsitory = sellerResponsitory;
+        _shopResponsitory = shopResponsitory;
+        _orderResponsitory = orderResponsitory;
+        _shippingOrderRepository = shippingOrderRepository;
+        _checkoutResponsitory = checkoutResponsitory;
     }
 
     [HttpGet]
@@ -17,8 +25,10 @@ public class SellerController : Controller
     public IActionResult Index() {
         // Lấy Cookie trên trình duyệt
         var sellerID = Request.Cookies["SellerID"];
+        List<Store> store = _shopResponsitory.getShopBySellerID(Convert.ToInt32(sellerID)).ToList();
         if (sellerID != null) {
             _accessor?.HttpContext?.Session.SetInt32("SellerID", Convert.ToInt32(sellerID));
+            _accessor?.HttpContext?.Session.SetInt32("SellerShopID", store[0].PK_iStoreID);
         } else {
             return Redirect("/seller/login");
         }
@@ -33,9 +43,69 @@ public class SellerController : Controller
     public IActionResult GetData() {
         var sessionSellerID = _accessor?.HttpContext?.Session.GetInt32("SellerID");
         var sessionSellerUsername = _accessor?.HttpContext?.Session.GetString("SellerUsername");
+        var sessionShopID = _accessor?.HttpContext?.Session.GetInt32("SellerShopID");
+        IEnumerable<SellerInfo> sellerInfos = _sellerResponsitory.getSellerInfoBySellerID(Convert.ToInt32(sessionSellerID));
+        IEnumerable<Order> ordersWaitSettlement = _orderResponsitory.getOrderWaitSettlementByShopID(Convert.ToInt32(sessionShopID));
+        IEnumerable<Order> ordersWaitPickup = _orderResponsitory.getOrderWaitPickupByShopID(Convert.ToInt32(sessionShopID));
+        IEnumerable<Order> ordersProcessed = _orderResponsitory.getOrderProcessedByShopID(Convert.ToInt32(sessionShopID));
+        IEnumerable<ShippingOrder> shippingOrders = _shippingOrderRepository.getShippingOrderByShopID(Convert.ToInt32(sessionShopID));
+        string htmlOrdersWaitSettlmentItem = "";
+        string htmlOrdersWaitPickupItem = "";
+        foreach (var item in ordersWaitSettlement) {
+            htmlOrdersWaitSettlmentItem += $" <div class='admin__order-table-body-row'>";
+            htmlOrdersWaitSettlmentItem += $"     <div class='admin__order-table-body-col'>{item.PK_iOrderID}</div>";
+            htmlOrdersWaitSettlmentItem += $"     <div class='admin__order-table-body-col'>{item.sFullName}</div>";
+            htmlOrdersWaitSettlmentItem += $"     <div class='admin__order-table-body-col'>{item.dDate.ToString("dd/MM/yyyy")}</div>";
+            htmlOrdersWaitSettlmentItem += $"     <div class='admin__order-table-body-col'>{item.fTotalPrice.ToString("#,##0.00")}VND</div>"; // Đặt tiền: https://www.phanxuanchanh.com/2021/10/26/dinh-dang-tien-te-trong-c/
+            htmlOrdersWaitSettlmentItem += $"     <div class='admin__order-table-body-col'>{item.sOrderStatusName}</div>";
+            htmlOrdersWaitSettlmentItem += $"     <div class='admin__order-table-body-col payment'>{item.sPaymentName}</div>";
+            htmlOrdersWaitSettlmentItem += $"     <div class='admin__order-table-body-col primary'>";
+            htmlOrdersWaitSettlmentItem += $"         30:00";
+            htmlOrdersWaitSettlmentItem += $"     </div>";
+            htmlOrdersWaitSettlmentItem += $" </div>";
+        }
+
+        foreach (var item in ordersWaitPickup) {
+            htmlOrdersWaitPickupItem += $" <div class='admin__order-table-body-row'>";
+            htmlOrdersWaitPickupItem += $"     <div class='admin__order-table-body-col'>{item.PK_iOrderID}</div>";
+            htmlOrdersWaitPickupItem += $"     <div class='admin__order-table-body-col'>{item.sFullName}</div>";
+            htmlOrdersWaitPickupItem += $"     <div class='admin__order-table-body-col'>{item.dDate.ToString("dd/MM/yyyy")}</div>";
+            htmlOrdersWaitPickupItem += $"     <div class='admin__order-table-body-col'>{item.fTotalPrice.ToString("#,##0.00")}VND</div>"; // Đặt tiền: https://www.phanxuanchanh.com/2021/10/26/dinh-dang-tien-te-trong-c/
+            htmlOrdersWaitPickupItem += $"     <div class='admin__order-table-body-col'>{item.sOrderStatusName}</div>";
+            htmlOrdersWaitPickupItem += $"     <div class='admin__order-table-body-col payment'>{item.sPaymentName}</div>";
+            htmlOrdersWaitPickupItem += $"     <div class='admin__order-table-body-col primary'>";
+            htmlOrdersWaitPickupItem += $"         <a href='javascript:prepareGoodModal({item.PK_iOrderID}, {item.PK_iUserID})' class='admin__order-table-body-col-link'>Chuẩn bị hàng</a>";
+            htmlOrdersWaitPickupItem += $"     </div>";
+            htmlOrdersWaitPickupItem += $" </div>";
+        }
+
+        string htmlOrdersProcessedItem = "";
+        foreach (var item in ordersProcessed)
+        {
+            htmlOrdersProcessedItem += $" <div class='admin__order-table-body-row'>";
+            htmlOrdersProcessedItem += $"     <div class='admin__order-table-body-col'>{item.PK_iOrderID}</div>";
+            htmlOrdersProcessedItem += $"     <div class='admin__order-table-body-col'>{item.sFullName}</div>";
+            htmlOrdersProcessedItem += $"     <div class='admin__order-table-body-col'>{item.dDate.ToString("dd/MM/yyyy")}</div>";
+            htmlOrdersProcessedItem += $"     <div class='admin__order-table-body-col'>{item.fTotalPrice.ToString("#,##0.00")}VND</div>"; // Đặt tiền: https://www.phanxuanchanh.com/2021/10/26/dinh-dang-tien-te-trong-c/
+            htmlOrdersProcessedItem += $"     <div class='admin__order-table-body-col'>{item.sOrderStatusName}</div>";
+            htmlOrdersProcessedItem += $"     <div class='admin__order-table-body-col payment'>{item.sPaymentName}</div>";
+            htmlOrdersProcessedItem += $"     <div class='admin__order-table-body-col primary'>";
+            htmlOrdersProcessedItem += $"         <a href='/seller/delivery-note/{item.PK_iOrderID}' class='admin__order-table-body-col-link'>Xem phiếu giao</a>";
+            htmlOrdersProcessedItem += $"     </div>";
+            htmlOrdersProcessedItem += $" </div>";
+        }
+
         SellerViewModel model = new SellerViewModel {
             SellerID = Convert.ToInt32(sessionSellerID),
-            SellerUsername = sessionSellerUsername
+            SellerUsername = sessionSellerUsername,
+            SellerInfos = sellerInfos,
+            OrdersWaitSettlement = ordersWaitSettlement,
+            OrdersWaitPickup = ordersWaitPickup,
+            OrdersProcessed = ordersProcessed,
+            HtmlOrdersWaitSettlementItem = htmlOrdersWaitSettlmentItem,
+            HtmlOrdersWaitPickupItem = htmlOrdersWaitPickupItem,
+            HtmlOrdersProcessedItem = htmlOrdersProcessedItem,
+            ShippingOrders = shippingOrders
         };
         return Ok(model);
     }
@@ -186,5 +256,58 @@ public class SellerController : Controller
             Message = "Đăng xuất thành công!"
         };
         return Ok(status);
+    }
+
+    [HttpPost]
+    [Route("/seller/confirm-shipping-order")]
+    public IActionResult ShippingOrder(int orderID = 0, int userID = 0) {
+        _shippingOrderRepository.insertShippingOrder(1, orderID);
+        // Cập nhật đơn hàng về trạng thái chờ giao hàng
+        _orderResponsitory.confirmOrderAboutWaitDelivery(orderID, userID);
+        // Lấy đơn hàng giao vừa được thêm
+        List<ShippingOrder> shippingOrder = _shippingOrderRepository.getShippingOrderByOrderID(orderID).ToList();
+        _accessor?.HttpContext?.Session.SetInt32("CurrentShippingOrderID", shippingOrder[0].PK_iShippingOrderID);
+        
+        Status status = new Status {
+            StatusCode = 1,
+            Message = "Phiếu đã được tạo thành công!"
+        };
+        return Ok(status);
+    }
+
+    [HttpGet]
+    [Route("/seller/delivery-note/{orderID?}")]
+    public IActionResult DeliveryNote(int orderID = 0) {
+        // Lấy Cookie trên trình duyệt
+        var sellerID = Request.Cookies["SellerID"];
+        if (sellerID != null) {
+            _accessor?.HttpContext?.Session.SetInt32("SellerID", Convert.ToInt32(sellerID));
+        } else {
+            return Redirect("/seller/login");
+        }
+        // Lấy đơn hàng giao theo mã đơn hàng
+        List<ShippingOrder> shippingOrder = _shippingOrderRepository.getShippingOrderByOrderID(orderID).ToList();
+        _accessor?.HttpContext?.Session.SetInt32("CurrentShippingOrderID", shippingOrder[0].PK_iShippingOrderID);
+        return View();
+    }
+
+    [HttpPost]
+    [Route("/seller/delivery-api")]
+    public IActionResult DeliveryNoteAPI() {
+        var sessionShippingOrderID = _accessor?.HttpContext?.Session.GetInt32("CurrentShippingOrderID");
+        var sessionSellerID = _accessor?.HttpContext?.Session.GetInt32("SellerID");
+        IEnumerable<SellerInfo> sellerInfos = _sellerResponsitory.getSellerInfoBySellerID(Convert.ToInt32(sessionSellerID));
+        List<ShippingOrder> shippingOrders = _shippingOrderRepository.getShippingOrderByID(1).ToList();
+        IEnumerable<Order> ordersWaitDelivery = _orderResponsitory.getOrderWaitDeliveryByOrderID(shippingOrders[0].FK_iOrderID);
+        IEnumerable<OrderDetail> orderDetailsWaitDelivery = _orderResponsitory.getOrderDetailWaitDeliveyByOrderID(shippingOrders[0].FK_iOrderID);
+        IEnumerable<Address> deliveryAddresses = _checkoutResponsitory.getAddressAccountByOrderID(shippingOrders[0].FK_iOrderID);
+        SellerViewModel model = new SellerViewModel {
+            ShippingOrders = shippingOrders,
+            SellerInfos = sellerInfos,
+            OrdersWaitDelivery = ordersWaitDelivery,
+            OrderDetailsWaitDelivery = orderDetailsWaitDelivery,
+            DeliveryAddresses = deliveryAddresses
+        };
+        return Ok(model);
     }
 }

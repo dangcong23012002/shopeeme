@@ -11,6 +11,7 @@ namespace Project.Models
         public DbSet<User> Users { get; set; }
         public DbSet<UserInfo> UserInfos { get; set; }
         public DbSet<Seller> Sellers { get; set; }
+        public DbSet<SellerInfo> SellerInfos { get; set; }
         public DbSet<Store> Stores { get; set; }
         public DbSet<SliderShop> SliderShops { get; set; }
         public DbSet<ParentCategory> ParentCategories { get; set; }
@@ -26,6 +27,7 @@ namespace Project.Models
         public DbSet<City> Cities { get; set; }
         public DbSet<District> Districts { get; set; }
         public DbSet<AddressChoose> AddressChooses { get; set; }
+        public DbSet<ShippingOrder> ShippingOrders { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -38,6 +40,10 @@ namespace Project.Models
             });
 
             modelBuilder.Entity<Seller>(entity => {
+                entity.HasKey(e => e.PK_iSellerID);
+            });
+
+            modelBuilder.Entity<SellerInfo>(entity => {
                 entity.HasKey(e => e.PK_iSellerID);
             });
 
@@ -103,6 +109,10 @@ namespace Project.Models
 
             modelBuilder.Entity<AddressChoose>(entity => {
                 entity.HasNoKey();
+            });
+
+            modelBuilder.Entity<ShippingOrder>(entity => {
+                entity.HasKey(e => e.PK_iShippingOrderID);
             });
         }
     }
