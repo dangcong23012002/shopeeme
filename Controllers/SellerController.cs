@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Project.Models.Domain;
 
 public class SellerController : Controller
 {
@@ -9,7 +10,18 @@ public class SellerController : Controller
     private readonly IShippingOrderRepository _shippingOrderRepository;
     private readonly ICheckoutResponsitory _checkoutResponsitory;
     private readonly IHttpContextAccessor _accessor;
-    public SellerController(IHttpContextAccessor accessor, IUserResponsitory userResponsitory, ISellerResponsitory sellerResponsitory, IShopResponsitory shopResponsitory, IOrderResponsitory orderResponsitory, IShippingOrderRepository shippingOrderRepository, ICheckoutResponsitory checkoutResponsitory)
+    private readonly ICategoryResponsitory _categoryResponsitory;
+    private readonly IProductResponsitory _productResponsitory;
+    public SellerController(
+        IHttpContextAccessor accessor, 
+        IUserResponsitory userResponsitory, 
+        ISellerResponsitory sellerResponsitory, 
+        IShopResponsitory shopResponsitory, 
+        IOrderResponsitory orderResponsitory, 
+        IShippingOrderRepository shippingOrderRepository, 
+        ICheckoutResponsitory checkoutResponsitory,
+        ICategoryResponsitory categoryResponsitory,
+        IProductResponsitory productResponsitory)
     {
         _accessor = accessor;
         _userResponsitory = userResponsitory;
@@ -18,6 +30,8 @@ public class SellerController : Controller
         _orderResponsitory = orderResponsitory;
         _shippingOrderRepository = shippingOrderRepository;
         _checkoutResponsitory = checkoutResponsitory;
+        _categoryResponsitory = categoryResponsitory;
+        _productResponsitory = productResponsitory;
     }
 
     [HttpGet]
@@ -26,11 +40,12 @@ public class SellerController : Controller
         // Lấy Cookie trên trình duyệt
         var sellerID = Request.Cookies["SellerID"];
         List<Store> store = _shopResponsitory.getShopBySellerID(Convert.ToInt32(sellerID)).ToList();
-        if (sellerID != null) {
+        List<SellerInfo> sellerInfos = _sellerResponsitory.getSellerInfoBySellerID(Convert.ToInt32(sellerID)).ToList();
+        if (sellerID != null && sellerInfos.Count() != 0) {
             _accessor?.HttpContext?.Session.SetInt32("SellerID", Convert.ToInt32(sellerID));
             _accessor?.HttpContext?.Session.SetInt32("SellerShopID", store[0].PK_iStoreID);
         } else {
-            return Redirect("/seller/login");
+            return Redirect("/seller/portal");
         }
         var sessionSellerID = _accessor?.HttpContext?.Session.GetInt32("SellerID");
         List<Seller> seller = _sellerResponsitory.getSellerAccountByID(Convert.ToInt32(sessionSellerID)).ToList();
@@ -49,6 +64,10 @@ public class SellerController : Controller
         IEnumerable<Order> ordersWaitPickup = _orderResponsitory.getOrderWaitPickupByShopID(Convert.ToInt32(sessionShopID));
         IEnumerable<Order> ordersProcessed = _orderResponsitory.getOrderProcessedByShopID(Convert.ToInt32(sessionShopID));
         IEnumerable<ShippingOrder> shippingOrders = _shippingOrderRepository.getShippingOrderByShopID(Convert.ToInt32(sessionShopID));
+        IEnumerable<CategoryModel> categories = _categoryResponsitory.getAllCategoriesByShopID(Convert.ToInt32(sessionShopID));
+        IEnumerable<Discount> discounts = _productResponsitory.getDiscounts();
+        IEnumerable<TransportPrice> transportPrices = _productResponsitory.getTransportPrice();
+        IEnumerable<Product> products = _shopResponsitory.getProductsByShopID(Convert.ToInt32(sessionShopID));
         string htmlOrdersWaitSettlmentItem = "";
         string htmlOrdersWaitPickupItem = "";
         foreach (var item in ordersWaitSettlement) {
@@ -74,7 +93,7 @@ public class SellerController : Controller
             htmlOrdersWaitPickupItem += $"     <div class='admin__order-table-body-col'>{item.sOrderStatusName}</div>";
             htmlOrdersWaitPickupItem += $"     <div class='admin__order-table-body-col payment'>{item.sPaymentName}</div>";
             htmlOrdersWaitPickupItem += $"     <div class='admin__order-table-body-col primary'>";
-            htmlOrdersWaitPickupItem += $"         <a href='javascript:prepareGoodModal({item.PK_iOrderID}, {item.PK_iUserID})' class='admin__order-table-body-col-link'>Chuẩn bị hàng</a>";
+            htmlOrdersWaitPickupItem += $"         <a href='javascript:prepareGoodModal({item.PK_iOrderID}, {item.FK_iUserID})' class='admin__order-table-body-col-link'>Chuẩn bị hàng</a>";
             htmlOrdersWaitPickupItem += $"     </div>";
             htmlOrdersWaitPickupItem += $" </div>";
         }
@@ -94,6 +113,45 @@ public class SellerController : Controller
             htmlOrdersProcessedItem += $"     </div>";
             htmlOrdersProcessedItem += $" </div>";
         }
+        string htmlProductItem = "";
+        foreach (var item in products) {
+            htmlProductItem += $"    <div class='admin__product-item'>";
+            htmlProductItem += $"        <div class='admin__product-item-input'>";
+            htmlProductItem += $"            <input type='checkbox' class='admin__product-item-input-checkbox'>";
+            htmlProductItem += $"        </div>";
+            htmlProductItem += $"        <div class='admin__product-item-info'>";
+            htmlProductItem += $"           <div class='admin__product-item-img' style='background-image: url(/img/{item.sImageUrl});'></div>";
+            htmlProductItem += $"           <div class='admin__product-item-desc'>";
+            htmlProductItem += $"               <div class='admin__product-item-name'>{item.sProductName}";
+            htmlProductItem += $"                   <div class='cart__body-product-name-progress'>";
+            htmlProductItem += $"                       <div class='cart__body-product-name-progress-line'></div>";
+            htmlProductItem += $"                       <div class='cart__body-product-name-progress-line'></div>";
+            htmlProductItem += $"                   </div>";
+            htmlProductItem += $"               </div>";
+            htmlProductItem += $"               <img src='/img/voucher.png' class='admin__product-item-voucher' alt=''>";
+            htmlProductItem += $"           </div>";
+            htmlProductItem += $"       </div>";
+            htmlProductItem += $"       <div class='admin__product-item-type'>{item.sCategoryName}</div>";
+            htmlProductItem += $"       <div class='admin__product-item-cre-time'>{item.dCreateTime.ToString("dd/MM/yyyy")}</div>";
+            htmlProductItem += $"       <div class='admin__product-item-update-time'>{item.dUpdateTime.ToString("dd/MM/yyyy")}</div>";
+            htmlProductItem += $"       <div class='admin__product-item-qnt'>{item.iQuantity}</div>";
+            htmlProductItem += $"       <div class='admin__product-item-operation'>";
+            htmlProductItem += $"           <div class='admin-tool__more'>";
+            htmlProductItem += $"               <i class='uil uil-ellipsis-v admin-tool__more-icon'></i>";
+            htmlProductItem += $"               <div class='admin-tool__more-container'>";
+            htmlProductItem += $"                   <div class='admin-tool__more-item' onclick='openUpdateProduct({item.PK_iProductID})'>";
+            htmlProductItem += $"                       <i class='uil uil-pen admin-tool__more-item-icon'></i>";
+            htmlProductItem += $"                       <span>Chỉnh sửa</span>";
+            htmlProductItem += $"                   </div>";
+            htmlProductItem += $"                   <div class='admin-tool__more-item' onclick='openDeleteProduct({item.PK_iProductID})'>";
+            htmlProductItem += $"                       <i class='uil uil-trash admin-tool__more-item-icon'></i>";
+            htmlProductItem += $"                       <span>Xoá</span>";
+            htmlProductItem += $"                   </div>";
+            htmlProductItem += $"               </div>";
+            htmlProductItem += $"           </div>";
+            htmlProductItem += $"       </div>";
+            htmlProductItem += $"   </div>";
+        }
 
         SellerViewModel model = new SellerViewModel {
             SellerID = Convert.ToInt32(sessionSellerID),
@@ -105,7 +163,212 @@ public class SellerController : Controller
             HtmlOrdersWaitSettlementItem = htmlOrdersWaitSettlmentItem,
             HtmlOrdersWaitPickupItem = htmlOrdersWaitPickupItem,
             HtmlOrdersProcessedItem = htmlOrdersProcessedItem,
-            ShippingOrders = shippingOrders
+            ShippingOrders = shippingOrders,
+            Categories = categories,
+            Discounts = discounts,
+            TransportPrices = transportPrices,
+            Products = products,
+            HtmlProductItem = htmlProductItem
+        };
+        return Ok(model);
+    }
+
+    [HttpGet]
+    [Route("/seller/product-detail/{productID}")]
+    public IActionResult ProductDetailAPI(int productID = 0) {
+        List<Product> products = _productResponsitory.getProductByID(productID).ToList();
+        IEnumerable<CategoryModel> categories = _categoryResponsitory.getAllCategoriesByShopID(products[0].FK_iStoreID);
+        IEnumerable<Discount> discounts = _productResponsitory.getDiscounts();
+        IEnumerable<TransportPrice> transportPrices = _productResponsitory.getTransportPrice();
+        SellerViewModel model = new SellerViewModel
+        {
+            Categories = categories,
+            Discounts = discounts,
+            TransportPrices = transportPrices,
+            Products = products
+        };
+        return Ok(model);
+    }
+
+    [HttpPost]
+    [Route("/seller/update-product")]
+    public IActionResult UpdateProduct(int productID = 0, int categoryID = 0, int discountID = 0, int transportID = 0, string productName = "", int quantity = 0, string productDesc = "", string imageUrl = "", double price = 0) {
+        var sessionShopID = _accessor?.HttpContext?.Session.GetInt32("SellerShopID");
+        _productResponsitory.updateProduct(productID, categoryID, discountID, transportID, productName, quantity, productDesc, imageUrl, price);
+        Status status = new Status {
+            StatusCode = 1,
+            Message = "Cập nhật sản phẩm thành công"
+        };
+        IEnumerable<Product> products = _shopResponsitory.getProductsByShopID(Convert.ToInt32(sessionShopID));
+        string htmlProductItem = "";
+        foreach (var item in products) {
+            htmlProductItem += $"    <div class='admin__product-item'>";
+            htmlProductItem += $"        <div class='admin__product-item-input'>";
+            htmlProductItem += $"            <input type='checkbox' class='admin__product-item-input-checkbox'>";
+            htmlProductItem += $"        </div>";
+            htmlProductItem += $"        <div class='admin__product-item-info'>";
+            htmlProductItem += $"           <div class='admin__product-item-img' style='background-image: url(/img/{item.sImageUrl});'></div>";
+            htmlProductItem += $"           <div class='admin__product-item-desc'>";
+            htmlProductItem += $"               <div class='admin__product-item-name'>{item.sProductName}";
+            htmlProductItem += $"                   <div class='cart__body-product-name-progress'>";
+            htmlProductItem += $"                       <div class='cart__body-product-name-progress-line'></div>";
+            htmlProductItem += $"                       <div class='cart__body-product-name-progress-line'></div>";
+            htmlProductItem += $"                   </div>";
+            htmlProductItem += $"               </div>";
+            htmlProductItem += $"               <img src='/img/voucher.png' class='admin__product-item-voucher' alt=''>";
+            htmlProductItem += $"           </div>";
+            htmlProductItem += $"       </div>";
+            htmlProductItem += $"       <div class='admin__product-item-type'>{item.sCategoryName}</div>";
+            htmlProductItem += $"       <div class='admin__product-item-cre-time'>{item.dCreateTime.ToString("dd/MM/yyyy")}</div>";
+            htmlProductItem += $"       <div class='admin__product-item-update-time'>{item.dUpdateTime.ToString("dd/MM/yyyy")}</div>";
+            htmlProductItem += $"       <div class='admin__product-item-qnt'>{item.iQuantity}</div>";
+            htmlProductItem += $"       <div class='admin__product-item-operation'>";
+            htmlProductItem += $"           <div class='admin-tool__more'>";
+            htmlProductItem += $"               <i class='uil uil-ellipsis-v admin-tool__more-icon'></i>";
+            htmlProductItem += $"               <div class='admin-tool__more-container'>";
+            htmlProductItem += $"                   <div class='admin-tool__more-item' onclick='openUpdateProduct({item.PK_iProductID})'>";
+            htmlProductItem += $"                       <i class='uil uil-pen admin-tool__more-item-icon'></i>";
+            htmlProductItem += $"                       <span>Chỉnh sửa</span>";
+            htmlProductItem += $"                   </div>";
+            htmlProductItem += $"                   <div class='admin-tool__more-item' onclick='openDeleteProduct({item.PK_iProductID})'>";
+            htmlProductItem += $"                       <i class='uil uil-trash admin-tool__more-item-icon'></i>";
+            htmlProductItem += $"                       <span>Xoá</span>";
+            htmlProductItem += $"                   </div>";
+            htmlProductItem += $"               </div>";
+            htmlProductItem += $"           </div>";
+            htmlProductItem += $"       </div>";
+            htmlProductItem += $"   </div>";
+        }
+        SellerViewModel model = new SellerViewModel {
+            Status = status,
+            Products = products,
+            HtmlProductItem = htmlProductItem
+        };
+        return Ok(model);
+    }
+
+    [HttpPost]
+    [Route("/seller/add-product")]
+    public IActionResult AddProduct(int categoryID = 0, int discountID = 0, int transportID = 0, string productName = "", int quantity = 0, string productDesc = "", string imageUrl = "", double price = 0) {
+        var sessionShopID = _accessor?.HttpContext?.Session.GetInt32("SellerShopID");
+        _productResponsitory.insertProduct(categoryID, discountID, transportID, productName, quantity, productDesc, imageUrl, price);
+        Status status = new Status {
+            StatusCode = 1,
+            Message = "Thêm sản phẩm thành công!"
+        };
+        List<Product> product = _productResponsitory.searchProductByKeyword(productName).ToList();
+        IEnumerable<Product> products = _shopResponsitory.getProductsByShopID(Convert.ToInt32(sessionShopID));
+        string htmlProductItem = "";
+        foreach (var item in products) {
+            htmlProductItem += $"    <div class='admin__product-item'>";
+            htmlProductItem += $"        <div class='admin__product-item-input'>";
+            htmlProductItem += $"            <input type='checkbox' class='admin__product-item-input-checkbox'>";
+            htmlProductItem += $"        </div>";
+            htmlProductItem += $"        <div class='admin__product-item-info'>";
+            htmlProductItem += $"           <div class='admin__product-item-img' style='background-image: url(/img/{item.sImageUrl});'></div>";
+            htmlProductItem += $"           <div class='admin__product-item-desc'>";
+            htmlProductItem += $"               <div class='admin__product-item-name'>{item.sProductName}";
+            htmlProductItem += $"                   <div class='cart__body-product-name-progress'>";
+            htmlProductItem += $"                       <div class='cart__body-product-name-progress-line'></div>";
+            htmlProductItem += $"                       <div class='cart__body-product-name-progress-line'></div>";
+            htmlProductItem += $"                   </div>";
+            htmlProductItem += $"               </div>";
+            htmlProductItem += $"               <img src='/img/voucher.png' class='admin__product-item-voucher' alt=''>";
+            htmlProductItem += $"           </div>";
+            htmlProductItem += $"       </div>";
+            htmlProductItem += $"       <div class='admin__product-item-type'>{item.sCategoryName}</div>";
+            htmlProductItem += $"       <div class='admin__product-item-cre-time'>{item.dCreateTime.ToString("dd/MM/yyyy")}</div>";
+            htmlProductItem += $"       <div class='admin__product-item-update-time'>{item.dUpdateTime.ToString("dd/MM/yyyy")}</div>";
+            htmlProductItem += $"       <div class='admin__product-item-qnt'>{item.iQuantity}</div>";
+            htmlProductItem += $"       <div class='admin__product-item-operation'>";
+            htmlProductItem += $"           <div class='admin-tool__more'>";
+            htmlProductItem += $"               <i class='uil uil-ellipsis-v admin-tool__more-icon'></i>";
+            htmlProductItem += $"               <div class='admin-tool__more-container'>";
+            htmlProductItem += $"                   <div class='admin-tool__more-item' onclick='openUpdateProduct({item.PK_iProductID})'>";
+            htmlProductItem += $"                       <i class='uil uil-pen admin-tool__more-item-icon'></i>";
+            htmlProductItem += $"                       <span>Chỉnh sửa</span>";
+            htmlProductItem += $"                   </div>";
+            htmlProductItem += $"                   <div class='admin-tool__more-item' onclick='openDeleteProduct({item.PK_iProductID})'>";
+            htmlProductItem += $"                       <i class='uil uil-trash admin-tool__more-item-icon'></i>";
+            htmlProductItem += $"                       <span>Xoá</span>";
+            htmlProductItem += $"                   </div>";
+            htmlProductItem += $"               </div>";
+            htmlProductItem += $"           </div>";
+            htmlProductItem += $"       </div>";
+            htmlProductItem += $"   </div>";
+        }
+        SellerViewModel model = new SellerViewModel {
+            Status = status,
+            Products = products,
+            HtmlProductItem = htmlProductItem,
+            NewCreatedProductID = product[0].PK_iProductID
+        };
+        return Ok(model);
+    }
+
+    [HttpPost]
+    [Route("/seller/delete-product")]
+    public IActionResult DeleteProduct(int productID = 0) {
+        Status status;
+        List<Product> checkProductInCart = _productResponsitory.checkProductInCart(productID).ToList();
+        List<Product> checkProductInOrder = _productResponsitory.checkProductInOrder(productID).ToList();
+        if (checkProductInCart.Count() != 0 || checkProductInOrder.Count() != 0) {
+            status = new Status {
+                StatusCode = -1,
+                Message = "Sản phẩm đang liên quan tới dữ liệu khác, không thể xoá!"
+            };
+        } else {
+            _productResponsitory.deleteProductByID(productID);
+            status = new Status {
+                StatusCode = 1,
+                Message = "Xoá sản phẩm thành công"
+            };
+        }
+        var sessionShopID = _accessor?.HttpContext?.Session.GetInt32("SellerShopID");
+        IEnumerable<Product> products = _shopResponsitory.getProductsByShopID(Convert.ToInt32(sessionShopID));
+        string htmlProductItem = "";
+        foreach (var item in products) {
+            htmlProductItem += $"    <div class='admin__product-item'>";
+            htmlProductItem += $"        <div class='admin__product-item-input'>";
+            htmlProductItem += $"            <input type='checkbox' class='admin__product-item-input-checkbox'>";
+            htmlProductItem += $"        </div>";
+            htmlProductItem += $"        <div class='admin__product-item-info'>";
+            htmlProductItem += $"           <div class='admin__product-item-img' style='background-image: url(/img/{item.sImageUrl});'></div>";
+            htmlProductItem += $"           <div class='admin__product-item-desc'>";
+            htmlProductItem += $"               <div class='admin__product-item-name'>{item.sProductName}";
+            htmlProductItem += $"                   <div class='cart__body-product-name-progress'>";
+            htmlProductItem += $"                       <div class='cart__body-product-name-progress-line'></div>";
+            htmlProductItem += $"                       <div class='cart__body-product-name-progress-line'></div>";
+            htmlProductItem += $"                   </div>";
+            htmlProductItem += $"               </div>";
+            htmlProductItem += $"               <img src='/img/voucher.png' class='admin__product-item-voucher' alt=''>";
+            htmlProductItem += $"           </div>";
+            htmlProductItem += $"       </div>";
+            htmlProductItem += $"       <div class='admin__product-item-type'>{item.sCategoryName}</div>";
+            htmlProductItem += $"       <div class='admin__product-item-cre-time'>{item.dCreateTime.ToString("dd/MM/yyyy")}</div>";
+            htmlProductItem += $"       <div class='admin__product-item-update-time'>{item.dUpdateTime.ToString("dd/MM/yyyy")}</div>";
+            htmlProductItem += $"       <div class='admin__product-item-qnt'>{item.iQuantity}</div>";
+            htmlProductItem += $"       <div class='admin__product-item-operation'>";
+            htmlProductItem += $"           <div class='admin-tool__more'>";
+            htmlProductItem += $"               <i class='uil uil-ellipsis-v admin-tool__more-icon'></i>";
+            htmlProductItem += $"               <div class='admin-tool__more-container'>";
+            htmlProductItem += $"                   <div class='admin-tool__more-item' onclick='openUpdateProduct({item.PK_iProductID})'>";
+            htmlProductItem += $"                       <i class='uil uil-pen admin-tool__more-item-icon'></i>";
+            htmlProductItem += $"                       <span>Chỉnh sửa</span>";
+            htmlProductItem += $"                   </div>";
+            htmlProductItem += $"                   <div class='admin-tool__more-item' onclick='openDeleteProduct({item.PK_iProductID})'>";
+            htmlProductItem += $"                       <i class='uil uil-trash admin-tool__more-item-icon'></i>";
+            htmlProductItem += $"                       <span>Xoá</span>";
+            htmlProductItem += $"                   </div>";
+            htmlProductItem += $"               </div>";
+            htmlProductItem += $"           </div>";
+            htmlProductItem += $"       </div>";
+            htmlProductItem += $"   </div>";
+        }
+        SellerViewModel model = new SellerViewModel {
+            Status = status,
+            Products = products,
+            HtmlProductItem = htmlProductItem
         };
         return Ok(model);
     }
@@ -127,12 +390,32 @@ public class SellerController : Controller
     public IActionResult Login(string phone = "", string password = "") {
         password = _userResponsitory.encrypt(password);
         List<Seller> sellerLogin = _sellerResponsitory.loginAccount(phone, password).ToList();
+        List<SellerInfo> sellerInfos = _sellerResponsitory.getSellerInfoByPhone(phone).ToList();
         Status status;
         if (sellerLogin.Count() == 0) {
             status = new Status {
                 StatusCode = -1,
                 Message = "Tên đăng nhập hoặc mật khẩu không chính xác!"
             };
+        } else if (sellerInfos.Count() == 0) {
+            status = new Status {
+                StatusCode = -2,
+                Message = "Tài khoản người bán chưa đầy đủ thông tin!"
+            };
+            string sellerUsername = sellerLogin[0].sSellerUsername;
+            string value = sellerLogin[0].PK_iSellerID.ToString();
+            // Tạo cookies cho tài khoản người bán
+            CookieOptions options = new CookieOptions
+            {
+                Expires = DateTime.Now.AddDays(1),
+                Secure = true,
+                HttpOnly = true,
+                SameSite = SameSiteMode.None,
+                Path = "/",
+                IsEssential = true
+            };
+            Response.Cookies.Append("SellerID", value, options);
+            _accessor?.HttpContext?.Session.SetString("SellerUsername", sellerUsername);
         } else {
             status = new Status {
                 StatusCode = 1,
@@ -163,6 +446,88 @@ public class SellerController : Controller
     [Route("/seller/register")]
     public IActionResult Register() {
         return View();
+    }
+
+    [HttpPost]
+    [Route("/seller/register")]
+    public IActionResult Register(string phone = "", string username = "", string password = "") {
+        // phone = "0" + phone;
+        Status status;
+        if (_sellerResponsitory.registerAccountSeller(phone, username, _userResponsitory.encrypt(password))) {
+            status = new Status {
+                StatusCode = 1,
+                Message = "Đăng ký tài khoản người bán thành công!"
+            };
+        } else {
+            status = new Status {
+                StatusCode = -1,
+                Message = "Đăng ký tài khoản người bán thất bại!"
+            };
+        }
+        List<Seller> sellers = _sellerResponsitory.getPasswordSellerAccountByPhone(phone).ToList();
+        string value = sellers[0].PK_iSellerID.ToString();
+        // Tạo cookies cho tài khoản người bán
+        CookieOptions options = new CookieOptions
+        {
+            Expires = DateTime.Now.AddDays(1),
+            Secure = true,
+            HttpOnly = true,
+            SameSite = SameSiteMode.None,
+            Path = "/",
+            IsEssential = true
+        };
+        Response.Cookies.Append("SellerID", value, options);
+        SellerViewModel model = new SellerViewModel {
+            Status = status
+        };
+        return Ok(model);
+    }
+
+    [HttpPost]
+    [Route("/seller/check-phone-regis")]
+    public IActionResult PhoneRegis(string phone) {
+        List<Seller> sellers = _sellerResponsitory.getPasswordSellerAccountByPhone(phone).ToList();
+        Status status;
+        if (sellers.Count() != 0) {
+            status = new Status {
+                StatusCode = 0,
+                Message = "Số điện thoại này đã được đăng ký!"
+            };
+        } else {
+            status = new Status {
+                StatusCode = 1,
+                Message = "Số điện thoại này chưa được đăng ký!"
+            };
+        }
+        return Ok(status);
+    }
+
+    [HttpGet]
+    [Route("/seller/portal")]
+    public IActionResult Portal() {
+        // Lấy Cookie trên trình duyệt
+        var sellerID = Request.Cookies["SellerID"];
+        if (sellerID != null) {
+            _accessor?.HttpContext?.Session.SetInt32("SellerID", Convert.ToInt32(sellerID));
+        } else {
+            return Redirect("/seller/login");
+        }
+        var sessionSellerID = _accessor?.HttpContext?.Session.GetInt32("SellerID");
+        List<Seller> seller = _sellerResponsitory.getSellerAccountByID(Convert.ToInt32(sessionSellerID)).ToList();
+        _accessor?.HttpContext?.Session.SetString("SellerUsername", seller[0].sSellerUsername);
+        return View();
+    }
+
+    [HttpPost]
+    [Route("/seller/portal-api")]
+    public IActionResult PortalAPI() {
+        var sessionSellerID = _accessor?.HttpContext?.Session.GetInt32("SellerID");
+        var sessionSellerUsername = _accessor?.HttpContext?.Session.GetString("SellerUsername");
+        SellerViewModel model = new SellerViewModel {
+            SellerID = Convert.ToInt32(sessionSellerID),
+            SellerUsername = sessionSellerUsername
+        };
+        return Ok(model);
     }
 
     [HttpGet]
@@ -261,17 +626,24 @@ public class SellerController : Controller
     [HttpPost]
     [Route("/seller/confirm-shipping-order")]
     public IActionResult ShippingOrder(int orderID = 0, int userID = 0) {
-        _shippingOrderRepository.insertShippingOrder(1, orderID);
-        // Cập nhật đơn hàng về trạng thái chờ giao hàng
-        _orderResponsitory.confirmOrderAboutWaitDelivery(orderID, userID);
+        Status status;
+        // Cập nhật đơn hàng về trạng thái đang vận chuyển
+        if (_shippingOrderRepository.insertShippingOrder(1, orderID) && _orderResponsitory.confirmOrderAboutTransiting(orderID, userID)) {
+            status = new Status
+            {
+                StatusCode = 1,
+                Message = "Phiếu đã được tạo thành công!"
+            };
+        } else {
+            status = new Status
+            {
+                StatusCode = 1,
+                Message = "Phiếu đã được tạo thành công!"
+            };
+        }
         // Lấy đơn hàng giao vừa được thêm
         List<ShippingOrder> shippingOrder = _shippingOrderRepository.getShippingOrderByOrderID(orderID).ToList();
         _accessor?.HttpContext?.Session.SetInt32("CurrentShippingOrderID", shippingOrder[0].PK_iShippingOrderID);
-        
-        Status status = new Status {
-            StatusCode = 1,
-            Message = "Phiếu đã được tạo thành công!"
-        };
         return Ok(status);
     }
 
@@ -297,7 +669,7 @@ public class SellerController : Controller
         var sessionShippingOrderID = _accessor?.HttpContext?.Session.GetInt32("CurrentShippingOrderID");
         var sessionSellerID = _accessor?.HttpContext?.Session.GetInt32("SellerID");
         IEnumerable<SellerInfo> sellerInfos = _sellerResponsitory.getSellerInfoBySellerID(Convert.ToInt32(sessionSellerID));
-        List<ShippingOrder> shippingOrders = _shippingOrderRepository.getShippingOrderByID(1).ToList();
+        List<ShippingOrder> shippingOrders = _shippingOrderRepository.getShippingOrderByID(Convert.ToInt32(sessionShippingOrderID)).ToList();
         IEnumerable<Order> ordersWaitDelivery = _orderResponsitory.getOrderWaitDeliveryByOrderID(shippingOrders[0].FK_iOrderID);
         IEnumerable<OrderDetail> orderDetailsWaitDelivery = _orderResponsitory.getOrderDetailWaitDeliveyByOrderID(shippingOrders[0].FK_iOrderID);
         IEnumerable<Address> deliveryAddresses = _checkoutResponsitory.getAddressAccountByOrderID(shippingOrders[0].FK_iOrderID);

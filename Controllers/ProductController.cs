@@ -82,9 +82,12 @@ public class ProductController : Controller {
     [HttpPost]
     [Route("/product/get-data-detail")]
     public IActionResult GetDetail() {
+        var sessionUserID = _accessor?.HttpContext?.Session.GetInt32("UserID");
         var sessionCurrentProductID = _accessor?.HttpContext?.Session.GetInt32("CurrentProductID");
         var product = _productResponsitory.getProductByID(Convert.ToInt32(sessionCurrentProductID));
         List<Store> store = _shopResponsitory.getShopByProductID(Convert.ToInt32(sessionCurrentProductID)).ToList();
+        IEnumerable<UserInfo> userInfos = _userResponsitory.checkUserInfoByUserID(Convert.ToInt32(sessionUserID));
+        IEnumerable<Reviewer> reviewers = _productResponsitory.getReviewerByProductID(Convert.ToInt32(sessionCurrentProductID));
         Store storeDetail = new Store {
             PK_iStoreID = store[0].PK_iStoreID,
             sStoreName = store[0].sStoreName,
@@ -95,7 +98,9 @@ public class ProductController : Controller {
         };
         ProductViewModel model = new ProductViewModel {
             Products = product,
-            Store = storeDetail
+            Store = storeDetail,
+            UserInfos = userInfos,
+            Reviewers = reviewers
         };
         return Ok(model);
     }
@@ -167,6 +172,28 @@ public class ProductController : Controller {
             TotalPage = totalPage,
             PageSize = pageSize,
             CurrentPage = currentPage
+        };
+        return Ok(model);
+    }
+
+    [HttpPost]
+    [Route("/product/reviewer")]
+    public IActionResult Reviewer(int productID = 0, string comment = "", int star = 0, string image = "") {
+        var sessionUserID = _accessor?.HttpContext?.Session.GetInt32("UserID");
+        Status status;
+        if (_productResponsitory.insertProductReviewer(Convert.ToInt32(sessionUserID), productID, star, comment, image)) {
+            status = new Status {
+                StatusCode = 1,
+                Message = "Thêm đánh giá thành công!"
+            };
+        } else {
+            status = new Status {
+                StatusCode = -1,
+                Message = "Thêm đánh giá thất bại!"
+            };
+        }
+        ProductViewModel model = new ProductViewModel {
+            Status = status
         };
         return Ok(model);
     }

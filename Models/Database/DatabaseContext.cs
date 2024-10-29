@@ -1,6 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Project.Models.Domain;
 
 namespace Project.Models
 {
@@ -16,8 +17,12 @@ namespace Project.Models
         public DbSet<SliderShop> SliderShops { get; set; }
         public DbSet<ParentCategory> ParentCategories { get; set; }
         public DbSet<Category> Categories { get; set; }
+        public DbSet<CategoryModel> CategoryModels { get; set; }
+        public DbSet<Discount> Discounts { get; set; }
+        public DbSet<TransportPrice> TransportPrices { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Favorite> Favorites { get; set; }
+        public DbSet<Reviewer> Reviewers { get; set; }
         public DbSet<Cart> Carts { get; set; }
         public DbSet<CartDetail> CartDetails { get; set; }
         public DbSet<Payment> PaymentTypes { get; set; }
@@ -28,6 +33,8 @@ namespace Project.Models
         public DbSet<District> Districts { get; set; }
         public DbSet<AddressChoose> AddressChooses { get; set; }
         public DbSet<ShippingOrder> ShippingOrders { get; set; }
+        public DbSet<ShippingPicker> ShippingPickers { get; set; }
+        public DbSet<ShippingDelivery> ShippingDeliveries { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -63,12 +70,29 @@ namespace Project.Models
                 entity.HasKey(e => e.PK_iCategoryID);
             });
 
+            modelBuilder.Entity<CategoryModel>(entity => {
+                entity.HasKey(e => e.PK_iCategoryID);
+            });
+
+            modelBuilder.Entity<Discount>(entity =>
+            {
+                entity.HasKey(e => e.PK_iDiscountID);
+            });
+
+            modelBuilder.Entity<TransportPrice>(entity => {
+                entity.HasKey(e => e.PK_iTransportID);
+            });
+
             modelBuilder.Entity<Product>(entity => {
                 entity.HasKey(e => e.PK_iProductID);
             });
 
             modelBuilder.Entity<Favorite>(entity => {
                 entity.HasKey(e => e.PK_iFavoriteID);
+            });
+
+            modelBuilder.Entity<Reviewer>(entity => {
+                entity.HasKey(e => e.PK_iReviewID);
             });
 
             modelBuilder.Entity<User>(entity => {
@@ -113,6 +137,14 @@ namespace Project.Models
 
             modelBuilder.Entity<ShippingOrder>(entity => {
                 entity.HasKey(e => e.PK_iShippingOrderID);
+            });
+
+            modelBuilder.Entity<ShippingPicker>(entity => {
+                entity.HasKey(e => e.PK_iShippingPickerID);
+            });
+
+            modelBuilder.Entity<ShippingDelivery>(entity => {
+                entity.HasKey(e => e.PK_iShippingDeliveryID);
             });
         }
     }

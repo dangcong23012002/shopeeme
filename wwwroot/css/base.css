@@ -152,7 +152,7 @@ input, textarea, button {
 .modal__confirm-btns {
     margin-top: 30px;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     column-gap: 10px;
 }
 
@@ -934,6 +934,7 @@ i.home-product-item__like-icon-empty {
 .comment__more {
     position: relative;
     grid-area: more;
+    text-align: right;
 }
 
 .comment__more::before {
@@ -985,7 +986,7 @@ i.home-product-item__like-icon-empty {
 .comment__controls {
     grid-area: controls;
     display: flex;
-    justify-content: flex-end;
+    justify-content: flex-start;
     align-self: center;
 }
 
@@ -1153,8 +1154,32 @@ i.home-product-item__like-icon-empty {
     display: block;
 }
 
+.comment__reviewer-stars {
+    font-size: 20px;
+    color: var(--second-color);
+}
+
+.comment__rate-time {
+    font-size: 12px;
+    color: rgba(0, 0, 0, .54);
+    margin: 4px 0 14px;
+}
+
+.comment__reviewer-img {
+    width: 100px;
+    height: 100px;
+    border-radius: 4px;
+    margin-top: 12px;
+}
+
 .comment__reply-to {
     color: #256eff;
+}
+
+.comment__no-list {
+    text-align: center;
+    font-size: 16px;
+    color: rgba(0, 0, 0, .54);
 }
 
 /*Pagination*/

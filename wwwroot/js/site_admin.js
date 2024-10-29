@@ -69,12 +69,12 @@ function setSidebar(data) {
                                 <div class="admin__aside-sidebar-colappse-item">
                                     <div class="admin__aside-sidebar-symb">
                                     </div>
-                                    <a href="javascript:showAll(event)" class="admin__aside-sidebar-sub">Tất cả</a>
+                                    <div class="admin__aside-sidebar-sub admin__sidebar-all">Tất cả</div>
                                 </div>
                                 <div class="admin__aside-sidebar-colappse-item">
                                     <div class="admin__aside-sidebar-symb">
                                     </div>
-                                    <div class="admin__aside-sidebar-sub">Giao hàng loạt</div>
+                                    <div class="admin__aside-sidebar-sub admin__sidebar-bulk-delivery">Giao hàng loạt</div>
                                 </div>
                                 <div class="admin__aside-sidebar-colappse-item">
                                     <div class="admin__aside-sidebar-symb">
@@ -225,9 +225,22 @@ function setSidebar(data) {
     `;
     document.querySelector(".admin__aside").innerHTML = htmlSidebar;
 
+    document.querySelector(".admin__sidebar-all").addEventListener('click', () => {
+        showAll(data);
+    });
+
+    document.querySelector(".admin__sidebar-bulk-delivery").addEventListener('click', () => {
+        showBulkDelivery(data);
+    });
+
     document.querySelector(".admin__aside-sidebar-sub-account-all").addEventListener('click', () => {
         showAccountAll(data);
     });
+}
+
+// Show Bulk delivery
+function showBulkDelivery(data) {
+    noticeIncompleteFunc();
 }
 
 function showAccountAll(data) {
@@ -282,6 +295,35 @@ function showAccountTool(event) {
     parentElement.querySelector(".admin-account__more-container").classList.toggle("show");
 }
 
+// Notice Incomplete Function
+function noticeIncompleteFunc() {
+    openModal();
+    document.querySelector(".modal__body").innerHTML = 
+            `
+                <div class="modal__confirm">
+                    <div class="modal__confirm-header">
+                        <div class="modal__confirm-title">Thông báo</div>
+                    </div>
+                    <div class="modal__confirm-desc">
+                        Chức năng này chưa được hoàn thiện!
+                    </div>
+                    <div class="modal__confirm-btns">
+                        <div class="modal__confirm-btn-destroy" onclick="closeModal()">Huỷ</div>
+                        <div class="modal__confirm-btn-send"onclick="closeModal()">Đồng ý</div>
+                    </div>
+                </div>
+            `;
+}
+
+// Modal
+function openModal() {
+    document.querySelector(".modal").classList.add("open");
+}
+
+function closeModal() {
+    document.querySelector(".modal").classList.remove("open");
+}
+
 // Tách lấy chữ số
 // Nguồn: http://vncoding.net/2015/10/30/tach-cac-chu-so-thuoc-hang-tram-hang-chuc-hang-don-vi/
 function money(number) {
@@ -305,4 +347,18 @@ function money(number) {
         result = `${millions}.${hundred_thousand}${tens_of_thousands}${thousand}.${hundreds}${tens}${unit}`;
     }
     return result;
+}
+
+function money_2(number) {
+    const formattedAmount = new Intl.NumberFormat('vi-VI', {
+        style: 'currency',
+        currency: 'VND',
+    }).format(number);
+    return formattedAmount;
+}
+
+// Format Date
+function formatDate(date) {
+    const dateFormat = new Date(date);
+    return dateFormat.toLocaleDateString('en-GB'); // 24/04/2023
 }

@@ -234,11 +234,19 @@ public class UserController : Controller {
         if (userID != null)
         {
             _accessor?.HttpContext?.Session.SetInt32("UserID", Convert.ToInt32(userID));
+        } else {
+            return Redirect("/user/login");
         }
         var sessionUserID = _accessor?.HttpContext?.Session.GetInt32("UserID");
-        if (sessionUserID == null)
+        if (sessionUserID != null)
         {
-            _accessor?.HttpContext?.Session.SetInt32("UserID", 0);
+            List<User> users = _userResponsitory.checkUserLogin(Convert.ToInt32(sessionUserID)).ToList();
+            _accessor?.HttpContext?.Session.SetString("UserName", users[0].sUserName);
+            _accessor?.HttpContext?.Session.SetInt32("RoleID", users[0].FK_iRoleID);
+        }
+        else
+        {
+            _accessor?.HttpContext?.Session.SetString("UserName", "");
         }
         return View();
     }
@@ -250,10 +258,22 @@ public class UserController : Controller {
         IEnumerable<OrderDetail> orderDetails = _orderResponsitory.getProductsOrderByUserID(Convert.ToInt32(sessionUserID));
         IEnumerable<Order> ordersWaitSettlement = _orderResponsitory.getOrdersByUserIDWaitSettlement(Convert.ToInt32(sessionUserID));
         IEnumerable<OrderDetail> orderDetailsWaitSettlement = _orderResponsitory.getProductsOrderByUserIDWaitSettlement(Convert.ToInt32(sessionUserID));
+        IEnumerable<Order> ordersTransiting = _orderResponsitory.getOrderByUserIDTransiting(Convert.ToInt32(sessionUserID));
+        IEnumerable<OrderDetail> orderDetailsTransiting = _orderResponsitory.getProductsOrderByUserIDTransiting(Convert.ToInt32(sessionUserID));
+        IEnumerable<Order> ordersDelivering = _orderResponsitory.getOrderByUserIDWaitDelivery(Convert.ToInt32(sessionUserID));
+        IEnumerable<OrderDetail> orderDetailsDelivering = _orderResponsitory.getProductsOrderByUserIDDelivering(Convert.ToInt32(sessionUserID));
+        IEnumerable<Order> ordersDelivered = _orderResponsitory.getOrderByUserIDDeliverd(Convert.ToInt32(sessionUserID));
+        IEnumerable<OrderDetail> orderDetailsDelivered = _orderResponsitory.getProductsOrderByUserIDDelivered(Convert.ToInt32(sessionUserID));
         OrderViewModel model = new OrderViewModel {
             OrderDetails = orderDetails,
             OrdersWaitSettlement = ordersWaitSettlement,
-            OrderDetailsWaitSettlement = orderDetailsWaitSettlement
+            OrderDetailsWaitSettlement = orderDetailsWaitSettlement,
+            OrdersTransiting = ordersTransiting,
+            OrderDetailsTransiting = orderDetailsTransiting,
+            OrdersDelivering = ordersDelivering,
+            OrderDetailsDelivering = orderDetailsDelivering,
+            OrdersDelivered = ordersDelivered,
+            OrderDetailsDelivered = orderDetailsDelivered
         };
         return Ok(model);
     }
