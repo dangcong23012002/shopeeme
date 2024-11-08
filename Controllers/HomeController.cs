@@ -14,8 +14,19 @@ namespace Project.Controllers
         private readonly IHomeResponsitory _homeResponsitory;
         private readonly ICartReponsitory _cartResponsitory;
         private readonly IUserResponsitory _userResponsitory;
+        private readonly ICategoryResponsitory _categoryResponsitory;
+        private readonly IChatRepository _chatRepository;
 
-        public HomeController(ILogger<HomeController> logger, DatabaseContext context, IHttpContextAccessor accessor, IHomeResponsitory homeResponsitory, ICartReponsitory cartReponsitory, IUserResponsitory userResponsitory)
+        public HomeController(
+            ILogger<HomeController> logger, 
+            DatabaseContext context, 
+            IHttpContextAccessor accessor, 
+            IHomeResponsitory homeResponsitory, 
+            ICartReponsitory cartReponsitory, 
+            IUserResponsitory userResponsitory,
+            ICategoryResponsitory categoryResponsitory,
+            IChatRepository chatRepository
+        )
         {
             _logger = logger;
             _context = context;
@@ -23,6 +34,8 @@ namespace Project.Controllers
             _homeResponsitory = homeResponsitory;
             _cartResponsitory = cartReponsitory;
             _userResponsitory = userResponsitory;
+            _categoryResponsitory = categoryResponsitory;
+            _chatRepository = chatRepository;
         }
 
         /// <summary>
@@ -81,6 +94,7 @@ namespace Project.Controllers
             IEnumerable<Favorite> favorites = _homeResponsitory.getFavorites(Convert.ToInt32(sessionUserID));
             IEnumerable<CartDetail> cartDetails = _cartResponsitory.getCartInfo(Convert.ToInt32(sessionUserID)).ToList();
             IEnumerable<CartDetail> carts = _cartResponsitory.getCartInfo(Convert.ToInt32(sessionUserID));
+            IEnumerable<Chat> chats = _chatRepository.getChatByUserID(Convert.ToInt32(sessionUserID));
             int cartCount = carts.Count();
             ShopeeViewModel model = new ShopeeViewModel {
                 Stores = stores,
@@ -95,15 +109,22 @@ namespace Project.Controllers
                 RoleID = Convert.ToInt32(sessionRoleID),
                 UserID = Convert.ToInt32(sessionUserID),
                 Username = sessionUsername,
-                CartCount = cartCount
+                CartCount = cartCount,
+                Chats = chats
             };
             return Ok(model);
         }
 
         [HttpPost]
+        [Route("/home/search")]
         public IActionResult Search(string keyword = "") {
-            IEnumerable<Category> products = _homeResponsitory.searchProductsByKeyword(keyword).ToList();
-            return Ok(products);
+            IEnumerable<ParentCategory> parentCategories = _categoryResponsitory.searchParentCategoriesByKeyword(keyword);
+            IEnumerable<Category> categories = _categoryResponsitory.searchCategoriesByKeyword(keyword).ToList();
+            ShopeeViewModel model = new ShopeeViewModel {
+                ParentCategories = parentCategories,
+                Categories = categories
+            };
+            return Ok(model);
         }
 
         public IActionResult Privacy()

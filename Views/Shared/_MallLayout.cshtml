@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="sortcut icon" href="~/img/shopee_logo.png">
+    <link rel="sortcut icon" href="~/img/sme_icon_primary.png">
     <link rel="stylesheet" href="~/css/base.css">
     <link rel="stylesheet" href="~/css/grid.css">
     <link rel="stylesheet" href="~/css/responsive.css">
@@ -12,7 +12,7 @@
     <!--=============== ICONSCOUT ===============-->
     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" />
     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/solid.css" />
-    <title>ShopeeMe - Shop Mall</title>
+    <title>SMe - Shop Mall</title>
 </head>
 <body>
     <div class="app">
@@ -26,7 +26,7 @@
                         <li class="header__navbar-item header__navbar-item--separate">
                             <a class="header__navbar-item-link" href="/seller/login">Kênh vận chuyển</a>
                         </li>
-                        <li class="header__navbar-item header__navbar-item--has-qr header__navbar-item--separate">Ứng dụng ShopeeMe
+                        <li class="header__navbar-item header__navbar-item--has-qr header__navbar-item--separate">Ứng dụng SMe
                             <div class="header__qr">
                                 <img src="~/img/qr_code.png" alt="" class="header__qr-img">
                                 <div class="header__qr-apps">
@@ -121,9 +121,9 @@
                 <div class="header-with-search">
                     <div class="header__logo hide-on-mobile">
                         <a href="/" class="header__logo-link">
-                            <img class="header__logo-img" src="~/img/shopee_logo_second_white.png" alt="">
+                            <img class="header__logo-img" src="~/img/sme_second_icon_white.png" alt="">
                         </a>
-                        <div class="header__logo-text">Shop Mall</div>
+                        <div class="header__logo-text">SMe Mall</div>
                     </div>
 
                     <div class="header__mobile-back hide-on-destop">
@@ -134,7 +134,7 @@
     
                     <div class="header__search">
                         <div class="header__search-input-wrap">
-                            <input type="text" class="header__search-input" onkeyup="searchProducts(this)"
+                            <input type="text" class="header__search-input"
                                 placeholder="Tìm kiếm trong Shop này">
     
                             <!--Search history-->
@@ -164,7 +164,7 @@
                                 </li>
                             </ul>
                         </div>
-                        <button class="header__search-btn hide-on-mobile">
+                        <button class="header__search-btn hide-on-mobile" onclick="searchProducts()">
                             <i class="header__search-btn-icon uil uil-search"></i>
                         </button>
                     </div>
@@ -274,7 +274,7 @@
                         </ul>
                     </div>
                     <div class="col l-2-4 c-12 m-4">
-                        <h3 class="footer__heading">Vào cửa hàng Shopee</h3>
+                        <h3 class="footer__heading">Vào cửa hàng SMe</h3>
                         <div class="footer__download">
                             <img src="~/img/qr_code.png" alt="" class="footer__download-qr">
                             <div class="footer__download-apps">
@@ -290,11 +290,22 @@
                 </div>
                 <div class="footer__bottom">
                     <div class="grid wide">
-                        <p class="footer__text">2022 - Bản quyền thuộc về ShopeeMe (Đồ án tốt nghiệp)</p>
+                        <p class="footer__text">Đồ án tốt nghiệp - Chuyên ngành Công nghệ phần mềm - Đặng Văn Công</p>
                     </div>
                 </div>
             </div>
         </footer>
+    </div>
+    <div class="modal">
+        <div class="modal__overlay">
+
+        </div>
+        <div class="modal__body">
+            
+        </div>
+    </div>
+    <div class="" id="toast">
+        
     </div>
 </body>
 <script src="~/js/site_shop.js"></script>

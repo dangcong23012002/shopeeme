@@ -12,7 +12,7 @@ public class SellerViewModel
     public IEnumerable<Order> OrdersWaitSettlement { get; set; }
     public IEnumerable<Order> OrdersWaitPickup { get; set; }
     public IEnumerable<Order> OrdersWaitDelivery { get; set; }
-    public IEnumerable<Order> OrdersProcessed { get; set; }
+    public IEnumerable<ShippingOrder> OrdersProcessed { get; set; }
     public IEnumerable<OrderDetail> OrderDetailsWaitDelivery { get; set; }
     public IEnumerable<SellerInfo> SellerInfos { get; set; }
     public IEnumerable<ShippingOrder> ShippingOrders { get; set; }
@@ -21,5 +21,7 @@ public class SellerViewModel
     public IEnumerable<Discount> Discounts { get; set; }
     public IEnumerable<TransportPrice> TransportPrices { get; set; }
     public IEnumerable<Product> Products { get; set; }
+    public IEnumerable<MakeFriend> MakeFriends { get; set; }
+    public IEnumerable<Chat> Chats { get; set; }
     public int NewCreatedProductID { get; set; }
 }

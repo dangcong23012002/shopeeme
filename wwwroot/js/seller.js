@@ -15,7 +15,8 @@ function getAPISeller() {
 getAPISeller();
 
 function showAll(data) {
-    document.querySelector(".admin__container").innerHTML = 
+    let htmlAll = "";
+    htmlAll += 
     `
                     <div class="admin__main">
                         <div class="admin__main-container">
@@ -171,123 +172,37 @@ function showAll(data) {
                                         </div>
                                     </div>
                                 </div>
-                                <div class="admin__main-recent-orders">
-                                    <div class="admin__main-recent-orders-title">Đơn hàng gần đây</div>
-                                    <div class="admin__order-header">
-                                        <ul class="admin__order-header-list">
-                                            <li class="admin__order-header-item active">
-                                                Tất cả
-                                            </li>
-                                            <li class="admin__order-header-item">
-                                                Chờ thanh toán
-                                            </li>
-                                            <li class="admin__order-header-item">
-                                                Vận chuyển (1)
-                                            </li>
-                                            <li class="admin__order-header-item">
-                                                Chờ giao hàng
-                                            </li>
-                                            <li class="admin__order-header-item">
-                                                Hoàn thành
-                                            </li>
-                                            <li class="admin__order-header-item">
-                                                Đã huỷ
-                                            </li>
-                                            <li class="admin__order-header-item">
-                                                Trả hàng/hoàn tiền
-                                            </li>
-                                        </ul>
-                                    </div>
-                                    <div class="admin__order-container">
-                                        <div class="admin__order-table">
-                                            <div class="admin__order-table-header">
-                                                <div class="admin__order-table-header-row">
-                                                    <div class="admin__order-table-header-col">Mã đơn hàng</div>
-                                                    <div class="admin__order-table-header-col">Sản phẩm</div>
-                                                    <div class="admin__order-table-header-col">Thanh toán</div>
-                                                    <div class="admin__order-table-header-col">Trạng thái</div>
-                                                    <div class="admin__order-table-header-col"></div>
-                                                </div>
-                                            </div>
-                                            <div class="admin__order-table-body">
-                                                <div class="admin__order-table-body-row">
-                                                    <div class="admin__order-table-body-col">DH123</div>
-                                                    <div class="admin__order-table-body-col">3</div>
-                                                    <div class="admin__order-table-body-col">500.000 đ</div>
-                                                    <div class="admin__order-table-body-col warning">Chờ xác nhận</div>
-                                                    <div class="admin__order-table-body-col primary">
-                                                        <a href="#" class="admin__order-table-body-col-link">Chi tiết</a>
-                                                    </div>
-                                                </div>
-                                                <div class="admin__order-table-body-row">
-                                                    <div class="admin__order-table-body-col">DH435</div>
-                                                    <div class="admin__order-table-body-col">3</div>
-                                                    <div class="admin__order-table-body-col">500.000 đ</div>
-                                                    <div class="admin__order-table-body-col primary">Đã thanh toán</div>
-                                                    <div class="admin__order-table-body-col primary">
-                                                        <a href="#" class="admin__order-table-body-col-link">Chi tiết</a>
-                                                    </div>
-                                                </div>
-                                                <div class="admin__order-table-body-row">
-                                                    <div class="admin__order-table-body-col">DH432</div>
-                                                    <div class="admin__order-table-body-col">3</div>
-                                                    <div class="admin__order-table-body-col">500.000 đ</div>
-                                                    <div class="admin__order-table-body-col success">Đã giao hàng</div>
-                                                    <div class="admin__order-table-body-col primary">
-                                                        <a href="#" class="admin__order-table-body-col-link">Chi tiết</a>
-                                                    </div>
-                                                </div>
-                                                <div class="admin__order-table-body-row">
-                                                    <div class="admin__order-table-body-col">DH987</div>
-                                                    <div class="admin__order-table-body-col">3</div>
-                                                    <div class="admin__order-table-body-col">500.000 đ</div>
-                                                    <div class="admin__order-table-body-col danger">Khách hàng huỷ</div>
-                                                    <div class="admin__order-table-body-col primary">
-                                                        <a href="#" class="admin__order-table-body-col-link">Chi tiết</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <a href="#" class="admin__order-more">Xem tất cả</a>
-                                </div>
                             </div>
-                            <div class="admin__right">
+                            <div class="admin__right">`;
+                            if (data.makeFriends.length != 0) {
+                                htmlAll += 
+                                `
                                 <div class="admin__right-recent-updates">
                                     <div class="admin__right-recent-updates-title">Cập nhật gần đây</div>
                                     <div class="admin__right-recent-updates-container">
-                                        <div class="admin__right-recent-updates-list">
-                                            <div class="admin__right-recent-updates-item">
+                                        <div class="admin__right-recent-updates-list">`;
+                                        data.makeFriends.forEach(element => {
+                                            htmlAll += 
+                                            `
+                                            <div class="admin__right-recent-updates-item" onclick="openAceptFriendModal(${element.pK_iMakeFriendID}, ${element.fK_iSellerID}, '${element.sUserName}', '${element.sImageProfile}')">
                                                 <div class="admin__right-recent-updates-item-profile-photo">
-                                                    <img src="/img/profile_avatar.jpg" alt="" class="admin__right-recent-updates-item-profile-photo-img">
+                                                    <img src="/img/${element.sImageProfile}" alt="" class="admin__right-recent-updates-item-profile-photo-img">
                                                 </div>
                                                 <div class="admin__right-recent-updates-item-message">
-                                                    <p class="admin__right-recent-updates-item-message-text"><b class="admin__right-recent-updates-item-message-name">Công Đặng</b> nhận được đơn đặt hàng từ Fithou bằng công nghệ GPS </p>
+                                                    <p class="admin__right-recent-updates-item-message-text"><b class="admin__right-recent-updates-item-message-name">${element.sUserName}</b> đã gửi cho bạn lời mời kết bạn </p>
                                                     <small class="admin__right-recent-updates-item-message-time">2 tiếng trước</small>
                                                 </div>
                                             </div>
-                                            <div class="admin__right-recent-updates-item">
-                                                <div class="admin__right-recent-updates-item-profile-photo">
-                                                    <img src="/img/profile_avatar.jpg" alt="" class="admin__right-recent-updates-item-profile-photo-img">
-                                                </div>
-                                                <div class="admin__right-recent-updates-item-message">
-                                                    <p class="admin__right-recent-updates-item-message-text"><b class="admin__right-recent-updates-item-message-name">Công Đặng</b> nhận được đơn đặt hàng từ Fithou bằng công nghệ GPS </p>
-                                                    <small class="admin__right-recent-updates-item-message-time">2 tiếng trước</small>
-                                                </div>
-                                            </div>
-                                            <div class="admin__right-recent-updates-item">
-                                                <div class="admin__right-recent-updates-item-profile-photo">
-                                                    <img src="/img/profile_avatar.jpg" alt="" class="admin__right-recent-updates-item-profile-photo-img">
-                                                </div>
-                                                <div class="admin__right-recent-updates-item-message">
-                                                    <p class="admin__right-recent-updates-item-message-text"><b class="admin__right-recent-updates-item-message-name">Công Đặng</b> nhận được đơn đặt hàng từ Fithou bằng công nghệ GPS </p>
-                                                    <small class="admin__right-recent-updates-item-message-time">2 tiếng trước</small>
-                                                </div>
-                                            </div>
+                                            `;
+                                        });
+                                        htmlAll += `
                                         </div>
                                         <a href="#" class="admin__order-more">Xem tất cả</a>
                                     </div>
                                 </div>
+                                `;
+                            }
+                            htmlAll += `
                                 <div class="admin__right-sales-analytics">
                                     <div class="admin__right-sales-analytics-title">Phân tích bán hàng</div>
                                     <div class="admin__right-sales-analytics-container">
@@ -345,7 +260,7 @@ function showAll(data) {
                         </div>
                     </div>
     `;
-
+    document.querySelector(".admin__container").innerHTML = htmlAll;
     document.querySelector(".admin__main-to-do-list-item-wait-settlment").addEventListener('click', () => {
         showWaitingSettlment(data);
     });
@@ -357,6 +272,75 @@ function showAll(data) {
     document.querySelector(".admin__main-to-do-list-item-processed").addEventListener("click", () => {
         showProcessed(data);
     });
+}
+
+function openAceptFriendModal(makeFriendID, sellerID, username, image) {
+    console.log({makeFriendID, username, image});
+    openModal();
+    document.querySelector(".modal__body").innerHTML = 
+    `
+            <div class="modal__confirm">
+                <div class="modal__confirm-header">
+                    <div class="modal__confirm-title">Thông báo</div>
+                </div>
+                <div class="modal__confirm-desc">
+                    <div class="admin__right-recent-updates-item">
+                        <div class="admin__right-recent-updates-item-profile-photo">
+                            <img src="/img/${image}" alt="" class="admin__right-recent-updates-item-profile-photo-img">
+                        </div>
+                        <div class="admin__right-recent-updates-item-message">
+                            <p class="admin__right-recent-updates-item-message-text"><b class="admin__right-recent-updates-item-message-name">${username}</b> đã gửi cho bạn lời mời kết bạn </p>
+                            <small class="admin__right-recent-updates-item-message-time">2 tiếng trước</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal__confirm-btns">
+                    <div class="modal__confirm-btn-destroy" onclick="closeModal()">Từ chối</div>
+                    <div class="modal__confirm-btn-send"onclick="aceptFriend(${makeFriendID}, ${sellerID})">Chấp nhận kết bạn</div>
+                </div>
+            </div>
+    `;
+}
+
+function aceptFriend(makeFriendID, sellerID) {
+    document.querySelector(".modal__body").innerHTML =
+    `
+        <div class="spinner"></div>
+    `;
+    var formData = new FormData();
+    formData.append("makeFriendID", makeFriendID);
+    formData.append("sellerID", sellerID);
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('post', '/shop/acept-friend', true);
+    xhr.onreadystatechange = () => {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+            const data = JSON.parse(xhr.responseText);
+            
+            console.log(data);
+            
+            if (data.status.statusCode == 1) {
+                setTimeout(() => {
+                    closeModal();
+                    toast({ title: "Thông báo", msg: `${data.status.message}`, type: "success", duration: 5000 });
+                    document.querySelector(".modal__body").innerHTML = "";
+                    setTimeout(() => {
+                        getAPISeller();
+                    }, 1000)
+                }, 2000);
+            } else {
+                setTimeout(() => {
+                    closeModal();
+                    toast({ title: "Thông báo", msg: `${data.status.message}`, type: "err", duration: 5000 });
+                    document.querySelector(".modal__body").innerHTML = "";
+                    setTimeout(() => {
+                        getAPISeller();
+                    }, 1000)
+                }, 2000);
+            }
+        }
+    };
+    xhr.send(formData);
 }
 
 function showWaitingSettlment(data) {

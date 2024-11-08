@@ -15,6 +15,7 @@ namespace Project.Models
         public DbSet<SellerInfo> SellerInfos { get; set; }
         public DbSet<Store> Stores { get; set; }
         public DbSet<SliderShop> SliderShops { get; set; }
+        public DbSet<Industry> Industries { get; set; }
         public DbSet<ParentCategory> ParentCategories { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<CategoryModel> CategoryModels { get; set; }
@@ -35,6 +36,9 @@ namespace Project.Models
         public DbSet<ShippingOrder> ShippingOrders { get; set; }
         public DbSet<ShippingPicker> ShippingPickers { get; set; }
         public DbSet<ShippingDelivery> ShippingDeliveries { get; set; }
+        public DbSet<MakeFriend> MakeFriends { get; set; }
+        public DbSet<Chat> Chats { get; set; }
+        public DbSet<ChatDetail> ChatDetails { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -60,6 +64,10 @@ namespace Project.Models
 
             modelBuilder.Entity<SliderShop>(entity => {
                 entity.HasKey(e => e.PK_iSliderShopID);
+            });
+
+            modelBuilder.Entity<Industry>(entity => {
+                entity.HasKey(e => e.PK_iParentCategoryID);
             });
 
             modelBuilder.Entity<ParentCategory>(entity => {
@@ -145,6 +153,18 @@ namespace Project.Models
 
             modelBuilder.Entity<ShippingDelivery>(entity => {
                 entity.HasKey(e => e.PK_iShippingDeliveryID);
+            });
+
+            modelBuilder.Entity<MakeFriend>(entity => {
+                entity.HasKey(e => e.PK_iMakeFriendID);
+            });
+
+            modelBuilder.Entity<Chat>(entity => {
+                entity.HasKey(e => e.PK_iChatID);
+            });
+
+            modelBuilder.Entity<ChatDetail>(entity => {
+                entity.HasNoKey();
             });
         }
     }

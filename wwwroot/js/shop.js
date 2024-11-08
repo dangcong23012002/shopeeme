@@ -52,7 +52,7 @@ btnPrevSliderShop.addEventListener('click', () => {
     document.getElementById(index).classList.add("slider-shop-cirle-fill");
 });
 
-function getData() {
+function getAPIShop() {
     var xhr = new XMLHttpRequest();
     xhr.open('post', '/shop/get-data', true);
     xhr.onreadystatechange = () => {
@@ -66,16 +66,24 @@ function getData() {
 
             getShopTab(data);
 
+            setCategories(data);
+
             getProducts(data);
 
             getCategoriesTab(data);
 
             getPagination(data);
+
+            setDataMobile(data);
         }
     };
     xhr.send(null);
 }
-getData();
+getAPIShop();
+
+function setDataMobile(data) {
+    
+}
 
 function getShopInfo(data) {
     let htmlShopMobile = "";
@@ -137,15 +145,99 @@ function getShopInfo(data) {
                                 <div class="shop__header-store-btn">
                                     <i class="uil uil-plus shop__header-store-btn-icon"></i>
                                     <span>Theo dõi</span>
-                                </div>
+                                </div>`;
+                                if (data.makeFriends.length != 0 && data.makeFriends[0].iMakeStatusCode == 0) {
+                                htmlShopDestop += `
                                 <div class="shop__header-store-btn">
                                     <i class="uil uil-chat shop__header-store-btn-icon"></i>
+                                    <span>Đã gửi kết bạn</span>
+                                </div>`;
+                                } else {
+                                    htmlShopDestop += `
+                                <div class="shop__header-store-btn shop__header-store-btn-chat">
+                                    <i class="uil uil-chat shop__header-store-btn-icon"></i>
                                     <span>Chat</span>
-                                </div>
+                                </div>`;
+                                }
+                            htmlShopDestop += `    
                             </div>
                         </div>
     `;
     document.querySelector(".shop__header-detail").innerHTML = htmlShopDestop;
+
+    if (data.makeFriends.length == 0) {
+        document.querySelector(".shop__header-store-btn-chat").addEventListener("click", () => {
+            sendMakeFriendModal(data);
+        });
+    }
+}
+
+// Send Make Friend
+function sendMakeFriendModal(data) {
+    openModal();
+    document.querySelector(".modal__body").innerHTML = 
+            `
+                <div class="modal__confirm">
+                    <div class="modal__confirm-header">
+                        <div class="modal__confirm-title">Thông báo</div>
+                    </div>
+                    <div class="modal__confirm-desc">
+                        Bạn chưa kết bạn với shop này, gửi lời kết bạn tới <b>${data.stores[0].sStoreName}</b>?
+                    </div>
+                    <div class="modal__confirm-btns">
+                        <div class="modal__confirm-btn-destroy" onclick="closeModal()">Huỷ</div>
+                        <div class="modal__confirm-btn-send"onclick="sendMakeFriend(${data.stores[0].fK_iSellerID})">Đồng ý</div>
+                    </div>
+                </div>
+            `;
+}
+
+function sendMakeFriend(sellerID) {
+    document.querySelector(".modal__body").innerHTML = 
+            `
+                <div class="spinner"></div>
+            `;
+    var formData = new FormData();
+    formData.append("sellerID", sellerID);
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('post', '/shop/send-make-friend', true);
+    xhr.onreadystatechange = () => {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+            const data = JSON.parse(xhr.responseText);
+
+            console.log(data);
+
+            if (data.status.statusCode == -1) {
+                document.querySelector(".modal__body").innerHTML = 
+                `
+                <div class="modal__confirm">
+                    <div class="modal__confirm-header">
+                        <div class="modal__confirm-title">Thông báo</div>
+                    </div>
+                    <div class="modal__confirm-desc">
+                        ${data.status.message}
+                    </div>
+                    <div class="modal__confirm-btns">
+                        <div class="modal__confirm-btn-destroy" onclick="closeModal()">Huỷ</div>
+                        <a href="/user/login" class="modal__confirm-btn-send">Đăng nhập</a>
+                    </div>
+                </div>
+                `;
+            } else {
+                setTimeout(() => {
+                    closeModal();
+                    toast({ title: "Thông báo", msg: `${data.status.message}`, type: "success", duration: 5000 });
+                    document.querySelector(".modal__body").innerHTML = "";
+                    setTimeout(() => {
+                        
+                    }, 1000)
+                }, 2000);
+            }
+            
+        };
+    };
+    xhr.send(formData);
 }
 
 function getSlidersShop(data) {
@@ -442,7 +534,63 @@ function getShopTab(data) {
             `).join('');
     document.querySelector(".shop__mobile-shop-view-more-modal-body-product-good-price").innerHTML = htmlTop10GoodPrice;
 }
+// Set Category
+function setCategories(data) {
+    let htmlCategory = "";
+    htmlCategory += data.categories.map(obj =>
+        `
+        <li class="category-item">
+            <a href="javascript:filterProductByCategoryID(${obj.pK_iCategoryID})" class="category-item__link">${obj.sCategoryName}</a>
+        </li>
+    `
+    ).join('');
+    document.querySelector(".category-list").innerHTML = htmlCategory;
+}
 
+// Lọc sản phẩm theo mã danh mục con
+function filterProductByCategoryID(categoryID) {
+    var formData = new FormData();
+    formData.append("categoryID", categoryID);
+    var xhr = new XMLHttpRequest();
+    xhr.open("post", "/shop/get-data", true);
+    xhr.onreadystatechange = () => {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+            const data = JSON.parse(xhr.responseText);
+            console.log(data);
+
+            setActiveCategories(data);
+
+            getProducts(data);
+
+            getPagination(data);
+        }
+    };
+    xhr.send(formData);
+}
+
+function setActiveCategories(data) {
+    let htmlCategory = "";
+    data.categories.forEach(e => {
+        if (e.pK_iCategoryID == data.currentCategoryID) {
+            htmlCategory +=
+                `
+                <li class="category-item category-item--active">
+                    <a href="javascript:filterProductByCategoryID(${e.pK_iCategoryID})" class="category-item__link">${e.sCategoryName}</a>
+                </li>
+                `;
+        } else {
+            htmlCategory +=
+                `
+                <li class="category-item">
+                    <a href="javascript:filterProductByCategoryID(${e.pK_iCategoryID})" class="category-item__link">${e.sCategoryName}</a>
+                </li>
+                `;
+        }
+    });
+    document.querySelector(".category-list").innerHTML = htmlCategory;
+}
+
+// Set Product
 function getProducts(data) {
     let htmlProducts = "";
     for (let i = 0; i < data.products.length; i++) {
@@ -584,6 +732,7 @@ function pageNumber(currentPage) {
             console.log(data);
 
             getProducts(data);
+            
             getPagination(data);
         }
     };

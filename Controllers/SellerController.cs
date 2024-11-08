@@ -12,6 +12,7 @@ public class SellerController : Controller
     private readonly IHttpContextAccessor _accessor;
     private readonly ICategoryResponsitory _categoryResponsitory;
     private readonly IProductResponsitory _productResponsitory;
+    private readonly IChatRepository _chatRepository;
     public SellerController(
         IHttpContextAccessor accessor, 
         IUserResponsitory userResponsitory, 
@@ -21,7 +22,9 @@ public class SellerController : Controller
         IShippingOrderRepository shippingOrderRepository, 
         ICheckoutResponsitory checkoutResponsitory,
         ICategoryResponsitory categoryResponsitory,
-        IProductResponsitory productResponsitory)
+        IProductResponsitory productResponsitory,
+        IChatRepository chatRepository
+        )
     {
         _accessor = accessor;
         _userResponsitory = userResponsitory;
@@ -32,6 +35,7 @@ public class SellerController : Controller
         _checkoutResponsitory = checkoutResponsitory;
         _categoryResponsitory = categoryResponsitory;
         _productResponsitory = productResponsitory;
+        _chatRepository = chatRepository;
     }
 
     [HttpGet]
@@ -62,12 +66,13 @@ public class SellerController : Controller
         IEnumerable<SellerInfo> sellerInfos = _sellerResponsitory.getSellerInfoBySellerID(Convert.ToInt32(sessionSellerID));
         IEnumerable<Order> ordersWaitSettlement = _orderResponsitory.getOrderWaitSettlementByShopID(Convert.ToInt32(sessionShopID));
         IEnumerable<Order> ordersWaitPickup = _orderResponsitory.getOrderWaitPickupByShopID(Convert.ToInt32(sessionShopID));
-        IEnumerable<Order> ordersProcessed = _orderResponsitory.getOrderProcessedByShopID(Convert.ToInt32(sessionShopID));
         IEnumerable<ShippingOrder> shippingOrders = _shippingOrderRepository.getShippingOrderByShopID(Convert.ToInt32(sessionShopID));
         IEnumerable<CategoryModel> categories = _categoryResponsitory.getAllCategoriesByShopID(Convert.ToInt32(sessionShopID));
         IEnumerable<Discount> discounts = _productResponsitory.getDiscounts();
         IEnumerable<TransportPrice> transportPrices = _productResponsitory.getTransportPrice();
         IEnumerable<Product> products = _shopResponsitory.getProductsByShopID(Convert.ToInt32(sessionShopID));
+        IEnumerable<MakeFriend> makeFriends = _chatRepository.getMakeFriendBySellerID(Convert.ToInt32(sessionSellerID));
+        IEnumerable<Chat> chats = _chatRepository.getChatBySellerID(Convert.ToInt32(sessionSellerID));
         string htmlOrdersWaitSettlmentItem = "";
         string htmlOrdersWaitPickupItem = "";
         foreach (var item in ordersWaitSettlement) {
@@ -77,7 +82,9 @@ public class SellerController : Controller
             htmlOrdersWaitSettlmentItem += $"     <div class='admin__order-table-body-col'>{item.dDate.ToString("dd/MM/yyyy")}</div>";
             htmlOrdersWaitSettlmentItem += $"     <div class='admin__order-table-body-col'>{item.fTotalPrice.ToString("#,##0.00")}VND</div>"; // Đặt tiền: https://www.phanxuanchanh.com/2021/10/26/dinh-dang-tien-te-trong-c/
             htmlOrdersWaitSettlmentItem += $"     <div class='admin__order-table-body-col'>{item.sOrderStatusName}</div>";
-            htmlOrdersWaitSettlmentItem += $"     <div class='admin__order-table-body-col payment'>{item.sPaymentName}</div>";
+            htmlOrdersWaitSettlmentItem += $"     <div class='admin__order-table-body-col payment'>";
+            htmlOrdersWaitSettlmentItem += $"            <div class='admin__order-table-body-col-payment-name'>{item.sPaymentName}</div>";
+            htmlOrdersWaitSettlmentItem += $"     </div>";
             htmlOrdersWaitSettlmentItem += $"     <div class='admin__order-table-body-col primary'>";
             htmlOrdersWaitSettlmentItem += $"         30:00";
             htmlOrdersWaitSettlmentItem += $"     </div>";
@@ -91,7 +98,9 @@ public class SellerController : Controller
             htmlOrdersWaitPickupItem += $"     <div class='admin__order-table-body-col'>{item.dDate.ToString("dd/MM/yyyy")}</div>";
             htmlOrdersWaitPickupItem += $"     <div class='admin__order-table-body-col'>{item.fTotalPrice.ToString("#,##0.00")}VND</div>"; // Đặt tiền: https://www.phanxuanchanh.com/2021/10/26/dinh-dang-tien-te-trong-c/
             htmlOrdersWaitPickupItem += $"     <div class='admin__order-table-body-col'>{item.sOrderStatusName}</div>";
-            htmlOrdersWaitPickupItem += $"     <div class='admin__order-table-body-col payment'>{item.sPaymentName}</div>";
+            htmlOrdersWaitPickupItem += $"     <div class='admin__order-table-body-col payment'>";
+            htmlOrdersWaitPickupItem += $"            <div class='admin__order-table-body-col-payment-name'>{item.sPaymentName}</div>";
+            htmlOrdersWaitPickupItem += $"     </div>";
             htmlOrdersWaitPickupItem += $"     <div class='admin__order-table-body-col primary'>";
             htmlOrdersWaitPickupItem += $"         <a href='javascript:prepareGoodModal({item.PK_iOrderID}, {item.FK_iUserID})' class='admin__order-table-body-col-link'>Chuẩn bị hàng</a>";
             htmlOrdersWaitPickupItem += $"     </div>";
@@ -99,17 +108,19 @@ public class SellerController : Controller
         }
 
         string htmlOrdersProcessedItem = "";
-        foreach (var item in ordersProcessed)
+        foreach (var item in shippingOrders)
         {
             htmlOrdersProcessedItem += $" <div class='admin__order-table-body-row'>";
-            htmlOrdersProcessedItem += $"     <div class='admin__order-table-body-col'>{item.PK_iOrderID}</div>";
+            htmlOrdersProcessedItem += $"     <div class='admin__order-table-body-col'>{item.FK_iOrderID}</div>";
             htmlOrdersProcessedItem += $"     <div class='admin__order-table-body-col'>{item.sFullName}</div>";
             htmlOrdersProcessedItem += $"     <div class='admin__order-table-body-col'>{item.dDate.ToString("dd/MM/yyyy")}</div>";
             htmlOrdersProcessedItem += $"     <div class='admin__order-table-body-col'>{item.fTotalPrice.ToString("#,##0.00")}VND</div>"; // Đặt tiền: https://www.phanxuanchanh.com/2021/10/26/dinh-dang-tien-te-trong-c/
             htmlOrdersProcessedItem += $"     <div class='admin__order-table-body-col'>{item.sOrderStatusName}</div>";
-            htmlOrdersProcessedItem += $"     <div class='admin__order-table-body-col payment'>{item.sPaymentName}</div>";
+            htmlOrdersProcessedItem += $"     <div class='admin__order-table-body-col payment'>";
+            htmlOrdersProcessedItem += $"            <div class='admin__order-table-body-col-payment-name'>{item.sPaymentName}</div>";
+            htmlOrdersProcessedItem += $"     </div>";
             htmlOrdersProcessedItem += $"     <div class='admin__order-table-body-col primary'>";
-            htmlOrdersProcessedItem += $"         <a href='/seller/delivery-note/{item.PK_iOrderID}' class='admin__order-table-body-col-link'>Xem phiếu giao</a>";
+            htmlOrdersProcessedItem += $"         <a href='/seller/delivery-note/{item.FK_iOrderID}' class='admin__order-table-body-col-link'>Xem phiếu giao</a>";
             htmlOrdersProcessedItem += $"     </div>";
             htmlOrdersProcessedItem += $" </div>";
         }
@@ -159,7 +170,7 @@ public class SellerController : Controller
             SellerInfos = sellerInfos,
             OrdersWaitSettlement = ordersWaitSettlement,
             OrdersWaitPickup = ordersWaitPickup,
-            OrdersProcessed = ordersProcessed,
+            OrdersProcessed = shippingOrders,
             HtmlOrdersWaitSettlementItem = htmlOrdersWaitSettlmentItem,
             HtmlOrdersWaitPickupItem = htmlOrdersWaitPickupItem,
             HtmlOrdersProcessedItem = htmlOrdersProcessedItem,
@@ -168,7 +179,9 @@ public class SellerController : Controller
             Discounts = discounts,
             TransportPrices = transportPrices,
             Products = products,
-            HtmlProductItem = htmlProductItem
+            HtmlProductItem = htmlProductItem,
+            MakeFriends = makeFriends,
+            Chats = chats
         };
         return Ok(model);
     }
@@ -194,7 +207,7 @@ public class SellerController : Controller
     [Route("/seller/update-product")]
     public IActionResult UpdateProduct(int productID = 0, int categoryID = 0, int discountID = 0, int transportID = 0, string productName = "", int quantity = 0, string productDesc = "", string imageUrl = "", double price = 0) {
         var sessionShopID = _accessor?.HttpContext?.Session.GetInt32("SellerShopID");
-        _productResponsitory.updateProduct(productID, categoryID, discountID, transportID, productName, quantity, productDesc, imageUrl, price);
+        _productResponsitory.updateProduct(productID, Convert.ToInt32(sessionShopID), categoryID, discountID, transportID, productName, quantity, productDesc, imageUrl, price);
         Status status = new Status {
             StatusCode = 1,
             Message = "Cập nhật sản phẩm thành công"
@@ -251,7 +264,7 @@ public class SellerController : Controller
     [Route("/seller/add-product")]
     public IActionResult AddProduct(int categoryID = 0, int discountID = 0, int transportID = 0, string productName = "", int quantity = 0, string productDesc = "", string imageUrl = "", double price = 0) {
         var sessionShopID = _accessor?.HttpContext?.Session.GetInt32("SellerShopID");
-        _productResponsitory.insertProduct(categoryID, discountID, transportID, productName, quantity, productDesc, imageUrl, price);
+        _productResponsitory.insertProduct(Convert.ToInt32(sessionShopID), categoryID, discountID, transportID, productName, quantity, productDesc, imageUrl, price);
         Status status = new Status {
             StatusCode = 1,
             Message = "Thêm sản phẩm thành công!"

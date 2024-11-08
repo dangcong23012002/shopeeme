@@ -20,10 +20,11 @@ public class ProductController : Controller {
         _shopResponsitory = shopResponsitory;
     }
 
-    [Route("{parentCategoryID}")]
+    [Route("{parentCategoryID?}/{categoryID?}")]
     [HttpGet]
-    public IActionResult Index(int parentCategoryID) {
+    public IActionResult Index(int parentCategoryID = 0, int categoryID = 0) {
         _accessor?.HttpContext?.Session.SetInt32("CurrentParentCategoryID", parentCategoryID);
+        _accessor?.HttpContext?.Session.SetInt32("CurrentCategoryID", categoryID);
         // Vì mình lấy layout của _Layout của kiểu là @model ProducdViewModel nó sẽ chung cho tất cả các trang, ta lấy riêng nó sẽ lỗi
         return View();
     }
@@ -33,19 +34,22 @@ public class ProductController : Controller {
     public IActionResult GetData(int categoryID = 0, int currentPage = 1) {
         IEnumerable<Product> products;
         IEnumerable<Product> productsByCategoryID;
+        int currentCategory = Convert.ToInt32(_accessor?.HttpContext?.Session.GetInt32("CurrentCategoryID"));
+        System.Console.WriteLine("currentCategory: " + currentCategory);
         var sessionUserID = _accessor?.HttpContext?.Session.GetInt32("UserID");
         var sessionParentCategoryID = _accessor?.HttpContext?.Session.GetInt32("CurrentParentCategoryID");
-        List<User> users = _userResponsitory.checkUserLogin(Convert.ToInt32(sessionUserID)).ToList();
-        if (users.Count() == 0) {
+        List<User> user = _userResponsitory.checkUserLogin(Convert.ToInt32(sessionUserID)).ToList();
+        if (user.Count() == 0 && currentCategory == 0) {
             products = _productResponsitory.getProductsByParentCategoryID(Convert.ToInt32(sessionParentCategoryID));
-        } else if (users[0].FK_iRoleID == 2) {
+        } else if (user.Count() != 0 && user[0].FK_iRoleID == 2 && currentCategory == 0) {
             products = _productResponsitory.getProductsByParentCategoryID(Convert.ToInt32(sessionParentCategoryID));
+        } else if (user.Count() != 0 && user[0].FK_iRoleID == 1 && currentCategory == 0) {
+            products = _productResponsitory.getProductsByParentCategoryID(Convert.ToInt32(sessionParentCategoryID));
+        } else if (categoryID != 0) {
+            currentCategory = categoryID;
+            products = _productResponsitory.getProductsByCategoryID(currentCategory);
         } else {
-            products = _productResponsitory.getProductsByParentCategoryID(Convert.ToInt32(sessionParentCategoryID));
-        }
-        if (categoryID != 0)
-        {
-            products = _productResponsitory.getProductsByCategoryID(Convert.ToInt32(categoryID));
+            products = _productResponsitory.getProductsByCategoryID(currentCategory);
         }
         int totalRecord = products.Count();
         int pageSize = 10;
@@ -60,11 +64,13 @@ public class ProductController : Controller {
             Stores = stores,
             Categories = categories,
             CartDetails = cartDetails,
-            CurrentCategoryID = categoryID,
+            CurrentCategoryID = currentCategory,
             TotalPage = totalPage,
             PageSize = pageSize,
             CurrentPage = currentPage,
-            CartCount = cartDetails.Count()
+            CartCount = cartDetails.Count(),
+            User = user,
+            UserID = Convert.ToInt32(sessionUserID)
         };
         return Ok(model);
     }
@@ -88,17 +94,9 @@ public class ProductController : Controller {
         List<Store> store = _shopResponsitory.getShopByProductID(Convert.ToInt32(sessionCurrentProductID)).ToList();
         IEnumerable<UserInfo> userInfos = _userResponsitory.checkUserInfoByUserID(Convert.ToInt32(sessionUserID));
         IEnumerable<Reviewer> reviewers = _productResponsitory.getReviewerByProductID(Convert.ToInt32(sessionCurrentProductID));
-        Store storeDetail = new Store {
-            PK_iStoreID = store[0].PK_iStoreID,
-            sStoreName = store[0].sStoreName,
-            sImageAvatar = store[0].sImageAvatar,
-            sImageLogo = store[0].sImageLogo,
-            sImageBackground = store[0].sImageBackground,
-            sDesc = store[0].sDesc
-        };
         ProductViewModel model = new ProductViewModel {
             Products = product,
-            Store = storeDetail,
+            Store = store,
             UserInfos = userInfos,
             Reviewers = reviewers
         };
@@ -132,10 +130,7 @@ public class ProductController : Controller {
     {
         _accessor?.HttpContext?.Session.SetInt32("ProductSimilarID", productSimilarID);
         _accessor?.HttpContext?.Session.SetInt32("CategorySimilarID", categorySimilar);
-        ShopeeViewModel model = new ShopeeViewModel {
-            
-        };
-        return View(model);
+        return View();
     }
 
     [HttpPost]
@@ -146,28 +141,13 @@ public class ProductController : Controller {
         List<Product> product = _productResponsitory.getProductByID(Convert.ToInt32(sessionProductSimilarID)).ToList();
         List<Store> store = _shopResponsitory.getShopByProductID(Convert.ToInt32(sessionProductSimilarID)).ToList();
         IEnumerable<Product> products = _productResponsitory.getProductsByCategoryID(Convert.ToInt32(sessionCategorySimilarID));
-        Product productDetail = new Product {
-            PK_iProductID = product[0].PK_iProductID,
-            sProductName = product[0].sProductName,
-            sImageUrl = product[0].sImageUrl,
-            dPrice = product[0].dPrice,
-            dPerDiscount = product[0].dPerDiscount
-        };
-        Store storeDetail = new Store {
-            PK_iStoreID = store[0].PK_iStoreID,
-            sStoreName = store[0].sStoreName,
-            sImageAvatar = store[0].sImageAvatar,
-            sImageLogo = store[0].sImageLogo,
-            sImageBackground = store[0].sImageBackground,
-            sDesc = store[0].sDesc
-        };
         int totalRecord = products.Count();
         int pageSize = 6;
         int totalPage = (int) Math.Ceiling(totalRecord / (double) pageSize);
         products = products.Skip((currentPage - 1) * pageSize).Take(pageSize);
         ProductViewModel model = new ProductViewModel {
-            Product = productDetail,
-            Store = storeDetail,
+            Product = product,
+            Store = store,
             Products = products,
             TotalPage = totalPage,
             PageSize = pageSize,

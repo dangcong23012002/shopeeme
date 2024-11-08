@@ -5,6 +5,9 @@ using Project.Models;
 
 public class AdminController : Controller {
     private readonly DatabaseContext _context;
+    private readonly IHomeResponsitory _homeResponsitory;
+    private readonly ICategoryResponsitory _categoryResponsitory;
+    private readonly IProductResponsitory _productResponsitory;
     private readonly IUserResponsitory _userResponsitory;
     private readonly IAdminResponsitory _adminResponsitory;
     private readonly IHttpContextAccessor _accessor;
@@ -15,6 +18,9 @@ public class AdminController : Controller {
     public AdminController(
         DatabaseContext context, 
         IAdminResponsitory adminResponsitory, 
+        IHomeResponsitory homeResponsitory,
+        ICategoryResponsitory categoryResponsitory,
+        IProductResponsitory productResponsitory,
         IHttpContextAccessor accessor, 
         IOrderResponsitory orderResponsitory, 
         ICheckoutResponsitory checkoutResponsitory, 
@@ -24,6 +30,9 @@ public class AdminController : Controller {
     {
         _context = context;
         _adminResponsitory = adminResponsitory;
+        _homeResponsitory = homeResponsitory;
+        _categoryResponsitory = categoryResponsitory;
+        _productResponsitory = productResponsitory;
         _accessor = accessor;
         _orderResponsitory = orderResponsitory;
         _checkoutResponsitory = checkoutResponsitory;
@@ -76,6 +85,8 @@ public class AdminController : Controller {
         IEnumerable<Order> ordersPicking = _adminResponsitory.getOrdersPicking();
         IEnumerable<Order> ordersDelivering = _adminResponsitory.getOrderDelivering();
         IEnumerable<Order> ordersCompleted = _adminResponsitory.getOrderCompleted();
+        IEnumerable<Industry> industries = _categoryResponsitory.getIndustries();
+        IEnumerable<CategoryModel> categories = _categoryResponsitory.getAllCategories();
         IEnumerable<UserInfo> userInfos = _userResponsitory.getUsersInfo();
         string htmlWaitSettlmentItem = "";
         foreach (var item in ordersWaitSettlment) {
@@ -168,11 +179,169 @@ public class AdminController : Controller {
             OrdersDelivering = ordersDelivering,
             HtmlDeliveringItem = htmlDeliveringItem,
             OrdersCompleted = ordersCompleted,
+            Industries = industries,
+            Categories = categories,
             UserInfos = userInfos,
             HtmlUsersInfoItem = htmlUsersInfoItem,
             RoleID = Convert.ToInt32(sessionRoleID),
             UserID = Convert.ToInt32(sessionUserID),
             Username = sellerUsername
+        };
+        return Ok(model);
+    }
+
+    [HttpPost]
+    [Route("/admin/detail-api")]
+    public IActionResult Detail(int industryID = 0, int categoryID = 0) {
+        IEnumerable<Industry> industry = _categoryResponsitory.getIndustryByID(industryID);
+        IEnumerable<CategoryModel> category = _categoryResponsitory.getCategoryByID(categoryID);
+        IEnumerable<Industry> industries = _categoryResponsitory.getIndustries();
+        AdminViewModel model = new AdminViewModel {
+            Industry = industry,
+            Category = category,
+            Industries = industries
+        };
+        return Ok(model);
+    }
+
+    [HttpPost]
+    [Route("/admin/add-industry")]
+    public IActionResult AddIndustry(string industryName = "", string industryImage = "") {
+        Status status;
+        if (_categoryResponsitory.insertIndustry(industryName, industryImage)) {
+            status = new Status {
+                StatusCode = 1,
+                Message = "Thêm ngành hàng thành công!"
+            };
+        } else {
+            status = new Status {
+                StatusCode = -1,
+                Message = "Thêm ngành hàng thất bại!"
+            };
+        }
+        IEnumerable<Industry> industries = _categoryResponsitory.getIndustries();
+        AdminViewModel model = new AdminViewModel {
+            Status = status,
+            Industries = industries
+        };
+        return Ok(model);
+    }
+
+    [HttpPost]
+    [Route("/admin/update-industry")]
+    public IActionResult UpdateIndustry(int industryID = 0, string industryName = "", string industryImage = "") {
+        Status status;
+        if (_categoryResponsitory.updateIndustry(industryID, industryName, industryImage)) {
+            status = new Status {
+                StatusCode = 1,
+                Message = "Cập nhật ngành hàng thành công!"
+            };
+        } else {
+            status = new Status {
+                StatusCode = -1,
+                Message = "Cập nhật ngành hàng thất bại!"
+            };
+        }
+        IEnumerable<Industry> industries = _categoryResponsitory.getIndustries();
+        AdminViewModel model = new AdminViewModel {
+            Status = status,
+            Industries = industries
+        };
+        return Ok(model);
+    }
+
+    [HttpPost]
+    [Route("/admin/delete-industry")]
+    public IActionResult DeleteIndustry(int industryID = 0) {
+        Status status;
+        List<CategoryModel> categoryModels = _categoryResponsitory.getCategoriesByIndustryID(industryID).ToList();
+        if (categoryModels.Count() != 0) {
+            status = new Status {
+                StatusCode = -1,
+                Message = "Ngành hàng đang liên quan tới dữ liệu khác, không thể xoá!"
+            };
+        } else {
+            _categoryResponsitory.deleteIndustryByID(industryID);
+            status = new Status {
+                StatusCode = 1,
+                Message = "Xoá ngành hàng thành công!"
+            };
+        }
+        IEnumerable<Industry> industries = _categoryResponsitory.getIndustries();
+        AdminViewModel model = new AdminViewModel {
+            Status = status,
+            Industries = industries
+        };
+        return Ok(model);
+    }
+
+    [HttpPost]
+    [Route("/admin/add-category")]
+    public IActionResult AddCategory(int industryID = 0, string categoryName = "", string categoryImage = "", string categoryDesc = "") {
+        Status status;
+        if (_categoryResponsitory.inserCategory(industryID, categoryName, categoryImage, categoryDesc)) {
+            status = new Status {
+                StatusCode = 1,
+                Message = "Thêm danh mục thành công!"
+            }; 
+        } else {
+            status = new Status {
+                StatusCode = 1,
+                Message = "Thêm danh mục thất bại!"
+            };
+        }
+        IEnumerable<CategoryModel> categories = _categoryResponsitory.getAllCategories();
+        AdminViewModel model = new AdminViewModel {
+            Status = status,
+            Categories = categories
+        };
+        return Ok(model);
+    }
+
+    [HttpPost]
+    [Route("/admin/update-category")]
+    public IActionResult UpdateCategory(int categoryID = 0, int industryID = 0, string categoryName = "", string categoryDesc = "", string categoryImage = "") {
+        Status status;
+        if (_categoryResponsitory.updateCategory(categoryID, industryID, categoryName, categoryDesc, categoryImage)) {
+            status = new Status {
+                StatusCode = 1,
+                Message = "Cập nhật danh mục thành công!"
+            };
+        } else {
+            status = new Status {
+                StatusCode = -11,
+                Message = "Cập nhật danh mục thất bại!"
+            };
+        }
+        IEnumerable<CategoryModel> categories = _categoryResponsitory.getAllCategories();
+        AdminViewModel model = new AdminViewModel {
+            Status = status,
+            Categories = categories
+        };
+        return Ok(model);
+    }
+
+    [HttpPost]
+    [Route("/admin/delete-category")]
+    public IActionResult DeleteCategory(int categoryID = 0) {
+        Status status;
+        List<Product> products = _productResponsitory.getProductsByCategoryID(categoryID).ToList();
+        if (products.Count() != 0) {
+            status = new Status {
+                StatusCode = -1,
+                Message = "Thể loại này đang liên quan tới dữ liệu khác, không thể xoá!"
+            };
+        } else {
+            _categoryResponsitory.delelteCategory(categoryID);
+            status = new Status {
+                StatusCode = 11,
+                Message = "Xoá thể loại thành công!"
+            };
+        }
+        IEnumerable<CategoryModel> categories = _categoryResponsitory.getAllCategories();
+        AdminViewModel model = new AdminViewModel {
+            Status = status,
+            Categories = categories
         };
         return Ok(model);
     }

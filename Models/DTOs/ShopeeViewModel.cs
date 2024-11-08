@@ -9,8 +9,10 @@ public class ShopeeViewModel
     public IEnumerable<Category> Categories {get; set;}
     public IEnumerable<CartDetail> CartDetails { get; set; }
     public IEnumerable<User> Users { get; set; }
+    public IEnumerable<User> User { get; set; }
     public IEnumerable<UserInfo> UserInfos { get; set; }
     public IEnumerable<Checkout> Checkouts { get; set; }
+    public IEnumerable<Chat> Chats { get; set; }
     public int UserID { get; set; }
     public string Username { get; set; }
     public int TotalPage { get; set; }
@@ -20,4 +22,5 @@ public class ShopeeViewModel
     public int CurrentProductID { get; set; }
     public int CartCount { get; set; }
     public int RoleID { get; set; }
+    public Status Status { get; set; }
 }

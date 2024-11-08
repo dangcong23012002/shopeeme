@@ -354,351 +354,6 @@ function setSidebar(data) {
     });
 }
 
-function showAll(data) {
-    document.querySelector(".admin__container").innerHTML = 
-    `
-                    <div class="admin__main">
-                        <div class="admin__main-container">
-                            <div class="admin__main-left">
-                                <div class="admin__main-analys">
-                                    <div class="admin__main-title">Bảng quản trị</div>
-                                    <div class="admin__main-date">
-                                        <input type="date" class="admin__main-date-input">
-                                    </div>
-                                    <div class="admin__main-insights">
-                                        <div class="admin__main-sales">
-                                            <div class="admin__main-box">
-                                                <i class="uil uil-analytics admin__main-icon"></i>
-                                            </div>
-                                            <div class="admin__main-middle">
-                                                <div class="admin__main-middle-left">
-                                                    <div class="admin__main-middle-title">Tổng bán hàng</div>
-                                                    <div class="admin__main-middle-price">1.500.000đ</div>
-                                                </div>
-                                                <div class="admin__main-progress">
-                                                    <svg class="admin__main-progress-img">
-                                                        <circle cx="38" cy="38" r="36"></circle>
-                                                    </svg>
-                                                    <div class="admin__main-number">
-                                                        <p class="admin__main-number-text">84%</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <small class="admin__main-text-muted">24 tiếng trước</small>
-                                        </div>
-                                        <!-- End Of Sales -->
-                                        <div class="admin__main-expenses">
-                                            <div class="admin__main-box">
-                                                <i class="uil uil-chart admin__main-box-icon"></i>
-                                            </div>
-                                            <div class="admin__main-middle">
-                                                <div class="admin__main-middle-left">
-                                                    <div class="admin__main-middle-title">Tổng bán hàng</div>
-                                                    <div class="admin__main-middle-price">1.500.000đ</div>
-                                                </div>
-                                                <div class="admin__main-progress">
-                                                    <svg class="admin__main-progress-img">
-                                                        <circle cx="38" cy="38" r="36"></circle>
-                                                    </svg>
-                                                    <div class="admin__main-number">
-                                                        <p class="admin__main-number-text">84%</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <small class="admin__main-text-muted">24 tiếng trước</small>
-                                        </div>
-                                        <!-- End Of Expenses -->
-                                        <div class="admin__main-income">
-                                            <div class="admin__main-box">
-                                                <i class="uil uil-comparison admin__main-box-icon"></i>
-                                            </div>
-                                            <div class="admin__main-middle">
-                                                <div class="admin__main-middle-left">
-                                                    <div class="admin__main-middle-title">Tổng thu</div>
-                                                    <div class="admin__main-middle-price">1.500.000đ</div>
-                                                </div>
-                                                <div class="admin__main-progress">
-                                                    <svg class="admin__main-progress-img">
-                                                        <circle cx="38" cy="38" r="36"></circle>
-                                                    </svg>
-                                                    <div class="admin__main-number">
-                                                        <p class="admin__main-number-text">74%</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <small class="admin__main-text-muted">24 tiếng trước</small>
-                                        </div>
-                                        <!-- End Of Income -->
-                                    </div>
-                                </div>
-                                <div class="admin__main-analys admin__main-to-do-list">
-                                    <div class="admin__main-title admin__main-to-do-list-title">Danh sách cần làm</div>
-                                    <div class="admin__main-to-do-list-list">
-                                        <div class="admin__main-sales">
-                                            <div class="admin__main-to-do-list-item admin__main-to-do-list-item-wait-settlment">
-                                                <div class="admin__main-to-do-list-numb">
-                                                    ${data.ordersWaitSettlement.length}
-                                                </div>
-                                                <div class="admin__main-to-do-list-sub">
-                                                    Chờ xác nhận
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <!-- End Of Sales -->
-                                        <div class="admin__main-expenses">
-                                            <div class="admin__main-to-do-list-item admin__main-to-do-list-item-wait-pickup">
-                                                <div class="admin__main-to-do-list-numb">
-                                                    ${data.ordersWaitPickup.length}
-                                                </div>
-                                                <div class="admin__main-to-do-list-sub">
-                                                    Chờ lấy hàng
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <!-- End Of Expenses -->
-                                        <div class="admin__main-income">
-                                            <div class="admin__main-to-do-list-item admin__main-to-do-list-item-processed">
-                                                <div class="admin__main-to-do-list-numb">
-                                                    ${data.shippingOrders.length}
-                                                </div>
-                                                <div class="admin__main-to-do-list-sub">
-                                                    Đã xử lý
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <!-- End Of Income -->
-                                         <!-- End Of Expenses -->
-                                        <div class="admin__main-income">
-                                            <div class="admin__main-to-do-list-item">
-                                                <div class="admin__main-to-do-list-numb">
-                                                    0
-                                                </div>
-                                                <div class="admin__main-to-do-list-sub">
-                                                    Đơn huỷ
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <!-- End Of Income -->
-                                        <div class="admin__main-expenses">
-                                            <div class="admin__main-to-do-list-item">
-                                                <div class="admin__main-to-do-list-numb">
-                                                    0
-                                                </div>
-                                                <div class="admin__main-to-do-list-sub">
-                                                    Trả hàng, hoàn tiền
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="admin__main-expenses">
-                                            <div class="admin__main-to-do-list-item">
-                                                <div class="admin__main-to-do-list-numb">
-                                                    0
-                                                </div>
-                                                <div class="admin__main-to-do-list-sub">
-                                                    Sản phẩm bị khoá
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="admin__main-expenses">
-                                            <div class="admin__main-to-do-list-item">
-                                                <div class="admin__main-to-do-list-numb">
-                                                    0
-                                                </div>
-                                                <div class="admin__main-to-do-list-sub">
-                                                    Sản phẩm hết hàng
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="admin__main-recent-orders">
-                                    <div class="admin__main-recent-orders-title">Đơn hàng gần đây</div>
-                                    <div class="admin__order-header">
-                                        <ul class="admin__order-header-list">
-                                            <li class="admin__order-header-item active">
-                                                Tất cả
-                                            </li>
-                                            <li class="admin__order-header-item">
-                                                Chờ thanh toán
-                                            </li>
-                                            <li class="admin__order-header-item">
-                                                Vận chuyển (1)
-                                            </li>
-                                            <li class="admin__order-header-item">
-                                                Chờ giao hàng
-                                            </li>
-                                            <li class="admin__order-header-item">
-                                                Hoàn thành
-                                            </li>
-                                            <li class="admin__order-header-item">
-                                                Đã huỷ
-                                            </li>
-                                            <li class="admin__order-header-item">
-                                                Trả hàng/hoàn tiền
-                                            </li>
-                                        </ul>
-                                    </div>
-                                    <div class="admin__order-container">
-                                        <div class="admin__order-table">
-                                            <div class="admin__order-table-header">
-                                                <div class="admin__order-table-header-row">
-                                                    <div class="admin__order-table-header-col">Mã đơn hàng</div>
-                                                    <div class="admin__order-table-header-col">Sản phẩm</div>
-                                                    <div class="admin__order-table-header-col">Thanh toán</div>
-                                                    <div class="admin__order-table-header-col">Trạng thái</div>
-                                                    <div class="admin__order-table-header-col"></div>
-                                                </div>
-                                            </div>
-                                            <div class="admin__order-table-body">
-                                                <div class="admin__order-table-body-row">
-                                                    <div class="admin__order-table-body-col">DH123</div>
-                                                    <div class="admin__order-table-body-col">3</div>
-                                                    <div class="admin__order-table-body-col">500.000 đ</div>
-                                                    <div class="admin__order-table-body-col warning">Chờ xác nhận</div>
-                                                    <div class="admin__order-table-body-col primary">
-                                                        <a href="#" class="admin__order-table-body-col-link">Chi tiết</a>
-                                                    </div>
-                                                </div>
-                                                <div class="admin__order-table-body-row">
-                                                    <div class="admin__order-table-body-col">DH435</div>
-                                                    <div class="admin__order-table-body-col">3</div>
-                                                    <div class="admin__order-table-body-col">500.000 đ</div>
-                                                    <div class="admin__order-table-body-col primary">Đã thanh toán</div>
-                                                    <div class="admin__order-table-body-col primary">
-                                                        <a href="#" class="admin__order-table-body-col-link">Chi tiết</a>
-                                                    </div>
-                                                </div>
-                                                <div class="admin__order-table-body-row">
-                                                    <div class="admin__order-table-body-col">DH432</div>
-                                                    <div class="admin__order-table-body-col">3</div>
-                                                    <div class="admin__order-table-body-col">500.000 đ</div>
-                                                    <div class="admin__order-table-body-col success">Đã giao hàng</div>
-                                                    <div class="admin__order-table-body-col primary">
-                                                        <a href="#" class="admin__order-table-body-col-link">Chi tiết</a>
-                                                    </div>
-                                                </div>
-                                                <div class="admin__order-table-body-row">
-                                                    <div class="admin__order-table-body-col">DH987</div>
-                                                    <div class="admin__order-table-body-col">3</div>
-                                                    <div class="admin__order-table-body-col">500.000 đ</div>
-                                                    <div class="admin__order-table-body-col danger">Khách hàng huỷ</div>
-                                                    <div class="admin__order-table-body-col primary">
-                                                        <a href="#" class="admin__order-table-body-col-link">Chi tiết</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <a href="#" class="admin__order-more">Xem tất cả</a>
-                                </div>
-                            </div>
-                            <div class="admin__right">
-                                <div class="admin__right-recent-updates">
-                                    <div class="admin__right-recent-updates-title">Cập nhật gần đây</div>
-                                    <div class="admin__right-recent-updates-container">
-                                        <div class="admin__right-recent-updates-list">
-                                            <div class="admin__right-recent-updates-item">
-                                                <div class="admin__right-recent-updates-item-profile-photo">
-                                                    <img src="/img/profile_avatar.jpg" alt="" class="admin__right-recent-updates-item-profile-photo-img">
-                                                </div>
-                                                <div class="admin__right-recent-updates-item-message">
-                                                    <p class="admin__right-recent-updates-item-message-text"><b class="admin__right-recent-updates-item-message-name">Công Đặng</b> nhận được đơn đặt hàng từ Fithou bằng công nghệ GPS </p>
-                                                    <small class="admin__right-recent-updates-item-message-time">2 tiếng trước</small>
-                                                </div>
-                                            </div>
-                                            <div class="admin__right-recent-updates-item">
-                                                <div class="admin__right-recent-updates-item-profile-photo">
-                                                    <img src="/img/profile_avatar.jpg" alt="" class="admin__right-recent-updates-item-profile-photo-img">
-                                                </div>
-                                                <div class="admin__right-recent-updates-item-message">
-                                                    <p class="admin__right-recent-updates-item-message-text"><b class="admin__right-recent-updates-item-message-name">Công Đặng</b> nhận được đơn đặt hàng từ Fithou bằng công nghệ GPS </p>
-                                                    <small class="admin__right-recent-updates-item-message-time">2 tiếng trước</small>
-                                                </div>
-                                            </div>
-                                            <div class="admin__right-recent-updates-item">
-                                                <div class="admin__right-recent-updates-item-profile-photo">
-                                                    <img src="/img/profile_avatar.jpg" alt="" class="admin__right-recent-updates-item-profile-photo-img">
-                                                </div>
-                                                <div class="admin__right-recent-updates-item-message">
-                                                    <p class="admin__right-recent-updates-item-message-text"><b class="admin__right-recent-updates-item-message-name">Công Đặng</b> nhận được đơn đặt hàng từ Fithou bằng công nghệ GPS </p>
-                                                    <small class="admin__right-recent-updates-item-message-time">2 tiếng trước</small>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <a href="#" class="admin__order-more">Xem tất cả</a>
-                                    </div>
-                                </div>
-                                <div class="admin__right-sales-analytics">
-                                    <div class="admin__right-sales-analytics-title">Phân tích bán hàng</div>
-                                    <div class="admin__right-sales-analytics-container">
-                                        <div class="admin__right-sales-analytics-list">
-                                            <div class="admin__right-sales-analytics-item online">
-                                                <div class="admin__right-sales-analytics-item-icon">
-                                                    <i class="uil uil-shopping-cart-alt"></i>
-                                                </div>
-                                                <div class="admin__right-sales-analytics-item-right">
-                                                    <div class="admin__right-sales-analytics-item-info">
-                                                        <div class="admin__right-sales-analytics-item-sub">ĐẶT HÀNG ONLINE</div>
-                                                        <small class="admin__right-sales-analytics-item-time">24 tiếng trước</small>
-                                                    </div>
-                                                    <div class="admin__right-sales-analytics-item-percent success">+39%</div>
-                                                    <div class="admin__right-sales-analytics-item-quantity">1300</div>
-                                                </div>
-                                            </div>
-                                            <div class="admin__right-sales-analytics-item offline">
-                                                <div class="admin__right-sales-analytics-item-icon">
-                                                    <i class="uil uil-shopping-bag"></i>
-                                                </div>
-                                                <div class="admin__right-sales-analytics-item-right">
-                                                    <div class="admin__right-sales-analytics-item-info">
-                                                        <div class="admin__right-sales-analytics-item-sub">ĐẶT HÀNG OFFLINE</div>
-                                                        <small class="admin__right-sales-analytics-item-time">24 tiếng trước</small>
-                                                    </div>
-                                                    <div class="admin__right-sales-analytics-item-percent danger">-17%</div>
-                                                    <div class="admin__right-sales-analytics-item-quantity">1300</div>
-                                                </div>
-                                            </div>
-                                            <div class="admin__right-sales-analytics-item customers">
-                                                <div class="admin__right-sales-analytics-item-icon">
-                                                    <i class="uil uil-users-alt"></i>
-                                                </div>
-                                                <div class="admin__right-sales-analytics-item-right">
-                                                    <div class="admin__right-sales-analytics-item-info">
-                                                        <div class="admin__right-sales-analytics-item-sub">KHÁCH HÀNG MỚI</div>
-                                                        <small class="admin__right-sales-analytics-item-time">24 tiếng trước</small>
-                                                    </div>
-                                                    <div class="admin__right-sales-analytics-item-percent success">+25%</div>
-                                                    <div class="admin__right-sales-analytics-item-quantity">1300</div>
-                                                </div>
-                                            </div>
-                                            <div class="admin__right-sales-analytics-item add-product">
-                                                <div class="admin__right-sales-analytics-item-add-product">
-                                                    <i class="uil uil-plus"></i>
-                                                    <div class="admin__right-sales-analytics-item-add-product-sub">Thêm sản phẩm</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <!-- <div class="admin__right-sales-analytics-blur-bottom"></div> -->
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-    `;
-
-    document.querySelector(".admin__main-to-do-list-item-wait-settlment").addEventListener('click', () => {
-        showWaitingSettlment(data);
-    });
-
-    document.querySelector(".admin__main-to-do-list-item-wait-pickup").addEventListener("click", () => {
-        showWaitingPickup(data);
-    });
-
-    document.querySelector(".admin__main-to-do-list-item-processed").addEventListener("click", () => {
-        showProcessed(data);
-    });
-}
-
 // Show Bulk delivery
 function showBulkDelivery(data) {
     noticeIncompleteFunc();
@@ -1452,15 +1107,15 @@ function showAddProduct(data) {
             const productQuantity = document.querySelector(".admin__add-product-quantity-input").value;
             let imageUrl = "";
             if (data.sellerID == 1) {
-                imageUrl = "shop/f4shop/product/dong_ho/dong_ho_1.jpg";
+                imageUrl = "shop/f4shop/product/no_img.jpg";
             } else if (data.sellerID == 2) {
-                imageUrl = "shop/vietmark/product/am_sieu_toc/am_sieu_toc_9.jpg";
+                imageUrl = "shop/vietmark/product/no_img.jpg";
             } else if (data.sellerID == 3) {
-                imageUrl = "shop/laneige/product/kem_chong_nang/kem_chong_nang_1.jpg";
+                imageUrl = "shop/laneige/product/no_img.jpg";
             } else if (data.sellerID == 4) {
-                imageUrl = "shop/cocolux/product/cham_soc_gia_mat/cham_soc_da_mat_1.jpg";
+                imageUrl = "shop/cocolux/product/no_img.jpg";
             } else {
-                imageUrl = "shop/legendary/product/quan_nu/quan_nu_1.png";
+                imageUrl = "shop/legendary/product/no_img.jpg";
             }
             const categoryID = parseInt(categoryCheck);
             const price = parseInt(productPrice);
@@ -1751,7 +1406,176 @@ function deleteProduct(productID) {
 
 // Show Chat Management
 function showChatManagement(data) {
-    noticeIncompleteFunc();
+    let htmlChat = "";
+    htmlChat += 
+    `
+                    <div class="admin__chat">
+                        <div class="admin__chat-container">
+                            <div class="admin__chat-account">
+                                <div class="admin__chat-account-header">
+                                    <div class="admin__chat-account-header-text">Đoạn chat</div>
+                                    <div class="admin__chat-account-header-note">
+                                        <i class="uil uil-edit admin__chat-account-header-note-icon"></i>
+                                    </div>
+                                </div>
+                                <div class="admin__chat-account-search">
+                                    <i class="uil uil-search admin__chat-account-search-icon"></i>
+                                    <input type="text" class="admin__chat-account-search-input" placeholder="Tìm kiếm trên SMe Chat">
+                                </div>`;
+                                if (data.chats.length == 0) {
+                                    htmlChat += 
+                                    `
+                                    <div class="admin__chat-account-no">Không tìm thấy cuộc trò chuyện nào</div>
+                                    `;
+                                } else {
+                                    htmlChat += `
+                                    <div class="admin__chat-account-list">`;
+                                    data.chats.forEach(element => {
+                                        htmlChat += 
+                                        `
+                                        <div class="admin__chat-account-item" onclick="showChatMessage(${element.pK_iChatID})">
+                                            <div class="admin__chat-account-item-img" style="background-image: url(/img/${element.sImageProfile});"></div>
+                                            <div class="admin__chat-account-item-desc">
+                                                <div class="admin__chat-account-item-desc-name">${element.sUserName}</div>
+                                                <div class="admin__chat-account-item-desc-msg">
+                                                    <div class="admin__chat-account-item-desc-msg-content">${element.sLastChat}</div>
+                                                    <div class="admin__chat-account-item-desc-msg-day">${getDate(element.dTime)}</div>
+                                                </div>
+                                            </div>
+                                            <div class="admin__chat-account-item-more">
+                                                <i class="uil uil-ellipsis-h admin__chat-account-item-more-icon"></i>
+                                            </div>
+                                        </div>
+                                        `;
+                                    });
+                                htmlChat += `
+                                </div>`;
+                                }
+                            htmlChat += `    
+                            </div>
+                            <div class="admin__chat-msg">
+                                <div class="admin__chat-msg-welcome">
+                                    <img src="/img/sme_chat.png" class="admin__chat-msg-welcome-img" alt="">
+                                    <div class="admin__chat-msg-welcome-title">Chào mừng bạn đến với SMe Chat</div>
+                                    <div class="admin__chat-msg-welcome-sub">
+                                        Bắt đầu trả lời người mua!
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+    `;
+    document.querySelector(".admin__container").innerHTML = htmlChat;
+}
+
+function showChatMessage(chatID) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('get', '/chat/detail?chatID=' + chatID + '', true);
+    xhr.onreadystatechange = () => {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+            const data = JSON.parse(xhr.responseText);
+
+            console.log(data);
+
+            let htmlChatMessage = "";
+            htmlChatMessage += 
+                            `
+                                <div class="admin__chat-msg-container">
+                                    <div class="admin__chat-msg-header">
+                                        <div class="admin__chat-msg-header-account">
+                                            <div class="admin__chat-msg-header-account-img" style="background-image: url(/img/${data.chat[0].sImageProfile});">
+                                                <div class="admin__chat-msg-header-account-img-active"></div>
+                                            </div>
+                                            <div class="admin__chat-msg-header-account-info">
+                                                <div class="admin__chat-msg-header-account-name">${data.chat[0].sUserName}</div>
+                                                <div class="admin__chat-msg-header-account-active">Hoạt động 13 phút trước</div>
+                                            </div>
+                                        </div>
+                                        <div class="admin__chat-msg-header-btns">
+                                            <div class="admin__chat-msg-header-btn">
+                                                <i class="uil uil-phone admin__chat-msg-header-btn-icon"></i>
+                                            </div>
+                                            <div class="admin__chat-msg-header-btn">
+                                                <i class="uil uil-video admin__chat-msg-header-btn-icon"></i>
+                                            </div>
+                                            <div class="admin__chat-msg-header-btn">
+                                                <i class="uil uil-ellipsis-h admin__chat-msg-header-btn-icon"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="admin__chat-msg-body">
+                                        <div class="admin__chat-msg-time">
+                                            <span>${getDate(data.chat[0].dTime)}</span>
+                                        </div>`;
+                                        data.chatDetails.forEach(element => {
+                                            if (element.iChatPersonID == element.fK_iSellerID) {
+                                        htmlChatMessage += 
+                                            `
+                                        <div class="admin__chat-msg-body-me">
+                                            <div class="admin__chat-msg-body-me-container">
+                                                <span class="admin__chat-msg-body-me-content">
+                                                    ${element.sChat}<br>
+                                                    <span class="admin__chat-msg-body-me-after-hour">Tin nhắn Tự động Ngoài giờ làm việc</span>
+                                                </span>
+                                                <div class="admin__chat-msg-body-me-time">${getTime(element.dTime)}</div>
+                                            </div>
+                                        </div>
+                                        `;
+                                            } else {
+                                        htmlChatMessage += 
+                                        `
+                                        <div class="admin__chat-msg-body-texted">
+                                            <div class="admin__chat-msg-body-texted-container">
+                                                <div class="admin__chat-msg-body-texted-content">
+                                                ${element.sChat}
+                                                </div>
+                                                <div class="admin__chat-msg-body-texted-time">13:28</div>
+                                            </div>
+                                        </div>
+                                        `;
+                                            }
+                                        });
+                                    htmlChatMessage += `
+                                    </div>
+                                    <div class="admin__chat-msg-footer">
+                                        <div class="admin__chat-msg-footer-btns">
+                                            <div class="admin__chat-msg-footer-btn">
+                                                <i class="uil uil-plus-circle admin__chat-msg-footer-icon"></i>
+                                            </div>
+                                            <div class="admin__chat-msg-footer-btn">
+                                                <i class="uil uil-image admin__chat-msg-footer-icon"></i>
+                                            </div>
+                                            <div class="admin__chat-msg-footer-btn">
+                                                <i class="uil uil-file admin__chat-msg-footer-icon"></i>
+                                            </div>
+                                            <div class="admin__chat-msg-footer-btn">
+                                                <i class="uil uil-grin admin__chat-msg-footer-icon"></i>
+                                            </div>
+                                        </div>
+                                        <div class="admin__chat-msg-footer-reply">
+                                            <input type="text" class="admin__chat-msg-footer-reply-input" placeholder="Nhập nội dung tin nhắn...">
+                                            <div class="admin__chat-msg-footer-reply-send hide-on-destop">
+                                                <i class="uil uil-message admin__chat-msg-footer-icon"></i>
+                                            </div>
+                                        </div>
+                                        <div class="admin__chat-msg-footer-symbol">
+                                            <i class="uil uil-thumbs-up admin__chat-msg-footer-icon"></i>
+                                        </div>
+                                    </div>
+                                </div>
+            `;
+            document.querySelector(".admin__chat-msg").innerHTML = htmlChatMessage;
+            
+            document.querySelector(".admin__chat-msg-footer-reply-input").addEventListener('keyup', () => {
+                if (document.querySelector(".admin__chat-msg-footer-reply-input").value != "") {
+                    document.querySelector(".admin__chat-msg-footer-reply-send").classList.remove("hide-on-destop");
+                } else {
+                    document.querySelector(".admin__chat-msg-footer-reply-send").classList.add("hide-on-destop");
+                }
+            });
+        }
+    };
+    xhr.send(null);
 }
 
 // Show AssessmentManagement
@@ -1870,19 +1694,57 @@ function toast({ title = "", msg = "", type = "", duration = 3000}) {
     }
 }
 
-// Modal
-function openModal() {
-    document.querySelector(".modal").classList.add('open');
-}
-
-function closeModal() {
-    document.querySelector(".modal").classList.remove('open');
-}
-
 function money_2(number) {
     const formattedAmount = new Intl.NumberFormat('vi-VI', {
         style: 'currency',
         currency: 'VND',
     }).format(number);
     return formattedAmount;
+}
+
+// Lấy tên thứ
+function getDate(date) {
+    // Khai báo đối tượng Date
+    var date = new Date(date);
+
+    // Lấy số thứ tự của ngày hiện tại
+    var current_day = date.getDay();
+
+    // Biến lưu tên của thứ
+    var day_name = '';
+
+    // Lấy tên thứ của ngày hiện tại
+    switch (current_day) {
+        case 0:
+            day_name = "CN";
+            break;
+        case 1:
+            day_name = "Thứ 2";
+            break;
+        case 2:
+            day_name = "Thứ 3";
+            break;
+        case 3:
+            day_name = "Thứ 4";
+            break;
+        case 4:
+            day_name = "Thứ 5";
+            break;
+        case 5:
+            day_name = "Thứ 6";
+            break;
+        case 6:
+            day_name = "Thứ 7";
+    }
+    return day_name;
+}
+
+function getTime(time) {
+    var date = new Date(time);
+    var hours = date.getHours();
+    hours = hours < 10 ? '0' + hours : hours;
+    var minutes = date.getMinutes();
+    minutes = minutes < 10 ? '0' + minutes : minutes;
+    var current_time = hours + ":" + minutes;
+    return current_time;
 }
