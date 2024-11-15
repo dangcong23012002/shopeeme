@@ -154,11 +154,11 @@
                             <span class="header__search-select-label">Trong shop</span>
                             <i class="header__search-select-icon fa-solid fa-chevron-down"></i>
                             <ul class="header__search-option">
-                                <li class="header__search-option-item header__search-option-item--active">
+                                <li class="header__search-option-item header__search-option-item--active" onclick="noticeIncompleteFunc()">
                                     <span>Trong shop</span>
                                     <i class="fa-solid fa-check"></i>
                                 </li>
-                                <li class="header__search-option-item header__search-option-item--active">
+                                <li class="header__search-option-item header__search-option-item--active" onclick="noticeIncompleteFunc()">
                                     <span>Ngoài shop</span>
                                     <i class="fa-solid fa-check"></i>
                                 </li>
@@ -295,6 +295,13 @@
                 </div>
             </div>
         </footer>
+    </div>
+    <div class="chat">
+        
+    </div>
+    <div class="chat__btn" onclick="displayChat()">
+        <i class="uil uil-comments-alt"></i>
+        <span>Chat</span>
     </div>
     <div class="modal">
         <div class="modal__overlay">

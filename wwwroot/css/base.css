@@ -191,7 +191,7 @@ input, textarea, button {
     color: var(--white-color);
     border-radius: 3px;
     line-height: 1.5;
-    background-color: var(--second-color);
+    background-color: var(--primary-color);
     cursor: pointer;
 }
 
@@ -1156,7 +1156,7 @@ i.home-product-item__like-icon-empty {
 
 .comment__reviewer-stars {
     font-size: 20px;
-    color: var(--second-color);
+    color: var(--heart-color);
 }
 
 .comment__rate-time {
@@ -1208,11 +1208,11 @@ i.home-product-item__like-icon-empty {
 }
 
 .pagination-item--active .pagination-item__link {
-    background-color: var(--second-color);
+    background-color: var(--primary-color);
     color: var(--white-color);
 }
 
-    .pagination-item--active .pagination-item__link:hover {
+    .pagination-item--active .pagination-item__link:hover { 
         background-color: #ed5c3f;
     }
 
