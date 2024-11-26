@@ -30,6 +30,23 @@ public class CheckoutController : Controller {
         if (userID != null)
         {
             _accessor?.HttpContext?.Session.SetInt32("UserID", Convert.ToInt32(userID));
+        } else {
+            return View();
+        }
+        var sessionUserID = _accessor?.HttpContext?.Session.GetInt32("UserID");
+        if (sessionUserID != null)
+        {
+            List<User> users = _userResponsitory.checkUserLogin(Convert.ToInt32(sessionUserID)).ToList();
+            _accessor?.HttpContext?.Session.SetString("UserName", users[0].sUserName);
+            _accessor?.HttpContext?.Session.SetInt32("RoleID", users[0].FK_iRoleID);
+        }
+        else
+        {
+            _accessor?.HttpContext?.Session.SetString("UserName", "");
+        }
+        System.Console.WriteLine("UserID: " + userID);
+        if (sessionUserID == 0) {
+            return Redirect("/user/login");
         }
         return View(); 
     }
@@ -178,7 +195,7 @@ public class CheckoutController : Controller {
 
     [HttpPost]
     [Route("/checkout/add-to-order")]
-    public IActionResult AddToOrder(double totalPrice, int paymentTypeID, int orderStatusID) {
+    public IActionResult AddToOrder(double totalPrice = 0, int paymentTypeID = 0, int paymentID = 0, int orderStatusID = 0) {
         var sessionUserID = _accessor?.HttpContext?.Session.GetInt32("UserID");
         var sessionShopID = _accessor?.HttpContext?.Session.GetInt32("ShopID");
         List<Order> order = _orderResponsitory.getOrderByID(Convert.ToInt32(sessionUserID), Convert.ToInt32(sessionShopID)).ToList();
@@ -187,7 +204,11 @@ public class CheckoutController : Controller {
         if (order.Count() != 0) {
             orderID = order[0].PK_iOrderID;
         } else {
-            _orderResponsitory.inserOrder(Convert.ToInt32(sessionUserID), Convert.ToInt32(sessionShopID), totalPrice, orderStatusID, paymentTypeID);
+            if (paymentID == 4) {
+                _orderResponsitory.inserOrder(Convert.ToInt32(sessionUserID), Convert.ToInt32(sessionShopID), totalPrice, 6, paymentTypeID);
+            } else {
+                _orderResponsitory.inserOrder(Convert.ToInt32(sessionUserID), Convert.ToInt32(sessionShopID), totalPrice, orderStatusID, paymentTypeID);
+            }
             List<Order> newOrder = _orderResponsitory.getOrderByID(Convert.ToInt32(sessionUserID), Convert.ToInt32(sessionShopID)).ToList();
             orderID = newOrder[0].PK_iOrderID;
         }

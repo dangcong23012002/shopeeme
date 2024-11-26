@@ -165,7 +165,7 @@ function setProductsOrderAll(data) {
                                                 Shop</span></a>
                                     </div>
                                     <div class="purchase__body-title">
-                                        <div class="purchase__body-header-subwait">Chờ thanh toán</div>
+                                        <div class="purchase__body-header-subwait">${e.sOrderStatusName}</div>
                                     </div>
                                 </div>
                                 <div class="purchase__body-container">
@@ -219,18 +219,71 @@ function setProductsOrderAll(data) {
                                     </div>
                                     <div class="purchase__bottom-head-price">${money(e.dUnitPrice * e.iQuantity)} đ</div>
                                 </div>
-                                <div class="purchase__bottom-btns">
-                                    <a href="#"
-                                        class="btn purchase__bottom-link purchase__bottom-link-wait hide-on-mobile">Chờ</a>
+                                <div class="purchase__bottom-btns">`;
+                                if (e.iOrderStatusCode == 14) {
+                                    htmlProductOrderAll += 
+                                    `
+                                    <a href="/product/detail?id=${e.pK_iProductID}" class="btn btn--primary purchase__bottom-btn hide-on-mobile">Mua lại</a>
+                                    <a href="#" class="btn purchase__bottom-link hide-on-mobile">Liên hệ người bán</a>
+                                    `;
+                                } else if (e.iOrderStatusCode == 4 || e.iOrderStatusCode == 0) {
+                                    htmlProductOrderAll += `
+                                    <a href="#"class="btn purchase__bottom-link purchase__bottom-link-wait hide-on-mobile">Chờ</a>
                                     <a href="" class="btn purchase__bottom-link hide-on-mobile">Liên hệ người bán</a>
                                     <a href="" class="btn purchase__bottom-link hide-on-mobile">Huỷ đơn hàng</a>
-                                    <a href="#" class="btn btn--primary hide-on-destop">Liên hệ Shop</a>
+                                    <a href="#" class="btn btn--primary hide-on-destop">Liên hệ Shop</a>`;
+                                } else {
+                                    htmlProductOrderAll += 
+                                    `
+                                    <a href="javascript:openCofirmModal(${e.pK_iOrderID}, ${e.pK_iProductID})" class="btn btn--primary purchase__bottom-btn hide-on-mobile">Đã nhận hàng</a>
+                                    <a href="" class="btn purchase__bottom-link hide-on-mobile">Trả hàng/hoàn tiền</a>
+                                    `;
+                                }               
+                                htmlProductOrderAll += `     
                                 </div>
                             </div>
                         </div>
         `;
     });
     document.querySelector(".purchase__all-list").innerHTML = htmlProductOrderAll;
+
+    if(data.orderDetails.length > 3) {
+        let htmlPagination = "";
+        htmlPagination += 
+        `
+                                <ul class="pagination home-product__pagination">
+                                    <li class="pagination-item">
+                                        <a href="" class="pagination-item__link">
+                                            <i class="pagination-item__icon fas fa-angle-left"></i>
+                                        </a>
+                                    </li>
+                                    <li class="pagination-item pagination-item--active">
+                                        <a href="" class="pagination-item__link">1</a>
+                                    </li>
+                                    <li class="pagination-item">
+                                        <a href="" class="pagination-item__link">2</a>
+                                    </li>
+                                    <li class="pagination-item">
+                                        <a href="" class="pagination-item__link">4</a>
+                                    </li>
+                                    <li class="pagination-item">
+                                        <a href="" class="pagination-item__link">5</a>
+                                    </li>
+                                    <li class="pagination-item">
+                                        <a href="" class="pagination-item__link">...</a>
+                                    </li>
+                                    <li class="pagination-item">
+                                        <a href="" class="pagination-item__link">14</a>
+                                    </li>
+                                    <li class="pagination-item">
+                                        <a href="" class="pagination-item__link">
+                                            <i class="pagination-item__icon fas fa-angle-right"></i>
+                                        </a>
+                                    </li>
+                                </ul>
+        `;
+        document.querySelector(".purchase__all-pagination").innerHTML = htmlPagination;
+    }
 }
 
 function setProductsOrderWaitSettlement(data) {
