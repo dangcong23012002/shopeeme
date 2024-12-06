@@ -13,6 +13,7 @@ public interface IOrderResponsitory
     IEnumerable<Order> getOrderWaitPickupByShopID(int shopID);
     IEnumerable<Order> getOrderWaitPickingUpByOrderID(int orderID);
     IEnumerable<Order> getOrderProcessedByShopID(int shopID);
+    IEnumerable<Order> getOrderByUserIDDestroy(int userID);
     IEnumerable<OrderDetail> getProductsOrderByUserIDWaitSettlement(int userID);
     IEnumerable<OrderDetail> getProductsOrderByUserIDTransiting(int userID);
     IEnumerable<OrderDetail> getProductsOrderByUserIDDelivered(int userID);
@@ -21,12 +22,14 @@ public interface IOrderResponsitory
     IEnumerable<OrderDetail> getOrderDetailPickingUpByOrderID(int orderID);
     IEnumerable<OrderDetail> getOrderDetailWaitDeliveyByOrderID(int orderID);
     IEnumerable<OrderDetail> getProductsOrderByUserIDDelivering(int userID);
+    IEnumerable<OrderDetail> getProductsOrderByUserIDDestroy(int userID);
     bool confirmOrderAboutWaitPickup(int orderID, int userID);
     bool confirmOrderAboutTransiting(int orderID, int userID);
     bool confirmOrderAboutWaitDelivery(int orderID, int userID);
     bool confirmOrderAboutDelivered(int orderID);
     bool confirmOrderAboutReceived(int orderID);
     bool confirmOrderAboutWaitDelivering(int orderID);
+    bool confirmOrderAboutDestroy(int orderID);
     bool inserOrder(int userID, int shopID, double totalPrice, int orderStatusID, int paymentID);
     bool inserOrderDetail(int orderID, int productID, int quantity, double unitPrice, double money);
 }
