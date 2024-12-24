@@ -13,13 +13,28 @@ public class UserController : Controller {
     private readonly IUserResponsitory _userResponsitory;
     private readonly ICartReponsitory _cartResponsitory;
     private readonly IOrderResponsitory _orderResponsitory;
-    public UserController(DatabaseContext context, IHttpContextAccessor accessor, IUserResponsitory userResponsitory, ICartReponsitory cartReponsitory, IOrderResponsitory orderResponsitory)
+    private readonly IShopResponsitory _shopResponsitory;
+    private readonly ICheckoutResponsitory _checkoutResponsitory;
+    private readonly IShippingOrderRepository _shippingOrderRepository;
+    public UserController(
+        DatabaseContext context, 
+        IHttpContextAccessor accessor, 
+        IUserResponsitory userResponsitory, 
+        ICartReponsitory cartReponsitory, 
+        IOrderResponsitory orderResponsitory,
+        IShopResponsitory shopResponsitory,
+        ICheckoutResponsitory checkoutResponsitory,
+        IShippingOrderRepository shippingOrderRepository
+    )
     {
         _context = context;
         _accessor = accessor;
         _userResponsitory = userResponsitory;
         _cartResponsitory = cartReponsitory;
         _orderResponsitory = orderResponsitory;
+        _shopResponsitory = shopResponsitory;
+        _checkoutResponsitory = checkoutResponsitory;
+        _shippingOrderRepository = shippingOrderRepository;
     }
 
     [Route("/user/login")]
@@ -291,6 +306,51 @@ public class UserController : Controller {
             TotalPage = totalPage,
             PageSize = pageSize,
             CurrentPage = currentPage
+        };
+        return Ok(model);
+    }
+
+    [HttpGet]
+    [Route("/user/purchase/order/{orderID?}")]
+    public IActionResult Order() {
+        // Lấy Cookies trên trình duyệt
+        var userID = Request.Cookies["UserID"];
+        if (userID != null)
+        {
+            _accessor?.HttpContext?.Session.SetInt32("UserID", Convert.ToInt32(userID));
+        } else {
+            return Redirect("/user/login");
+        }
+        var sessionUserID = _accessor?.HttpContext?.Session.GetInt32("UserID");
+        if (sessionUserID != null)
+        {
+            List<User> users = _userResponsitory.checkUserLogin(Convert.ToInt32(sessionUserID)).ToList();
+            _accessor?.HttpContext?.Session.SetString("UserName", users[0].sUserName);
+            _accessor?.HttpContext?.Session.SetInt32("RoleID", users[0].FK_iRoleID);
+        }
+        else
+        {
+            _accessor?.HttpContext?.Session.SetString("UserName", "");
+        }
+        ShopeeViewModel model = new ShopeeViewModel {
+
+        };
+        return View(model);
+    }
+
+    [HttpGet]
+    [Route("/user/purchase/order-data/{orderID?}")]
+    public IActionResult OrderData(int orderID = 0) {
+        int userID = Convert.ToInt32(_accessor?.HttpContext?.Session.GetInt32("UserID"));
+        IEnumerable<Order> order = _orderResponsitory.getOrderByOrderID(orderID);
+        IEnumerable<Store> store = _shopResponsitory.getShopByOrderID(orderID);
+        List<Address> address = _checkoutResponsitory.checkAddressAccount(userID).ToList();
+        List<ShippingOrder> shippingOrder = _shippingOrderRepository.getShippingOrderByOrderID(orderID).ToList();
+        ShopeeViewModel model = new ShopeeViewModel {
+            Order = order,
+            Store = store,
+            Address = address,
+            ShippingOrder = shippingOrder
         };
         return Ok(model);
     }
