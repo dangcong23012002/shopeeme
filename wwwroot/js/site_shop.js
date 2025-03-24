@@ -1,12 +1,25 @@
 // Get API Site Shop
 function getAPISiteMall() {
+    const url = window.location.href;
+    const params = new URL(url).searchParams;
+    const entries = new URLSearchParams(params).values();
+    const array = Array.from(entries)
+    const shopName = array[0];
+
+    let userID = getCookies("userID");
+    if (userID == undefined) {
+        userID = 0;
+    }
+
     var xhr = new XMLHttpRequest();
-    xhr.open('post', '/shop/get-data', true);
+    xhr.open('get', '/shop/get-data?name=' + shopName + '&userID=' + userID + '', true);
     xhr.onreadystatechange = () => {
         if (xhr.readyState == 4 && xhr.status == 200) {
             const data = JSON.parse(xhr.responseText);
             
             console.log(data);
+
+            setHeaderMobile(data);
 
             setAccount(data);
 
@@ -17,6 +30,111 @@ function getAPISiteMall() {
     xhr.send(null);
 }
 getAPISiteMall();
+
+function setHeaderMobile(data) {
+    let htmlHeaderMobile = "";
+    htmlHeaderMobile += 
+                `<div class="header__mobile-container">
+                    <div class="header__mobile-left">
+                        <div class="header__mobile-menu" onclick="showNavMenu()">
+                            <i class="uil uil-bars header__mobile-menu-icon"></i>
+                        </div>
+                        <div class="header__mobile-menu-nav hide-on-destop">
+                            <div class="header__mobile-menu-container">
+                                <div class="header__mobile-menu-close" onclick="closeNavMenu()">
+                                    <i class="uil uil-multiply header__mobile-menu-close-icon"></i>
+                                </div>
+                                <div class="header__mobile-menu-list">
+                                    <div class="header__mobile-menu-item">
+                                        <div class="header__mobile-menu-item-link header__mobile-menu-item-shop">
+                                            <span class="header__mobile-menu-item-name">Thông tin Shop</span>
+                                        </div>
+                                    </div>
+                                    <div class="header__mobile-menu-item">
+                                        <div class="header__mobile-menu-item-link header__mobile-menu-item-product">
+                                            <span class="header__mobile-menu-item-name">Sản phẩm</span>
+                                        </div>
+                                    </div>
+                                    <div class="header__mobile-menu-item">
+                                        <a href="javascript:openCategoryMenu()" class="header__mobile-menu-item-link">
+                                            <span class="header__mobile-menu-item-name">Danh mục</span>
+                                            <i class="uil uil-angle-down header__mobile-menu-item-dropdown-icon"></i>
+                                        </a>
+                                    </div>`;
+                                    if (data.userID != 0) {
+                                        htmlHeaderMobile += 
+                                    `<div class="header__mobile-menu-logout">
+                                        <a href="javascript:logoutUserAccount()" class="header__mobile-menu-logout-link">
+                                            <span class="header__mobile-menu-logout-name">Đăng xuất</span>
+                                            <i class="uil uil-signout header__mobile-menu-logout-icon"></i>
+                                        </a>
+                                    </div>`;
+                                    }
+                                    htmlHeaderMobile += `
+                                </div>
+                            </div>
+                            <div class="header__mobile-menu-container-category">
+                                <div class="header__mobile-menu-close" onclick="closeNavMenu()">
+                                    <i class="uil uil-multiply header__mobile-menu-close-icon"></i>
+                                </div>
+                                <div class="header__mobile-menu-list">
+                                    <div class="header__mobile-menu-back">
+                                        <a href="javascript:showNavMenu()" class="header__mobile-menu-back-link">
+                                            <div class="header__mobile-menu-back-icon-symb">
+                                                <i class="header__mobile-back-item-icon uil uil-arrow-left"></i>
+                                            </div>
+                                            <span class="header__mobile-menu-back-name">Quay lại</span>
+                                        </a>
+                                    </div>
+                                    <div class="header__mobile-menu-back">
+                                        <span class="header__mobile-menu-back-all">Xem tất cả thể loại</span>
+                                    </div>`;
+                                    data.categories.forEach(element => {
+                                        htmlHeaderMobile += 
+                                    `<div class="header__mobile-menu-item">
+                                        <a href="javascript:filterProductByCategoryID(${element.pK_iCategoryID})" class="header__mobile-menu-item-link">
+                                            <span class="header__mobile-menu-tab-name">${element.sCategoryName}</span>
+                                        </a>
+                                    </div>`;
+                                    });
+                                    htmlHeaderMobile += `
+                                </div>
+                            </div>
+                            <div class="header__mobile-menu-overlay"></div>
+                        </div>
+                    </div>
+                    <div class="header__mobile-logo">
+                        <a href="/" class="header__logo-link">
+                            <img class="header__logo-img" src="/img/sme_logo_white.png" alt="SMe Logo">
+                        </a>
+                    </div>
+                    <div class="header__mobile-right">`;
+                    if (data.userID == 0) {
+                        htmlHeaderMobile += 
+                        `<div class="header__mobile-user-symbol">
+                            <a href="/user/login" class="header__mobile-user-link">  
+                                <i class="uil uil-user header__mobile-user-icon"></i>
+                            </a>
+                        </div>`;
+                    } else {
+                        htmlHeaderMobile += 
+                        `<div class="header__mobile-user-avatar">
+                            <div class="header__mobile-user-avatar-img" style="background-image: url(/img/${data.userInfo[0].sImageProfile});"></div>
+                        </div>`;
+                    }
+                        htmlHeaderMobile += `
+                    </div>
+                </div>`;
+    document.querySelector(".header__mobile").innerHTML = htmlHeaderMobile;
+
+    document.querySelector(".header__mobile-menu-item-shop").addEventListener('click', () => {
+        addShopMobileShop(0);
+    });
+
+    document.querySelector(".header__mobile-menu-item-product").addEventListener('click', () => {
+        addShopMobileProduct(1);
+    });
+}
 
 function setAccount(data) {
     let htmlAccount = "";
@@ -30,14 +148,16 @@ function setAccount(data) {
                                 <a class="header__navbar-item-link" href="/user/login">Đăng nhập</a>
                             </li>
             `;
+    } else if (data.userID != 0 && data.userInfo.length == 0) {
+        window.location.assign("/user/portal");
     } else {
         if (data.roleID == 2) {
             htmlAccount +=
                 `
                 <div class="header__navbar-item">
                     <div class="header__navbar-user">
-                        <img src="/img/no_user.jpg" alt="" class="header__navbar-user-img">
-                        <span class="header__navbar-user-name">${data.username}</span>
+                        <img src="/img/${data.userInfo[0].sImageProfile}" alt="" class="header__navbar-user-img">
+                        <span class="header__navbar-user-name">${data.userInfo[0].sUserName}</span>
                         <div class="header__navbar-user-manager">
                             <ul class="header__navbar-user-menu">
                                 <li class="header__navbar-user-item">
@@ -53,7 +173,7 @@ function setAccount(data) {
                                     <a href="/admin">Quản trị</a>
                                 </li>
                                 <li class="header__navbar-user-item header__navbar-user-item--separate">
-                                    <a href="/user/logout">Đăng xuất</a>
+                                    <a href="javascript:logoutUserAccount()">Đăng xuất</a>
                                 </li>
                             </ul>
                         </div>
@@ -65,8 +185,8 @@ function setAccount(data) {
                 `
                 <div class="header__navbar-item">
                     <div class="header__navbar-user">
-                        <img src="/img/no_user.jpg" alt="" class="header__navbar-user-img">
-                        <span class="header__navbar-user-name">${data.username}</span>
+                        <img src="/img/${data.userInfo[0].sImageProfile}" alt="" class="header__navbar-user-img">
+                        <span class="header__navbar-user-name">${data.userInfo[0].sUserName}</span>
                         <div class="header__navbar-user-manager">
                             <ul class="header__navbar-user-menu">
                                 <li class="header__navbar-user-item">
@@ -82,7 +202,7 @@ function setAccount(data) {
                                     <a href="/picker">Kênh lấy hàng</a>
                                 </li>
                                 <li class="header__navbar-user-item header__navbar-user-item--separate">
-                                    <a href="/User/Logout">Đăng xuất</a>
+                                    <a href="javascript:logoutUserAccount()">Đăng xuất</a>
                                 </li>
                             </ul>
                         </div>
@@ -94,8 +214,8 @@ function setAccount(data) {
                 `
                                 <div class="header__navbar-item">
                                     <div class="header__navbar-user">
-                                        <img src="/img/no_user.jpg" alt="" class="header__navbar-user-img">
-                                        <span class="header__navbar-user-name">${data.username}</span>
+                                        <img src="/img/${data.userInfo[0].sImageProfile}" alt="" class="header__navbar-user-img">
+                                        <span class="header__navbar-user-name">${data.userInfo[0].sUserName}</span>
                                         <div class="header__navbar-user-manager">
                                             <ul class="header__navbar-user-menu">
                                                 <li class="header__navbar-user-item">
@@ -111,7 +231,7 @@ function setAccount(data) {
                                                     <a href="/delivery">Kênh giao hàng</a>
                                                 </li>
                                                 <li class="header__navbar-user-item header__navbar-user-item--separate">
-                                                    <a href="/User/Logout">Đăng xuất</a>
+                                                    <a href="javascript:logoutUserAccount()">Đăng xuất</a>
                                                 </li>
                                             </ul>
                                         </div>
@@ -123,8 +243,8 @@ function setAccount(data) {
                 `
                                 <div class="header__navbar-item">
                                     <div class="header__navbar-user">
-                                        <img src="/img/no_user.jpg" alt="" class="header__navbar-user-img">
-                                        <span class="header__navbar-user-name">${data.username}</span>
+                                        <img src="/img/${data.userInfo[0].sImageProfile}" alt="" class="header__navbar-user-img">
+                                        <span class="header__navbar-user-name">${data.userInfo[0].sUserName}</span>
                                         <div class="header__navbar-user-manager">
                                             <ul class="header__navbar-user-menu">
                                                 <li class="header__navbar-user-item">
@@ -137,7 +257,7 @@ function setAccount(data) {
                                                     <a href="/user/purchase">Đơn mua</a>
                                                 </li>
                                                 <li class="header__navbar-user-item header__navbar-user-item--separate">
-                                                    <a href="/User/Logout">Đăng xuất</a>
+                                                    <a href="javascript:logoutUserAccount()">Đăng xuất</a>
                                                 </li>
                                             </ul>
                                         </div>
@@ -147,6 +267,20 @@ function setAccount(data) {
         }
     }
     document.querySelector(".header__navbar-auth").innerHTML = htmlAccount;
+}
+
+function logoutUserAccount() {
+    openModal();
+    document.querySelector(".modal__body").innerHTML = `<div class="spinner"></div>`;
+    deleteCookies("userID");
+    setTimeout(() => {
+        closeModal();
+        toast({ title: "Thông báo", msg: `Đăng xuất thành công!`, type: "success", duration: 5000 });
+        document.querySelector(".modal__body").innerHTML = "";
+        setTimeout(() => {
+            window.location.assign('/');
+        }, 1000)
+    }, 2000);
 }
 
 function setCartItems(data) {
@@ -171,7 +305,7 @@ function setCartItems(data) {
         data.cartDetails.forEach(element => {
             htmtCartItem +=
             `
-                        <a href="/product/detail/${element.pK_iProductID}" class="header__cart-item">
+                        <a href="/product/detail?id=${element.pK_iProductID}" class="header__cart-item">
                             <div class="header__cart-item-img">
                                 <img src="/img/${element.sImageUrl}" class="header__cart-item-img" alt="">
                             </div>
@@ -186,7 +320,7 @@ function setCartItems(data) {
                                 </div>
                                 <div class="header__cart-item-body">
                                     <span class="header__cart-item-description">
-                                        Phân loại hàng:Bạc
+                                        Phân loại hàng: Bạc
                                     </span>
                                     <span class="header__cart-item-remove">Xoá</span>
                                 </div>
@@ -230,6 +364,24 @@ function noticeIncompleteFunc() {
                     </div>
                 </div>
             `;
+}
+
+// Show Navbar Menu
+function showNavMenu() {
+    document.querySelector(".header__mobile-menu-overlay").classList.add("open");
+    document.querySelector(".header__mobile-menu-container").classList.add("open");
+    document.querySelector(".header__mobile-menu-container-category").classList.remove("open");
+}
+
+function closeNavMenu() {
+    document.querySelector(".header__mobile-menu-overlay").classList.remove("open");
+    document.querySelector(".header__mobile-menu-container").classList.remove("open");
+    document.querySelector(".header__mobile-menu-container-category").classList.remove("open");
+}
+
+function openCategoryMenu() {
+    document.querySelector(".header__mobile-menu-container").classList.remove("open");
+    document.querySelector(".header__mobile-menu-container-category").classList.add("open");
 }
 
 // Load Product
@@ -357,4 +509,27 @@ function money_2(number) {
         currency: 'VND',
     }).format(number);
     return formattedAmount;
+}
+
+function getCookies(userID) {
+    const id = userID + "=";
+    const cDecoded = decodeURIComponent(document.cookie);
+    const arr = cDecoded.split(";");
+    let res; 
+    arr.forEach(val => {
+        if (val.indexOf(id) === 0) res = val.substring(id.length);
+    });
+    return res;
+}
+
+function deleteCookies(name) {
+    document.cookie = name + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+}
+
+function getQueryStr() {
+    const url = window.location.href;
+    const params = new URL(url).searchParams;
+    const entries = new URLSearchParams(params).values();
+    const array = Array.from(entries)
+    return array[0];
 }

@@ -3,10 +3,6 @@
     background-color: var(--primary-color);
 }
 
-.app.hight {
-    height: 100vh;
-}
-
 /* Login */
 .auth {
     display: grid;
@@ -284,9 +280,6 @@
 }
 
 @media screen and (max-width: 739px) {
-    .app {
-        background-color: var(--white-color);
-    }
     .header {
         height: var(--header-height);
     }
@@ -343,15 +336,10 @@
 
     .auth__mobile-form-div {
         width: 100%;
-        height: 60px;
+        height: var(--header-height);
         display: flex;
         align-items: center;
         border-bottom: 1px solid var(--border-color);
-    }
-
-    .auth__mobile-form-div-email.err,
-    .auth__mobile-form-div-password.err {
-        border-bottom: 1px solid var(--primary-color);
     }
 
     .auth__mobile-form-icon {
@@ -404,7 +392,11 @@
     }
 
     .auth__mobile-form-msg {
-        margin-top: 12px;
+        margin-top: 16px;
+        display: inline-block;
+    }
+
+    .auth__mobile-form-msg.error {
         color: var(--primary-color);
     }
 
@@ -414,7 +406,7 @@
         width: 100%;
         text-align: center;
         background-color: #e8e8e8;
-        padding: 18px 0;
+        padding: 14px 0;
         color: #ababab;
     }
 
@@ -467,7 +459,7 @@
         color: var(--text-color);
         text-align: center;
         width: 100%;
-        padding: 18px 0;
+        padding: 14px 0;
         border: 1px solid #b9b9b9;
         border-radius: 2px;
     }

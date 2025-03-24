@@ -1,3 +1,12 @@
+function getAPISellerLogin() {
+    const sellerID = getCookies("sellerID");
+    if (sellerID != undefined) {
+        window.location.assign("/seller");
+    }
+    
+}
+getAPISellerLogin();
+
 // Validate Login Seller
 function showErrStyles(input, msg) {
     input.classList.add("err");
@@ -107,7 +116,7 @@ const addEvent = (() => {
                         setTimeout(() => {
                             closeModal();
                             toast({ title: "Thông báo", msg: `${result.status.message}`, type: "err", duration: 5000 });
-                            // setCookies("sellerID", )
+                            setCookies("sellerID", result.seller[0].pK_iSellerID, 1);
                             document.querySelector(".modal__body").innerHTML = "";
                             setTimeout(() => {
                                 window.location.assign("/seller/portal");
@@ -120,7 +129,7 @@ const addEvent = (() => {
                             closeModal();
                             toast({ title: "Thông báo", msg: `${result.status.message}`, type: "success", duration: 5000 });
                             setCookies("sellerID", result.seller[0].pK_iSellerID, 1);
-                            sessionStorage.setItem("seller", JSON.stringify(result.seller[0]))
+                            sessionStorage.setItem("sellerInfo", JSON.stringify(result.sellerInfo[0]))
                             document.querySelector(".modal__body").innerHTML = "";
                             setTimeout(() => {
                                 window.location.assign('/seller');
@@ -133,3 +142,14 @@ const addEvent = (() => {
         }
     });
 })();
+
+function getCookies(userID) {
+    const id = userID + "=";
+    const cDecoded = decodeURIComponent(document.cookie);
+    const arr = cDecoded.split(";");
+    let res; 
+    arr.forEach(val => {
+        if (val.indexOf(id) === 0) res = val.substring(id.length);
+    });
+    return res;
+}

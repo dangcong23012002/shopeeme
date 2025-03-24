@@ -1,6 +1,11 @@
 function getDataDetail() {
+    let userID = getCookies("userID");
+    if (userID == undefined) {
+        userID = 0;
+    }
+
     var xhr = new XMLHttpRequest();
-    xhr.open('post', '/product/get-data-detail', true);
+    xhr.open('get', '/product/get-data-detail?userID=' + userID + '&id=' + getQueryStr() + '', true);
     xhr.onreadystatechange = () => {
         if (xhr.readyState == 4 && xhr.status == 200) {
             const data = JSON.parse(xhr.responseText);
@@ -37,10 +42,12 @@ function loadDetailInfo(data) {
                                     <h2 class="detail__right-title">${data.product[0].sProductName}</h2>
                                     <div class="detail__price">`;
                                     if (data.product[0].dPerDiscount != 1) {
-                                        htmlProductDetail += `<p class="detail__price-old"><span>${money(data.product[0].dPrice)} đ</span></p>`;
-                                        htmlProductDetail += `<p class="detail__price-new"><span>${money((data.product[0].dPrice * (1 - data.product[0].dPerDiscount)))} đ</span></p>`;
+                                        htmlProductDetail += 
+                                        `<p class="detail__price-old"><span>${money(data.product[0].dPrice)} đ</span></p>
+                                        <p class="detail__price-new"><span>${money((data.product[0].dPrice * (1 - data.product[0].dPerDiscount)))} đ</span></p>`;
                                     } else {
-                                        htmlProductDetail += `          <p class="detail__price-new"><span>${money(data.product[0].dPrice)} đ</span></p>`;
+                                        htmlProductDetail += 
+                                        `<p class="detail__price-new"><span>${money(data.product[0].dPrice)} đ</span></p>`;
                                     }
         htmlProductDetail += `      </div>
                                     <div class="detail__policy-destop-mobile hide-on-destop">
@@ -147,10 +154,10 @@ function loadDetailInfo(data) {
                                         <div class="detail__mobile-bottom-sheet">
                                             <div class="detail__mobile-bottom-sheet-info">
                                                 <div class="detail__mobile-bottom-sheet-info-img"
-                                                    style="background-image: url(/img/tai_nghe_eport.jpg);"></div>
+                                                    style="background-image: url(/img/${data.product[0].sImageUrl});"></div>
                                                 <div class="detail__mobile-bottom-sheet-info-desc">
-                                                    <div class="detail__mobile-bottom-sheet-info-price">114.000đ - 225.000đ</div>
-                                                    <div class="detail__mobile-bottom-sheet-info-warehouse">Kho: 12345</div>
+                                                    <div class="detail__mobile-bottom-sheet-info-price">${money_2(0)} - ${money_2(data.product[0].dPrice)}</div>
+                                                    <div class="detail__mobile-bottom-sheet-info-warehouse">Kho: ${data.product[0].iQuantity}</div>
                                                 </div>
                                             </div>
                                             <div class="detail__mobile-bottom-sheet-close" onclick="closeBottomSheet()">
@@ -161,12 +168,12 @@ function loadDetailInfo(data) {
                                                 <div class="detail__mobile-bottom-sheet-type-list">
                                                     <div class="detail__mobile-bottom-sheet-type-item active">
                                                         <div class="detail__mobile-bottom-sheet-type-item-img"
-                                                            style="background-image: url(/img/tai_nghe_eport.jpg);"></div>
+                                                            style="background-image: url(/img/${data.product[0].sImageUrl});"></div>
                                                         <div class="detail__mobile-bottom-sheet-type-item-name">Socany 3 cấp độ</div>
                                                     </div>
                                                     <div class="detail__mobile-bottom-sheet-type-item">
                                                         <div class="detail__mobile-bottom-sheet-type-item-img"
-                                                            style="background-image: url(/img/tai_nghe_eport.jpg);"></div>
+                                                            style="background-image: url(/img/${data.product[0].sImageUrl});"></div>
                                                         <div class="detail__mobile-bottom-sheet-type-item-name">Socany 3 cấp độ</div>
                                                     </div>
                                                 </div>
@@ -174,12 +181,12 @@ function loadDetailInfo(data) {
                                             <div class="detail__mobile-bottom-sheet-quantity">
                                                 <div class="detail__mobile-bottom-sheet-quantity-title">Số lượng</div>
                                                 <div class="detail__mobile-bottom-sheet-quantity-btns">
-                                                    <div class="detail__mobile-bottom-sheet-quantity-btn-plus">+</div>
-                                                    <input type="text" class="detail__mobile-bottom-sheet-quantity-input" value="1">
-                                                    <div class="detail__mobile-bottom-sheet-quantity-btn-less">-</div>
+                                                    <div class="detail__mobile-bottom-sheet-quantity-btn-plus" onclick="plusMobile(event)">+</div>
+                                                    <input type="text" class="detail__mobile-bottom-sheet-quantity-input" value="1" id="qnt-mobile">
+                                                    <div class="detail__mobile-bottom-sheet-quantity-btn-less" onclick="lessMobile(event)">-</div>
                                                 </div>
                                             </div>
-                                            <div class="detail__mobile-bottom-sheet-add-to-cart">Thêm vào giỏ hàng</div>
+                                            <div class="detail__mobile-bottom-sheet-add-to-cart" onclick="addToCartMobile(${data.product[0].pK_iProductID}, ${data.product[0].dPrice})">Thêm vào giỏ hàng</div>
                                         </div>
                                     </div>
                                     <div class="detail__number">
@@ -375,7 +382,7 @@ function loadDetailInfo(data) {
                                 <div class="detail__shop-right">
                                     <div class="detail__shop-item">
                                         <div class="detail__shop-item-name">Đánh giá</div>
-                                        <div class="detail__shop-item-numb">25,9k</div>
+                                        <div class="detail__shop-item-numb">${data.reviewers.length}</div>
                                     </div>
                                     <div class="detail__shop-item">
                                         <div class="detail__shop-item-name">Tỉ lệ phản hồi</div>
@@ -387,7 +394,7 @@ function loadDetailInfo(data) {
                                     </div>
                                     <div class="detail__shop-item">
                                         <div class="detail__shop-item-name">Sản phẩm</div>
-                                        <div class="detail__shop-item-numb">142</div>
+                                        <div class="detail__shop-item-numb">${data.products.length}</div>
                                     </div>
                                     <div class="detail__shop-item">
                                         <div class="detail__shop-item-name hide-on-mobile">Thời gian phản hồi</div>
@@ -537,12 +544,18 @@ function reduceProduct(event) {
 
 //AddToCart
 function addToCart(productID, price) {
+    let userID = getCookies("userID");
+    if (userID == undefined) {
+        userID = 0;
+    }
+
     var quantity = document.getElementById("qnt").value;
     if (parseInt(quantity) == 0) {
         toast({title: "Thông báo", msg: "Bạn chưa nhập số lượng sản phẩm!", type: "success", duration: 5000});
         // alert('Bạn chưa nhập số lượng sản phẩm!');
     } else {
         var formData = new FormData();
+        formData.append("userID", userID);
         formData.append('productID', productID);
         formData.append('unitPrice', price);
         formData.append('quantity', quantity);
@@ -651,6 +664,67 @@ function addToCart(productID, price) {
     }
 }
 
+// JS Mobile
+function plusMobile(event) {
+    const parentElement = event.target.parentNode;
+    var increase = parentElement.querySelector("#qnt-mobile").value;
+    if (parseInt(increase) < 100) {
+        parentElement.querySelector("#qnt-mobile").value = parseInt(increase) + 1;
+    }
+}
+
+function lessMobile(event) {
+    const parentElement = event.target.parentNode;
+    var reduce = parentElement.querySelector("#qnt-mobile").value;
+    if (parseInt(reduce) > 0) {
+        parentElement.querySelector("#qnt-mobile").value = parseInt(reduce) - 1;
+    }
+}
+
+function addToCartMobile(productID, price) {
+    let userID = getCookies("userID");
+    if (userID == undefined) {
+        userID = 0;
+    }
+
+    var quantity = document.getElementById("qnt-mobile").value;
+    if (parseInt(quantity) == 0) {
+        toast({title: "Thông báo", msg: "Bạn chưa nhập số lượng sản phẩm!", type: "success", duration: 5000});
+    } else {
+        var formData = new FormData();
+        formData.append("userID", userID);
+        formData.append('productID', productID);
+        formData.append('unitPrice', price);
+        formData.append('quantity', quantity);
+        var xhr = new XMLHttpRequest();
+        xhr.open('post', '/cart/add-to-cart', true);
+        xhr.onreadystatechange = () => {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                const data = JSON.parse(xhr.responseText);
+
+                console.log(data);
+
+                if (data.status.statusCode == 1) {
+                    toast({title: "Thông báo", msg: `${data.status.message}`, type: "success", duration: 5000});
+                    document.querySelector(".header__cart-notice").innerText = data.cartCount;
+                    closeBottomSheet();
+                } else if (data.status.statusCode == -1) {
+                    window.location.assign("/user/login")
+                } else if (data.status.statusCode == -2) {
+                    toast({ title: "Thông báo", msg: `${data.status.message}`, type: "success", duration: 5000 });
+                } else if (data.status.statusCode == -3) {
+                    toast({ title: "Thông báo", msg: `${data.status.message}`, type: "success", duration: 5000 });
+                } else {
+                    toast({ title: "Thông báo", msg: `${data.status.message}`, type: "success", duration: 5000 });
+                    document.querySelector(".header__cart-notice").innerText = data.cartCount;
+                    closeBottomSheet();
+                }
+            }
+        }
+        xhr.send(formData);
+    }
+}
+
 // Bottom Sheet
 function showBottomSheet() {
     document.querySelector(".detail__mobile-bottom-sheet-overlay").classList.add("open");
@@ -711,17 +785,68 @@ function setDataReviewer(data) {
             <div class="rate">
                 <div class="rate__header">
                     <div class="rate__title">
-                        <div class="rate__title-point">4.8</div>
+                        <div class="rate__title-point">${data.reviewers.reduce((total, a) => total + a.iStars, 0) / data.reviewers.length}</div>
                         <div class="rate__title-total">/5</div>
                     </div>
-                    <div class="rate__stars">
-                        <i class="uis uis-star"></i>
-                        <i class="uis uis-star"></i>
-                        <i class="uis uis-star"></i>
-                        <i class="uis uis-star"></i>
-                        <i class="uis uis-star-half-alt"></i>
+                    <div class="rate__stars">`;
+                    if (data.reviewers.reduce((total, a) => total + a.iStars, 0) / data.reviewers.length <= 1) {
+                        htmlReviewer += 
+                        `
+                        <i class="uis uis-star rate__star-icon rate__star-icon--gold"></i>
+                        <i class="uis uis-star rate__star-icon"></i>
+                        <i class="uis uis-star rate__star-icon"></i>
+                        <i class="uis uis-star rate__star-icon"></i>
+                        <i class="uis uis-star rate__star-icon"></i>
+                        `;
+                    } else if (data.reviewers.reduce((total, a) => total + a.iStars, 0) / data.reviewers.length <= 2) {
+                        htmlReviewer += 
+                        `
+                        <i class="uis uis-star rate__star-icon rate__star-icon--gold"></i>
+                        <i class="uis uis-star rate__star-icon rate__star-icon--gold"></i>
+                        <i class="uis uis-star rate__star-icon"></i>
+                        <i class="uis uis-star rate__star-icon"></i>
+                        <i class="uis uis-star rate__star-icon"></i>
+                        `;
+                    } else if (data.reviewers.reduce((total, a) => total + a.iStars, 0) / data.reviewers.length <= 3) {
+                        htmlReviewer += 
+                        `
+                        <i class="uis uis-star rate__star-icon rate__star-icon--gold"></i>
+                        <i class="uis uis-star rate__star-icon rate__star-icon--gold"></i>
+                        <i class="uis uis-star rate__star-icon rate__star-icon--gold"></i>
+                        <i class="uis uis-star rate__star-icon"></i>
+                        <i class="uis uis-star rate__star-icon"></i>
+                        `;
+                    } else if (data.reviewers.reduce((total, a) => total + a.iStars, 0) / data.reviewers.length <= 4 || data.reviewers.reduce((total, a) => total + a.iStars, 0) / data.reviewers.length < 4.5) {
+                        htmlReviewer += 
+                        `
+                        <i class="uis uis-star rate__star-icon rate__star-icon--gold"></i>
+                        <i class="uis uis-star rate__star-icon rate__star-icon--gold"></i>
+                        <i class="uis uis-star rate__star-icon rate__star-icon--gold"></i>
+                        <i class="uis uis-star rate__star-icon rate__star-icon--gold"></i>
+                        <i class="uis uis-star rate__star-icon"></i>
+                        `;
+                    } else if (data.reviewers.reduce((total, a) => total + a.iStars, 0) / data.reviewers.length <= 5) {
+                        htmlReviewer += 
+                        `
+                        <i class="uis uis-star rate__star-icon rate__star-icon--gold"></i>
+                        <i class="uis uis-star rate__star-icon rate__star-icon--gold"></i>
+                        <i class="uis uis-star rate__star-icon rate__star-icon--gold"></i>
+                        <i class="uis uis-star rate__star-icon rate__star-icon--gold"></i>
+                        <i class="uis uis-star rate__star-icon rate__star-icon--gold"></i>
+                        `;
+                    } else {
+                        htmlReviewer += 
+                        `
+                        <i class="uis uis-star rate__star-icon"></i>
+                        <i class="uis uis-star rate__star-icon "></i>
+                        <i class="uis uis-star rate__star-icon"></i>
+                        <i class="uis uis-star rate__star-icon"></i>
+                        <i class="uis uis-star-half-alt rate__star-icon"></i>
+                        `;
+                    }
+                    htmlReviewer += `
                     </div>
-                    <div class="rate__evaluate">300 đánh giá</div>
+                    <div class="rate__evaluate">${data.reviewers.length} đánh giá</div>
                 </div>
                 <div class="rate__body">
                     <div class="rate__star">
@@ -734,9 +859,9 @@ function setDataReviewer(data) {
                         </div>
                         <div class="rate__num-5-percent">
                             <div class="rate__bar">
-                                <span class="rate__percent-box"></span>
+                                <span class="rate__percent-box" style="width: ${(data.reviewers.filter(a => a.iStars == 5).length / data.reviewers.length) * 100}px"></span>
                             </div>
-                            <div class="rate__percent-count">226</div>
+                            <div class="rate__percent-count">${data.reviewers.filter(a => a.iStars == 5).length}</div>
                         </div>
                     </div>
                     <div class="rate__star">
@@ -749,9 +874,9 @@ function setDataReviewer(data) {
                         </div>
                         <div class="rate__num-4-percent">
                             <div class="rate__bar">
-                                <span class="rate__percent-box"></span>
+                                <span class="rate__percent-box" style="width: ${(data.reviewers.filter(a => a.iStars == 4).length / data.reviewers.length) * 100}px"></span>
                             </div>
-                            <div class="rate__percent-count">226</div>
+                            <div class="rate__percent-count">${data.reviewers.filter(a => a.iStars == 4).length}</div>
                         </div>
                     </div>
                     <div class="rate__star">
@@ -764,9 +889,9 @@ function setDataReviewer(data) {
                         </div>
                         <div class="rate__num-3-percent">
                             <div class="rate__bar">
-                                <span class="rate__percent-box"></span>
+                                <span class="rate__percent-box" style="width: ${(data.reviewers.filter(a => a.iStars == 3).length / data.reviewers.length) * 100}px"></span>
                             </div>
-                            <div class="rate__percent-count">226</div>
+                            <div class="rate__percent-count">${data.reviewers.filter(a => a.iStars == 4).length}</div>
                         </div>
                     </div>
                     <div class="rate__star">
@@ -779,9 +904,9 @@ function setDataReviewer(data) {
                         </div>
                         <div class="rate__num-2-percent">
                             <div class="rate__bar">
-                                <span class="rate__percent-box"></span>
+                                <span class="rate__percent-box" style="width: ${(data.reviewers.filter(a => a.iStars == 2).length / data.reviewers.length) * 100}px"></span>
                             </div>
-                            <div class="rate__percent-count">226</div>
+                            <div class="rate__percent-count">${data.reviewers.filter(a => a.iStars == 2).length}</div>
                         </div>
                     </div>
                     <div class="rate__star">
@@ -794,9 +919,9 @@ function setDataReviewer(data) {
                         </div>
                         <div class="rate__num-1-percent">
                             <div class="rate__bar">
-                                <span class="rate__percent-box"></span>
+                                <span class="rate__percent-box" style="width: ${(data.reviewers.filter(a => a.iStars == 1).length / data.reviewers.length) * 100}px"></span>
                             </div>
-                            <div class="rate__percent-count">226</div>
+                            <div class="rate__percent-count">${data.reviewers.filter(a => a.iStars == 1).length}</div>
                         </div>
                     </div>
                 </div>
@@ -906,7 +1031,7 @@ function setDataReviewer(data) {
 function openUpdateReviewer(reviewerID) {
     openModal();
     var xhr = new XMLHttpRequest();
-    xhr.open('get', '/product/reviewer-detail/' + reviewerID + '', true);
+    xhr.open('get', '/product/reviewer-detail?productID=' + getQueryStr() + '&reviewerID=' + reviewerID + '', true);
     xhr.onreadystatechange = () => {
         if (xhr.readyState == 4 && xhr.status == 200) {
             const data = JSON.parse(xhr.responseText);
@@ -1194,4 +1319,23 @@ function changeReplyBtn(input) {
 function showReplyDesc() {
     document.querySelector(".comment__replies").classList.toggle("show");
     document.querySelector(".comment__reply-quantity-icon").classList.toggle("rotate");
+}
+
+function getCookies(userID) {
+    const id = userID + "=";
+    const cDecoded = decodeURIComponent(document.cookie);
+    const arr = cDecoded.split(";");
+    let res; 
+    arr.forEach(val => {
+        if (val.indexOf(id) === 0) res = val.substring(id.length);
+    });
+    return res;
+}
+
+function getQueryStr() {
+    const url = window.location.href;
+    const params = new URL(url).searchParams;
+    const entries = new URLSearchParams(params).values();
+    const array = Array.from(entries)
+    return array[0];
 }

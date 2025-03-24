@@ -1,7 +1,12 @@
 // lấy số lượng sản phẩm giỏ hàng, khi khai báo window.onload ở site.js thì ở file này ta không khai báo nữa
 function getCartInfo() {
+    let userID = getCookies("userID");
+    if (userID == undefined) {
+        userID = 0;
+    }
+
     var xhr = new XMLHttpRequest();
-    xhr.open('post', '/cart', true);
+    xhr.open('get', '/cart-data?userID=' + userID +'', true);
     xhr.onreadystatechange = () => {
         if (xhr.readyState == 4 && xhr.status == 200) {
             const data = JSON.parse(xhr.responseText);
@@ -21,13 +26,12 @@ getCartInfo();
 
 function getCartItemsDestop(data) {
     if (data.cartCount == 0) {
-        let noCartHtml = `
-        <div class="cart__no">
+        let noCartHtml = 
+        `<div class="cart__no">
             <div style="background-image: url(/img/no-cart.png);" class="cart__no-img"></div>
             <div class="cart__no-sub">Giỏ hàng của bạn còn trống</div>
             <a href="/" class="btn btn--primary">Mua ngay</a>
-        </div>
-        `;
+        </div>`;
         document.querySelector(".cart__destop").innerHTML = noCartHtml;
     } else {
         let haveCartHtml = "";
@@ -77,7 +81,7 @@ function getCartItemsDestop(data) {
                                     <div class="cart__purchase-payment-total-sub">Tổng thanh toán (0 sản phẩm):
                                         <span>0 đ</span>
                                     </div>
-                                    <a href="javascript:checkout()" class="btn btn--primary">Mua hàng</a>
+                                    <a href="javascript:checkoutOrder()" class="btn btn--primary">Mua hàng</a>
                                 </div>
                             </div>
                         </div>
@@ -95,130 +99,123 @@ function getCartItemsDestop(data) {
         </div>
         `;
         document.querySelector(".cart__destop").innerHTML = haveCartHtml;
-    }
-    let html = "";
-    html += data.cartDetails.map((obj, index) => `
-    <div class="cart__body" id="product__${obj.pK_iProductID}">
-        <div class="cart__body-header">
-            <div class="cart__input">
-                <input type="checkbox" class="cart__checkout-input" name="" id="">
-            </div>
-            <span>Yêu thích</span>
-            <div class="cart__body-header-text">${obj.sStoreName}</div>
-            <a href="#" class="cart__body-header-chat">
-                <i class="uil uil-chat cart__body-header-chat-icon"></i>
-            </a>
-        </div>
-        <div class="cart__body-product">
-            <div class="cart__input">
-                <input type="checkbox" class="cart__checkout-input" onchange="addToCheckout(${obj.pK_iProductID}, ${obj.pK_iStoreID}, event)" name="" id="">
-            </div>
-            <div class="cart__body-product-info">
-                <div class="cart__body-product-img" style="background-image: url(/img/${obj.sImageUrl});">
-                    
+        let html = "";
+        html += data.cartDetails.map((obj, index) => `
+        <div class="cart__body" id="product__${obj.pK_iProductID}">
+            <div class="cart__body-header">
+                <div class="cart__input">
+                    <input type="checkbox" class="cart__checkout-input" name="" id="">
                 </div>
-                <div class="cart__body-prduct-desc">
-                    <div class="cart__body-product-name">
-                        ${obj.sProductName}
-                        <div class="cart__body-product-name-progress">
-                            <div class="cart__body-product-name-progress-line"></div>
-                            <div class="cart__body-product-name-progress-line"></div>
+                <span>Yêu thích</span>
+                <div class="cart__body-header-text">${obj.sStoreName}</div>
+                <a href="#" class="cart__body-header-chat">
+                    <i class="uil uil-chat cart__body-header-chat-icon"></i>
+                </a>
+            </div>
+            <div class="cart__body-product">
+                <div class="cart__input">
+                    <input type="checkbox" class="cart__checkout-input" onchange="addToCheckout(${obj.pK_iProductID}, ${obj.pK_iStoreID}, event)" name="" id="">
+                </div>
+                <div class="cart__body-product-info">
+                    <div class="cart__body-product-img" style="background-image: url(/img/${obj.sImageUrl});">
+                        
+                    </div>
+                    <div class="cart__body-prduct-desc">
+                        <div class="cart__body-product-name">
+                            ${obj.sProductName}
+                            <div class="cart__body-product-name-progress">
+                                <div class="cart__body-product-name-progress-line"></div>
+                                <div class="cart__body-product-name-progress-line"></div>
+                            </div>
+                        </div>
+                        <img src="/img/voucher.png" class="cart__body-product-voucher" alt="">
+                    </div>
+                </div>
+                <div class="cart__body-product-type">Phân loại hàng: Bạc</div>
+                <div class="cart__body-product-cost">
+                    <div class="cart__body-product-cost-old">189.000 đ</div>
+                    <div class="cart__body-product-cost-new">${money_2(obj.dUnitPrice)}</div>
+                </div>
+                <div class="cart__body-product-quantity">
+                    <div class="cart__count-btns">
+                        <button type="button" class="cart__btn-add" onclick="tru(event, ${obj.pK_iProductID}, ${obj.dUnitPrice})">-</button>
+                        <input name="qnt" type="text" id="qnt" value="${obj.iQuantity}" class="cart__count-input" />
+                        <button type="button" class="cart__btn-sub" onclick="cong(event, ${obj.pK_iProductID}, ${obj.dUnitPrice})">+</button>
+                    </div>
+                </div>
+                <div class="cart__body-product-money">${money_2(obj.dMoney)}</div>
+                <div class="cart__body-product-operation">
+                    <div class='btn-tools'>
+                        <a class='btn-tool btn-tool__del' href='javascript:deleteProduct(${obj.pK_iProductID})' title='Xoá sản phẩm'><i class='uil uil-trash'></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="cart__body-discount">
+                <i class="uil uil-store cart__body-discount-icon"></i>
+                <div class="cart__body-discount-sub">Mua thêm 91.000đ để được mức giảm 3kđ</div>
+                <a href="#" class="cart__body-discount-link">Thêm mã giảm giá của Shop</a>
+            </div>
+            <div class="cart__body-transport">
+                <img src="./img/free_ship.png" alt="" class="cart__body-transport-img">
+                <div class="cart__body-transport-sub">Giảm 300.000đ phí vận chuyển đơn tối thiểu 0đ</div>
+                <a href="#" class="cart__body-transport-more">Tìm hiểu thêm</a>
+            </div>
+            <div class="cart__body-loading">
+                <div class="cart__body-header-loading">
+                    <div class="cart__body-header-input-loading"></div>
+                    <div class="cart__body-header-sub-loading"></div>
+                </div>
+                <div class="cart__body-product-loading">
+                    <div class="cart__body-header-input-loading"></div>
+                    <div class="cart__body-product-info-loading">
+                        <div class="cart__body-product-img-loading">
+                            <i class="uil uil-shopping-bag cart__body-product-img-icon-loading"></i>
+                        </div>
+                        <div class="cart__body-product-desc-loading">
+                            <div class="cart__body-product-desc-line-loading"></div>
+                            <div class="cart__body-product-desc-line-loading"></div>
                         </div>
                     </div>
-                    <img src="/img/voucher.png" class="cart__body-product-voucher" alt="">
                 </div>
-            </div>
-            <div class="cart__body-product-type">Phân loại hàng: Bạc</div>
-            <div class="cart__body-product-cost">
-                <div class="cart__body-product-cost-old">189.000 đ</div>
-                <div class="cart__body-product-cost-new">${money_2(obj.dUnitPrice)}</div>
-            </div>
-            <div class="cart__body-product-quantity">
-                <div class="cart__count-btns">
-                    <button type="button" class="cart__btn-add" onclick="tru(event, ${obj.pK_iProductID}, ${obj.dUnitPrice})">-</button>
-                    <input name="qnt" type="text" id="qnt" value="${obj.iQuantity}" class="cart__count-input" />
-                    <button type="button" class="cart__btn-sub" onclick="cong(event, ${obj.pK_iProductID}, ${obj.dUnitPrice})">+</button>
+                <div class="cart__body-discount-loading">
+                    <div class="cart__body-discount-line-loading"></div>
                 </div>
-            </div>
-            <div class="cart__body-product-money">${money_2(obj.dMoney)}</div>
-            <div class="cart__body-product-operation">
-                <div class='btn-tools'>
-                    <a class='btn-tool btn-tool__del' href='javascript:deleteProduct(${obj.pK_iProductID})' title='Xoá sản phẩm'><i class='uil uil-trash'></i></a>
+                <div class="cart__body-transport-loading">
+                    <div class="cart__body-transport-line-loading"></div>
                 </div>
-            </div>
+            </div>              
         </div>
-        <div class="cart__body-discount">
-            <i class="uil uil-store cart__body-discount-icon"></i>
-            <div class="cart__body-discount-sub">Mua thêm 91.000đ để được mức giảm 3kđ</div>
-            <a href="#" class="cart__body-discount-link">Thêm mã giảm giá của Shop</a>
-        </div>
-        <div class="cart__body-transport">
-            <img src="./img/free_ship.png" alt="" class="cart__body-transport-img">
-            <div class="cart__body-transport-sub">Giảm 300.000đ phí vận chuyển đơn tối thiểu 0đ</div>
-            <a href="#" class="cart__body-transport-more">Tìm hiểu thêm</a>
-        </div>
-        <div class="cart__body-loading">
-            <div class="cart__body-header-loading">
-                <div class="cart__body-header-input-loading"></div>
-                <div class="cart__body-header-sub-loading"></div>
-            </div>
-            <div class="cart__body-product-loading">
-                <div class="cart__body-header-input-loading"></div>
-                <div class="cart__body-product-info-loading">
-                    <div class="cart__body-product-img-loading">
-                        <i class="uil uil-shopping-bag cart__body-product-img-icon-loading"></i>
-                    </div>
-                    <div class="cart__body-product-desc-loading">
-                        <div class="cart__body-product-desc-line-loading"></div>
-                        <div class="cart__body-product-desc-line-loading"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="cart__body-discount-loading">
-                <div class="cart__body-discount-line-loading"></div>
-            </div>
-            <div class="cart__body-transport-loading">
-                <div class="cart__body-transport-line-loading"></div>
-            </div>
-        </div>              
-    </div>
-    `).join('');
-    document.querySelector(".cart__product-list").innerHTML = html;
-    loadingCartItems();
+        `).join('');
+        document.querySelector(".cart__product-list").innerHTML = html;
+        loadingCartItems();
+    }
 }
 
-function checkout() {
-    var xhr = new XMLHttpRequest();
-    xhr.open('post', '/checkout/get-data', true);
-    xhr.onreadystatechange = () => {
-        if (xhr.readyState == 4 && xhr.status == 200) {
-            const result = JSON.parse(xhr.responseText);
-            if (result.checkouts.length == 0) {
-                openModal();
-                let htmlConfirm = "";
-                htmlConfirm += 
-                `
-                    <div class="modal__confirm">
-                        <div class="modal__confirm-header">
-                            <div class="modal__confirm-title">Thông báo</div>
-                            <i class="uil uil-multiply modal__confirm-close" onclick="exitModal()"></i>
-                        </div>
-                        <div class="modal__confirm-desc">
-                            Bạn chưa chọn sản phẩm để mua!
-                        </div>
-                        <div class="modal__confirm-btns">
-                            <div class="modal__confirm-btn-destroy" onclick="exitModal()">Huỷ</div>
-                            <div class="modal__confirm-btn-send">Trở lại</div>
-                        </div>
-                    </div>
-                `;
-                document.querySelector(".modal__body").innerHTML = htmlConfirm;
-            } else {
-                window.location.assign("/checkout");
-            }
-        }
-    };
-    xhr.send(null);
+var checkout = new Array();
+function checkoutOrder() {
+    if (checkout.length == 0) {
+        openModal();
+        let htmlConfirm = "";
+        htmlConfirm += 
+        `
+            <div class="modal__confirm">
+                <div class="modal__confirm-header">
+                    <div class="modal__confirm-title">Thông báo</div>
+                    <i class="uil uil-multiply modal__confirm-close" onclick="exitModal()"></i>
+                </div>
+                <div class="modal__confirm-desc">
+                    Bạn chưa chọn sản phẩm để mua!
+                </div>
+                <div class="modal__confirm-btns">
+                    <div class="modal__confirm-btn-destroy" onclick="exitModal()">Huỷ</div>
+                    <div class="modal__confirm-btn-send">Trở lại</div>
+                </div>
+            </div>
+        `;
+        document.querySelector(".modal__body").innerHTML = htmlConfirm;
+    } else {
+        window.location.assign("/checkout");
+    }
 }
 
 function loadingCartItems() {
@@ -231,18 +228,67 @@ function loadingCartItems() {
     }, 1000);
 }
 
+function loadingCartItemsMobile() {
+    const loadingCartItemMobile = document.querySelectorAll(".cart__mobile-item-loading");
+
+    setTimeout(() => {
+        for (let i = 0; i < loadingCartItemMobile.length; i++) {
+            loadingCartItemMobile[i].style.display = 'none';
+        }
+    }, 1000);
+}
+
 function getCartItemsMobile(data) {
-    let htmlCartItems = "";
-    htmlCartItems += data.cartDetails.map((obj, index) => 
-    `
-                    <div class="cart__mobile-item">
-                        <div class="cart__mobile-item-header">
-                            <div class="cart__mobile-item-box">
-                                <input type="checkbox" class="cart__mobile-item-input" name="" id="">
+    var gh = JSON.parse(sessionStorage.getItem("checkout"));
+    if (data.cartCount != 0) {
+        let htmlCheckoutMobile = 
+                    `<div class="cart__mobile-checkout-container">
+                        <div class="cart__mobile-checkout-voucher">
+                            <div class="cart__mobile-checkout-voucher-title">
+                                <i class="uil uil-ellipsis-v cart__mobile-checkout-voucher-icon-more"></i>
+                                <span>Thêm Shop Voucher</span>
                             </div>
+                            <div class="cart__mobile-checkout-voucher-code">
+                                <span>Chọn hoặc nhập mã</span>
+                                <i class="uil uil-angle-right-b cart__mobile-checkout-voucher-icon-arrow"></i>
+                            </div>
+                        </div>
+                        <div class="cart__mobile-checkout-money">
+                            <div class="cart__mobile-checkout-money-left">
+                                <div class="cart__mobile-item-box">
+                                    <input type="checkbox" class="cart__mobile-item-input">
+                                </div>
+                                <span>Chọn tất cả</span>
+                            </div>
+                            <div class="cart__mobile-checkout-money-right">
+                                <div class="cart__mobile-checkout-money-text">
+                                    Tổng tiền: `;
+                                    if (gh == undefined) {
+                                        htmlCheckoutMobile += 
+                                    `<span>${money_2(0)}</span>`;
+                                    } else {
+                                        htmlCheckoutMobile += 
+                                        `<span>${money_2(gh.reduce((totalMoney, a) => totalMoney + a[5], 0))}</span>`;
+                                    }
+                                    htmlCheckoutMobile += `
+                                    
+                                </div>
+                                <div class="cart__mobile-checkout-money-btn" onclick="checkoutOrder()">Thanh toán</div>
+                                <div class="cart__mobile-checkout-money-btn-delete" onclick="openDeleteAllModal()">Xoá
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+        document.querySelector(".cart__mobile-checkout").innerHTML = htmlCheckoutMobile;
+    }
+    let htmlCartItems = "";
+    data.cartDetails.forEach(obj => {
+        htmlCartItems += 
+                    `<div class="cart__mobile-item" id="product-mobile__${obj.pK_iProductID}">
+                        <div class="cart__mobile-item-header">
                             <div class="cart__mobile-item-header-shop">
                                 <i class="uil uil-store-alt cart__mobile-item-header-shop-icon-store"></i>
-                                <div class="cart__mobile-item-header-shop-name">Viet Mark</div>
+                                <div class="cart__mobile-item-header-shop-name">${obj.sStoreName}</div>
                                 <i class="uil uil-angle-right-b cart__mobile-item-header-shop-icon-arrow"></i>
                             </div>
                             <div class="cart__mobile-item-header-fix">Sửa</div>
@@ -252,7 +298,7 @@ function getCartItemsMobile(data) {
                                 <div class="cart__mobile-item-body-product">
                                     <div class="cart__mobile-item-body-left">
                                         <div class="cart__mobile-item-box">
-                                            <input type="checkbox" class="cart__mobile-item-input" name="" id="">
+                                            <input type="checkbox" class="cart__mobile-item-input" onchange="addToCheckoutMobile(${obj.pK_iProductID}, ${obj.pK_iStoreID}, event)">
                                         </div>
                                         <div class="cart__mobile-item-product-img"
                                             style="background-image: url(/img/${obj.sImageUrl});"></div>
@@ -262,7 +308,7 @@ function getCartItemsMobile(data) {
                                         ${obj.sProductName}
                                         </div>
                                         <div class="cart__mobile-item-product-type">
-                                            <span>Phân loại hàng: Bạc</span>
+                                            <span>Phân loại hàng: ${obj.sCategoryName}</span>
                                             <i class="uil uil-angle-down cart__mobile-item-product-type-icon"></i>
                                         </div>
                                         <div class="cart__mobile-item-product-change-sub">
@@ -272,21 +318,28 @@ function getCartItemsMobile(data) {
                                             <img src="/img/voucher.png"
                                                 class="cart__mobile-item-product-voucher-img"></img>
                                         </div>
-                                        <div class="cart__mobile-item-product-price">
-                                            <div class="cart__mobile-item-product-price-old">189.000đ</div>
-                                            <div class="cart__mobile-item-product-price-new">${money_2(obj.dMoney)}</div>
+                                        <div class="cart__mobile-item-product-price">`;
+                                        if (obj.dDiscount != 1) {
+                                            htmlCartItems += 
+                                            `<div class="cart__mobile-item-product-price-old">${money_2(obj.dUnitPrice)}</div>
+                                            <div class="cart__mobile-item-product-price-new">${money_2(obj.dMoney)}</div>`;
+                                        } else {
+                                            htmlCartItems += 
+                                            `<div class="cart__mobile-item-product-price-new">${money_2(obj.dMoney)}</div>`;
+                                        }
+                                        htmlCartItems += `
                                         </div>
                                         <div class="cart__mobile-item-product-quantity">
-                                            <div class="cart__mobile-item-product-quantity-btn-plus" onclick="plusMobile(event)">+</div>
+                                            <div class="cart__mobile-item-product-quantity-btn-plus" onclick="plusMobile(event, ${obj.pK_iProductID}, ${obj.dUnitPrice})">+</div>
                                             <input type="text" class="cart__mobile-item-product-quantity-input"
-                                                value="1">
-                                            <div class="cart__mobile-item-product-quantity-btn-less" onclick="lessMobile(event)">-</div>
+                                                value="${obj.iQuantity}">
+                                            <div class="cart__mobile-item-product-quantity-btn-less" onclick="lessMobile(event, ${obj.pK_iProductID}, ${obj.dUnitPrice})">-</div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="cart__mobile-item-body-tools">
-                                    <div class="cart__mobile-item-body-product-similar">Sản phẩm tương tự</div>
-                                    <div class="cart__mobile-item-body-product-delete" onclick="openDeleteModal()">Xoá
+                                    <a href="/product/similar?productID=${obj.pK_iProductID}&categoryID=${obj.pK_iCategoryID}" class="cart__mobile-item-body-product-similar">Sản phẩm tương tự</a>
+                                    <div class="cart__mobile-item-body-product-delete" onclick="openDeleteModal(${obj.pK_iProductID})">Xoá
                                     </div>
                                 </div>
                             </div>
@@ -423,9 +476,10 @@ function getCartItemsMobile(data) {
                                 </div>
                             </div>
                         </div>
-                    </div>
-    `).join('');
+                    </div>`;
+    });
     document.querySelector(".cart__mobile-list").innerHTML = htmlCartItems;
+    loadingCartItemsMobile();
     const headerFix = document.querySelectorAll(".cart__mobile-item-header-fix");
     headerFix.forEach(e => {
         e.addEventListener('click', () => {
@@ -447,7 +501,7 @@ function getProductsLike(data) {
         htmlProducts += 
         `
                 <div class="col l-2 c-6 m-4">
-                    <a class="home-product-item" href="/product/detail/${data.get12ProductsAndSortAsc[i].pK_iProductID}">
+                    <a class="home-product-item" href="/product/detail?id=${data.get12ProductsAndSortAsc[i].pK_iProductID}">
                         <div class="home-product-item__img" style="background-image: url(/img/${data.get12ProductsAndSortAsc[i].sImageUrl})">
                             <div class="home-product-item__img-loading">
                                 <i class="uil uil-shopping-bag home-product-item__img-loading-icon"></i>
@@ -522,8 +576,7 @@ function getProductsLike(data) {
                         }
         htmlProducts += 
                     `</a>
-                </div>
-        `;
+                </div>`;
     }
     document.querySelectorAll(".cart__like-product-list").forEach(e => {
         e.innerHTML = htmlProducts;
@@ -585,11 +638,12 @@ function cong(event, productID, unitPrice) {
         input.value = parseInt(cong) + 1;
         console.log(input.value);
         var formData = new FormData(); // Gửi dữ liệu dạng formData
+        formData.append("userID", getCookies("userID"));
         formData.append('quantity', input.value);
         formData.append('productID', productID);
         formData.append('unitPrice', unitPrice)
         var xhr = new XMLHttpRequest();
-        xhr.open('post', '/cart/quantity', true);
+        xhr.open('put', '/cart/quantity', true);
         xhr.onreadystatechange = () => {
             if (xhr.readyState == 4 && xhr.status == 200) {
                 const data = JSON.parse(xhr.responseText);
@@ -610,11 +664,12 @@ function tru(event, productID, unitPrice) {
     if (parseInt(tru) > 1) {
         input.value = parseInt(tru) - 1;
         var formData = new FormData();
+        formData.append("userID", getCookies("userID"));
         formData.append('quantity', input.value);
         formData.append('productID', productID);
         formData.append('unitPrice', unitPrice);
         var xhr = new XMLHttpRequest();
-        xhr.open('post', '/cart/quantity', true);
+        xhr.open('put', '/cart/quantity', true);
         xhr.onreadystatechange = () => {
             if (xhr.readyState == 4 && xhr.status == 200) {
                 const data = JSON.parse(xhr.responseText);
@@ -638,16 +693,22 @@ function exitModal() {
 
 function deleteProductModal(productID) {
     var formData = new FormData();
+    formData.append("userID", getCookies("userID"));
     formData.append('productID', productID);
     var xhr = new XMLHttpRequest();
-    xhr.open('post', '/cart/delete-item', true);
+    xhr.open('delete', '/cart/delete-item', true);
     xhr.onreadystatechange = () => {
         if (xhr.readyState == 4 && xhr.status == 200) {
             const data = JSON.parse(xhr.responseText);
+
             console.log(data);
+
             exitModal();
-            document.getElementById("product__" + productID).style.display = 'none';
-            toast({ title: "Thông báo", msg: `${data.message}`, type: "success", duration: 5000 });
+            if (data.status.statusCode == 1) {
+                document.getElementById("product__" + productID).style.display = 'none';
+                document.getElementById("product-mobile__" + productID).style.display = 'none';
+                toast({ title: "Thông báo", msg: `${data.status.message}`, type: "success", duration: 5000 });
+            }
         }
     };
     xhr.send(formData);
@@ -667,7 +728,7 @@ function deleteProduct(productID) {
                     </div>
                     <div class="modal__confirm-btns">
                         <div class="modal__confirm-btn-destroy" onclick="exitModal()">Huỷ</div>
-                        <div class="modal__confirm-btn-send"onclick="deleteProductModal(${productID})"">Đồng ý</div>
+                        <div class="modal__confirm-btn-send" onclick="deleteProductModal(${productID})">Đồng ý</div>
                     </div>
                 </div>
         `;
@@ -705,8 +766,13 @@ function checkAllProduct(input) {
 }
 
 function deleteAllProductModal() {
+    let userID = getCookies("userID");
+    if (userID == undefined) {
+        userID = 0;
+    }
+
     var xhr = new XMLHttpRequest();
-    xhr.open('post', '/Cart/GetCartInfo', true);
+    xhr.open('get', '/cart-data?userID=' + userID +'', true);
     xhr.onreadystatechange = () => {
         if (xhr.readyState == 4 && xhr.status == 200) {
             const data = JSON.parse(xhr.responseText);
@@ -724,7 +790,7 @@ function deleteAllProductModal() {
                             <p class="auth-form__msg">Bạn muốn bỏ ${data.cartCount} sản phẩm?</p>
                             <div class="auth-form__controls">
                                 <button onclick="exitModal()" class="btn btn--primary">HUỶ</button>
-                                <button onclick="deleteAllProduct()" class="btn">ĐỒNG Ý</button>
+                                <button onclick="deleteAllProduct(${userID})" class="btn">ĐỒNG Ý</button>
                             </div>
                         </div>
                     </div>
@@ -738,13 +804,17 @@ function deleteAllProductModal() {
     xhr.send(null);
 }
 
-function deleteAllProduct() {
+function deleteAllProduct(userID) {
+    var formData = new FormData();
+    formData.append("userID", userID);
     var xhr = new XMLHttpRequest();
-    xhr.open('post', '/Cart/DeleteAllProduct', true);
+    xhr.open('delete', '/cart/delete-all', true);
     xhr.onreadystatechange = () => {
         if (xhr.readyState == 4 && xhr.status == 200) {
             const data = JSON.parse(xhr.responseText);
+
             console.log(data);
+
             document.querySelector('.modal').classList.remove('open');
             document.querySelector(".cart__delete-loading .modal").style.display = 'flex';
             setTimeout(() => {
@@ -765,7 +835,7 @@ function deleteAllProduct() {
             }, 2000);
         }
     };
-    xhr.send(null);
+    xhr.send(formData);
 }
 
 function addToCheckout(productID, shopID, event) {
@@ -785,8 +855,30 @@ function addToCheckout(productID, shopID, event) {
 
             console.log(data);
 
-            document.querySelector(".cart__purchase-payment-total-sub").innerHTML = `Tổng thanh toán (${data.productCount} sản phẩm):<span>${money_2(data.totalPrice)}</span>`
+            sessionStorage.setItem("shopID", data.shopID);
 
+            var money = (data.product[0].dPerDiscount == 1) ? (data.product[0].dPrice * data.quantity) + data.product[0].dTransportPrice : data.product[0].dPrice * data.quantity * (1 - data.product[0].dPerDiscount) + data.product[0].dTransportPrice;
+            var ck = new Array(data.product[0].pK_iProductID, data.product[0].sProductName, data.product[0].sImageUrl, data.product[0].dPrice, data.quantity, money, data.product[0].dTransportPrice, data.product[0].dPerDiscount);
+            var kt = 0;
+            for (let i = 0; i < checkout.length; i++) {
+                if (checkout[i][0] == data.product[0].pK_iProductID) {
+                    kt = 1;
+                    data.quantity += parseInt(checkout[i][4]);
+                    checkout[i][4] = data.quantity;
+                    break;
+                }
+            }
+            if (kt == 0) {
+                checkout.push(ck);
+            }
+
+            sessionStorage.setItem("checkout", JSON.stringify(checkout));
+            var gh = JSON.parse(sessionStorage.getItem("checkout"));
+
+            console.log(gh);
+            
+            
+            document.querySelector(".cart__purchase-payment-total-sub").innerHTML = `Tổng thanh toán (${gh.length} sản phẩm):<span>${money_2(gh.reduce((totalMoney, a) => totalMoney + a[5], 0))}</span>`;
         }
     };
     xhr.send(formData);
@@ -835,12 +927,35 @@ function changeBottomCheckout(input) {
     }
 }
 
-function plusMobile(event) {
+function plusMobile(event, productID, unitPrice) {
     const parentElement = event.target.parentNode;
     var plus = parentElement.querySelector(".cart__mobile-item-product-quantity-input").value;
     var input = parentElement.querySelector(".cart__mobile-item-product-quantity-input");
-    if (parseInt(plus) < 10) {
+    if (parseInt(plus) < 100) {
         input.value = parseInt(plus) + 1;
+        var formData = new FormData(); // Gửi dữ liệu dạng formData
+        formData.append("userID", getCookies("userID"));
+        formData.append('quantity', input.value);
+        formData.append('productID', productID);
+        formData.append('unitPrice', unitPrice);
+        var xhr = new XMLHttpRequest();
+        xhr.open('put', '/cart/quantity', true);
+        xhr.onreadystatechange = () => {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                const data = JSON.parse(xhr.responseText);
+
+                console.log(data);
+
+                if (data.status.statusCode == -1) {
+                    toast({ title: "Thông báo", msg: `${data.status.message}`, type: "success", duration: 5000 });
+                } else {
+                    const trParent = parentElement.parentNode;
+                    trParent.querySelector(".cart__mobile-item-product-price-new").innerHTML = `${money_2(data.money)}`;
+                }
+
+            }
+        }
+        xhr.send(formData);
     } else {
         document.querySelector(".modal").classList.add("open");
         let html = "";
@@ -856,29 +971,89 @@ function plusMobile(event) {
     }
 }
 
-function lessMobile(event) {
+function lessMobile(event, productID, unitPrice) {
     const parentElement = event.target.parentNode;
     var less = parentElement.querySelector(".cart__mobile-item-product-quantity-input").value;
     var input = parentElement.querySelector(".cart__mobile-item-product-quantity-input");
     if (parseInt(less) > 1) {
         input.value = parseInt(less) - 1;
+        var formData = new FormData();
+        formData.append("userID", getCookies("userID"));
+        formData.append('quantity', input.value);
+        formData.append('productID', productID);
+        formData.append('unitPrice', unitPrice);
+        var xhr = new XMLHttpRequest();
+        xhr.open('put', '/cart/quantity', true);
+        xhr.onreadystatechange = () => {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                const data = JSON.parse(xhr.responseText);
+
+                const trParent = parentElement.parentNode;
+                trParent.querySelector(".cart__mobile-item-product-price-new").innerHTML = `${money_2(data.money)}`;
+            }
+        };
+        xhr.send(formData);
     } else {
-        openDeleteModal()
+        openDeleteModal();
     }
 }
 
-function openDeleteModal() {
+function addToCheckoutMobile(productID, shopID, event) {
+    const parentElement = event.target.parentNode;
+    const cartBody = parentElement.parentNode.parentNode;
+    var quantity = cartBody.querySelector(".cart__mobile-item-product-quantity-input").value;
+    
+    var formData = new FormData();
+    formData.append('productID', productID);
+    formData.append('shopID', shopID);
+    formData.append('quantity', quantity);
+    var xhr = new XMLHttpRequest();
+    xhr.open('post', '/checkout/add-to-checkout', true);
+    xhr.onreadystatechange = () => {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+            const data = JSON.parse(xhr.responseText);
+
+            console.log(data);
+
+            sessionStorage.setItem("shopID", data.shopID);
+
+            var money = (data.product[0].dPerDiscount == 1) ? (data.product[0].dPrice * data.quantity) + data.product[0].dTransportPrice : data.product[0].dPrice * data.quantity * (1 - data.product[0].dPerDiscount) + data.product[0].dTransportPrice;
+            var ck = new Array(data.product[0].pK_iProductID, data.product[0].sProductName, data.product[0].sImageUrl, data.product[0].dPrice, data.quantity, money, data.product[0].dTransportPrice, data.product[0].dPerDiscount);
+            var kt = 0;
+            for (let i = 0; i < checkout.length; i++) {
+                if (checkout[i][0] == data.product[0].pK_iProductID) {
+                    kt = 1;
+                    data.quantity += parseInt(checkout[i][4]);
+                    checkout[i][4] = data.quantity;
+                    break;
+                }
+            }
+            if (kt == 0) {
+                checkout.push(ck);
+            }
+
+            sessionStorage.setItem("checkout", JSON.stringify(checkout));
+            var gh = JSON.parse(sessionStorage.getItem("checkout"));
+
+            console.log(gh);
+            
+            document.querySelector(".cart__mobile-checkout-money-text span").innerHTML = `${money_2(gh.reduce((totalMoney, a) => totalMoney + a[5], 0))}`;
+        }
+    };
+    xhr.send(formData);
+}
+
+function openDeleteModal(productID) {
     document.querySelector(".modal").classList.add("open");
     let html = "";
-    html += `
-    <div class="cart__delete">
+    html += 
+    `<div class="cart__delete">
         <div class="cart__delete-msg">Bạn có chắc muốn xoá sản phẩm?</div>
         <div class="cart__delete-btns">
             <div class="cart__delete-btn-no" onclick="exitModal()">Không</div>
-            <div class="cart__delete-btn-agree">Đồng ý</div>
+            <div class="cart__delete-btn-agree" onclick="deleteProductModal(${productID})">Đồng ý</div>
         </div>
-    </div>
-    `;
+    </div>`;
     document.querySelector(".modal__body").innerHTML = html;
 }
 
@@ -930,4 +1105,15 @@ function openDeleteAllModal() {
     </div>
     `;
     document.querySelector(".modal__body").innerHTML = html;
+}
+
+function getCookies(userID) {
+    const id = userID + "=";
+    const cDecoded = decodeURIComponent(document.cookie);
+    const arr = cDecoded.split(";");
+    let res; 
+    arr.forEach(val => {
+        if (val.indexOf(id) === 0) res = val.substring(id.length);
+    });
+    return res;
 }

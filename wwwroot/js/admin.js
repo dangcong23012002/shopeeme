@@ -1,10 +1,16 @@
 // Get API Admin
 function getAPIAdmin() {
+    let userID = getCookies("userID");
+    if (userID == undefined) {
+        userID = 0;
+    }
+
     var xhr = new XMLHttpRequest();
-    xhr.open('post', '/admin/get-data', true);
+    xhr.open('get', '/admin/get-data?userID=' + userID + '', true);
     xhr.onreadystatechange = () => {
         if (xhr.readyState == 4 && xhr.status == 200) {
             const data = JSON.parse(xhr.responseText);
+
             console.log(data);
             
             showAll(data);
@@ -32,8 +38,8 @@ function showAll(data) {
                                             </div>
                                             <div class="admin__main-middle">
                                                 <div class="admin__main-middle-left">
-                                                    <div class="admin__main-middle-title">Tổng bán hàng</div>
-                                                    <div class="admin__main-middle-price">1.500.000đ</div>
+                                                    <div class="admin__main-middle-title">Tổng triết khấu</div>
+                                                    <div class="admin__main-middle-price">${money_2(0)}</div>
                                                 </div>
                                                 <div class="admin__main-progress">
                                                     <svg class="admin__main-progress-img">
@@ -53,8 +59,8 @@ function showAll(data) {
                                             </div>
                                             <div class="admin__main-middle">
                                                 <div class="admin__main-middle-left">
-                                                    <div class="admin__main-middle-title">Tổng bán hàng</div>
-                                                    <div class="admin__main-middle-price">1.500.000đ</div>
+                                                    <div class="admin__main-middle-title">Tổng thuế</div>
+                                                    <div class="admin__main-middle-price">${money_2(0)}</div>
                                                 </div>
                                                 <div class="admin__main-progress">
                                                     <svg class="admin__main-progress-img">
@@ -75,7 +81,7 @@ function showAll(data) {
                                             <div class="admin__main-middle">
                                                 <div class="admin__main-middle-left">
                                                     <div class="admin__main-middle-title">Tổng thu</div>
-                                                    <div class="admin__main-middle-price">1.500.000đ</div>
+                                                    <div class="admin__main-middle-price">${money_2(0)}</div>
                                                 </div>
                                                 <div class="admin__main-progress">
                                                     <svg class="admin__main-progress-img">
@@ -592,6 +598,17 @@ function toggleTheme(div) {
     div.querySelector('i:nth-child(2)').classList.toggle('active');
     localStorage.setItem("selected-theme", getCurrentTheme());
     localStorage.setItem("selected-icon", getCurrentActive());
+}
+
+function getCookies(userID) {
+    const id = userID + "=";
+    const cDecoded = decodeURIComponent(document.cookie);
+    const arr = cDecoded.split(";");
+    let res; 
+    arr.forEach(val => {
+        if (val.indexOf(id) === 0) res = val.substring(id.length);
+    });
+    return res;
 }
 
 

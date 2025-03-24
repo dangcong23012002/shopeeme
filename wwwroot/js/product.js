@@ -1,10 +1,18 @@
 function getAPIProduct() {
+    let userID = getCookies("userID");
+    if (userID == undefined) {
+        userID = 0;
+    }
+
     var xhr = new XMLHttpRequest();
-    xhr.open('post', '/product/get-data', true);
+    xhr.open('get', '/product/get-data?userID=' + userID + '&industryID=' + getQueryStr() + '', true);
     xhr.onreadystatechange = () => {
         if (xhr.readyState == 4 && xhr.status == 200) {
             const data = JSON.parse(xhr.responseText);
+
             console.log(data);
+
+            setHeaderMobileProduct(data);
 
             getShopMalls(data);
 
@@ -55,7 +63,7 @@ setInterval(productSliderAuto, 3000);
 // Sắp xếp các sản phẩm trong trang sản phẩm theo giá tăng dần
 function sortPrice(sortType) {
     var xhr = new XMLHttpRequest();
-    xhr.open('get', '/product/sort/' + sortType + '', true);
+    xhr.open('get', '/product/sort?industryID=' + getQueryStr() + '&sortType=' + sortType + '', true);
     xhr.onreadystatechange = () => {
         if (xhr.readyState == 4 && xhr.status == 200) {
             const data = JSON.parse(xhr.responseText);
@@ -68,13 +76,132 @@ function sortPrice(sortType) {
     xhr.send(null);
 }
 
+function setHeaderMobileProduct(data) {
+    let htmlHeaderMobile = "";
+    htmlHeaderMobile += 
+                `<div class="header__mobile-container">
+                    <div class="header__mobile-left">
+                        <div class="header__mobile-menu" onclick="showNavProductMenu()">
+                            <i class="uil uil-bars header__mobile-menu-icon"></i>
+                        </div>
+                        <div class="header__mobile-menu-nav hide-on-destop">
+                            <div class="header__mobile-product-menu-container">
+                                <div class="header__mobile-menu-close" onclick="closeNavProductMenu()">
+                                    <i class="uil uil-multiply header__mobile-menu-close-icon"></i>
+                                </div>
+                                <div class="header__mobile-menu-list">
+                                    <div class="header__mobile-menu-item">
+                                        <a href="javascript:openShopProductMenu()" class="header__mobile-menu-item-link">
+                                            <span class="header__mobile-menu-item-name">Cửa hàng</span>
+                                            <i class="uil uil-angle-down header__mobile-menu-item-dropdown-icon"></i>
+                                        </a>
+                                    </div>
+                                    <div class="header__mobile-menu-item">
+                                        <a href="javascript:openCategoryMenu()" class="header__mobile-menu-item-link">
+                                            <span class="header__mobile-menu-item-name">Thể loại</span>
+                                            <i class="uil uil-angle-down header__mobile-menu-item-dropdown-icon"></i>
+                                        </a>
+                                    </div>`;
+                                    if (data.userID != 0) {
+                                        htmlHeaderMobile += 
+                                    `<div class="header__mobile-menu-logout">
+                                        <a href="javascript:logoutUserAccount()" class="header__mobile-menu-logout-link">
+                                            <span class="header__mobile-menu-logout-name">Đăng xuất</span>
+                                            <i class="uil uil-signout header__mobile-menu-logout-icon"></i>
+                                        </a>
+                                    </div>`;
+                                    }
+                                    htmlHeaderMobile += `
+                                </div>
+                            </div>
+                            <div class="header__mobile-product-menu-container-shop">
+                                <div class="header__mobile-menu-close" onclick="closeNavProductMenu()">
+                                    <i class="uil uil-multiply header__mobile-menu-close-icon"></i>
+                                </div>
+                                <div class="header__mobile-menu-list">
+                                    <div class="header__mobile-menu-back">
+                                        <a href="javascript:showNavProductMenu()" class="header__mobile-menu-back-link">
+                                            <div class="header__mobile-menu-back-icon-symb">
+                                                <i class="header__mobile-back-item-icon uil uil-arrow-left"></i>
+                                            </div>
+                                            <span class="header__mobile-menu-back-name">Quay lại</span>
+                                        </a>
+                                    </div>
+                                    <div class="header__mobile-menu-back">
+                                        <span class="header__mobile-menu-back-all">Xem tất cả cửa hàng</span>
+                                    </div>`;
+                                    data.stores.forEach(element => {
+                                        htmlHeaderMobile += 
+                                    `<div class="header__mobile-menu-item">
+                                        <a href="/shop?name=${element.sStoreUsername}" class="header__mobile-menu-item-link">
+                                            <span class="header__mobile-menu-tab-name">${element.sStoreName}</span>
+                                        </a>
+                                    </div>`;
+                                    });
+                                    htmlHeaderMobile += `
+                                </div>
+                            </div>
+                            <div class="header__mobile-product-menu-container-category">
+                                <div class="header__mobile-menu-close" onclick="closeNavProductMenu()">
+                                    <i class="uil uil-multiply header__mobile-menu-close-icon"></i>
+                                </div>
+                                <div class="header__mobile-menu-list">
+                                    <div class="header__mobile-menu-back">
+                                        <a href="javascript:showNavProductMenu()" class="header__mobile-menu-back-link">
+                                            <div class="header__mobile-menu-back-icon-symb">
+                                                <i class="header__mobile-back-item-icon uil uil-arrow-left"></i>
+                                            </div>
+                                            <span class="header__mobile-menu-back-name">Quay lại</span>
+                                        </a>
+                                    </div>
+                                    <div class="header__mobile-menu-back">
+                                        <span class="header__mobile-menu-back-all">Xem tất cả danh mục</span>
+                                    </div>`;
+                                    data.categories.forEach(element => {
+                                        htmlHeaderMobile += 
+                                    `<div class="header__mobile-menu-item">
+                                        <a href="javascript:filterProductByCategoryID(${element.pK_iCategoryID})" class="header__mobile-menu-item-link">
+                                            <span class="header__mobile-menu-tab-name">${element.sCategoryName}</span>
+                                        </a>
+                                    </div>`;
+                                    });
+                                    htmlHeaderMobile += 
+                                `</div>
+                            </div>
+                            <div class="header__mobile-product-menu-overlay"></div>
+                        </div>
+                    </div>
+                    <div class="header__mobile-logo">
+                        <a href="/" class="header__logo-link">
+                            <img class="header__logo-img" src="/img/sme_logo_white.png" alt="SMe Logo">
+                        </a>
+                    </div>`;
+                    if (data.userID == 0) {
+                        htmlHeaderMobile += 
+                        `<div class="header__mobile-user-symbol">
+                            <a href="/user/login" class="header__mobile-user-link">  
+                                <i class="uil uil-user header__mobile-user-icon"></i>
+                            </a>
+                        </div>`;
+                    } else {
+                        htmlHeaderMobile += 
+                        `<div class="header__mobile-user-avatar">
+                            <div class="header__mobile-user-avatar-img" style="background-image: url(/img/${data.userInfo[0].sImageProfile});"></div>
+                        </div>`;
+                    }
+                    htmlHeaderMobile += `
+                </div>     
+    `;
+    document.querySelector(".header__mobile-product").innerHTML = htmlHeaderMobile;
+}
+
 // Get Shop Malls
 function getShopMalls(data) {
     let htmlShopMall = "";
     htmlShopMall += data.stores.map(obj =>
         `
                     <div class="l-2">
-                        <a href="/shop/${obj.sStoreUsername}" class="product__mall-item">
+                        <a href="/shop?name=${obj.sStoreUsername}" class="product__mall-item">
                             <img src="/img/${obj.sImageMall}" class="product__mall-item-img" alt="">
                         </a>
                     </div>
@@ -101,7 +228,7 @@ function getProducts(data) {
         htmlProduct +=
             `
                 <div class="col l-2-4 c-6 m-4">
-                    <a class="home-product-item" href="/product/detail/${data.products[i].pK_iProductID}">
+                    <a class="home-product-item" href="/product/detail?id=${data.products[i].pK_iProductID}">
                         <div class="home-product-item__img" style="background-image: url(/img/${data.products[i].sImageUrl})">
                             <div class="home-product-item__img-loading">
                                 <i class="uil uil-shopping-bag home-product-item__img-loading-icon"></i>
@@ -246,14 +373,15 @@ function pageNumber(currentPage) {
 
 // Lọc sản phẩm theo mã danh mục con
 function filterProductByCategoryID(categoryID) {
-    var formData = new FormData();
-    formData.append("categoryID", categoryID);
     var xhr = new XMLHttpRequest();
-    xhr.open("post", "/product/get-data", true);
+    xhr.open("get", "/product/get-data?categoryID=" + categoryID + "&industryID=" + getQueryStr() + "", true);
     xhr.onreadystatechange = () => {
         if (xhr.readyState == 4 && xhr.status == 200) {
             const data = JSON.parse(xhr.responseText);
+
             console.log(data);
+
+            closeNavProductMenu();
 
             setActiveCategories(data);
 
@@ -262,7 +390,7 @@ function filterProductByCategoryID(categoryID) {
             setPagination(data);
         }
     };
-    xhr.send(formData);
+    xhr.send(null);
 }
 
 function setActiveCategories(data) {
@@ -285,4 +413,23 @@ function setActiveCategories(data) {
         }
     });
     document.querySelector(".category-list").innerHTML = htmlCategory;
+}
+
+function getCookies(userID) {
+    const id = userID + "=";
+    const cDecoded = decodeURIComponent(document.cookie);
+    const arr = cDecoded.split(";");
+    let res; 
+    arr.forEach(val => {
+        if (val.indexOf(id) === 0) res = val.substring(id.length);
+    });
+    return res;
+}
+
+function getQueryStr() {
+    const url = window.location.href;
+    const params = new URL(url).searchParams;
+    const entries = new URLSearchParams(params).values();
+    const array = Array.from(entries)
+    return array[0];
 }

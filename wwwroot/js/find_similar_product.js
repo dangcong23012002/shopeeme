@@ -1,9 +1,10 @@
 function getAPIProductSimilar() {
     var xhr = new XMLHttpRequest();
-    xhr.open('post', '/product/similar/get-data', true);
+    xhr.open('get', '/product/similar/get-data?productID=' + getQueryStr() + '&categoryID=' + getQueryStr_2() + '', true);
     xhr.onreadystatechange = () => {
         if (xhr.readyState == 4 && xhr.status == 200) {
             const data = JSON.parse(xhr.responseText);
+
             console.log(data);
 
             setProductDetailSimilar(data);
@@ -134,7 +135,7 @@ function setProductItemSimilar(data) {
         htmlProducts += 
         `
                 <div class="col l-2 c-6 m-4">
-                    <a class="home-product-item" href="/product/detail/${data.products[i].pK_iProductID}">
+                    <a class="home-product-item" href="/product/detail?id=${data.products[i].pK_iProductID}">
                         <div class="home-product-item__img" style="background-image: url(/img/${data.products[i].sImageUrl})">
                             <div class="home-product-item__img-loading">
                                 <i class="uil uil-shopping-bag home-product-item__img-loading-icon"></i>
@@ -275,4 +276,20 @@ function pageNumber(currentPage) {
         }
     };
     xhr.send(formData);
+}
+
+function getQueryStr() {
+    const url = window.location.href;
+    const params = new URL(url).searchParams;
+    const entries = new URLSearchParams(params).values();
+    const array = Array.from(entries)
+    return array[0];
+}
+
+function getQueryStr_2() {
+    const url = window.location.href;
+    const params = new URL(url).searchParams;
+    const entries = new URLSearchParams(params).values();
+    const array = Array.from(entries)
+    return array[1];
 }

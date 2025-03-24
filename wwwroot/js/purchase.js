@@ -1,6 +1,10 @@
 function getAPIPerchase() {
+    let userID = getCookies("userID");
+    if (userID == undefined) {
+        userID = 0;
+    }
     var xhr = new XMLHttpRequest();
-    xhr.open('post', '/user/purchase', true);
+    xhr.open('get', '/user/purchase-data?userID=' + userID + '', true);
     xhr.onreadystatechange = () => {
         if (xhr.readyState == 4 && xhr.status == 200) {
             const data = JSON.parse(xhr.responseText);
@@ -1250,11 +1254,14 @@ function commentValidate() {
 }
 
 function addReviewer(productID, rateCheck, comment, image) {
-    document.querySelector(".modal__body").innerHTML =
-            `
-                <div class="spinner"></div>
-            `;
+    let userID = getCookies("userID");
+    if (userID == undefined) {
+        userID = 0;
+    }
+
+    document.querySelector(".modal__body").innerHTML = `<div class="spinner"></div>`;
     var formData = new FormData();
+    formData.append("userID", userID);
     formData.append("productID", productID);
     formData.append("star", rateCheck);
     formData.append("comment", comment);
@@ -1282,4 +1289,15 @@ function addReviewer(productID, rateCheck, comment, image) {
         }
     };
     xhr.send(formData);
+}
+
+function getCookies(userID) {
+    const id = userID + "=";
+    const cDecoded = decodeURIComponent(document.cookie);
+    const arr = cDecoded.split(";");
+    let res; 
+    arr.forEach(val => {
+        if (val.indexOf(id) === 0) res = val.substring(id.length);
+    });
+    return res;
 }

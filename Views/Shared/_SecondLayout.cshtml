@@ -19,14 +19,16 @@
         <header class="header__cart-mobile hide-on-table hide-on-destop">
             <div class="header__mobile-container">
                 <div class="header__mobile-back">
-                    <a href="index.html" class="header__mobile-back-link">
+                    <a href="javascript:backHistory()" class="header__mobile-back-link">
                         <i class="uil uil-arrow-left header__mobile-back-icon"></i>
                     </a>
                 </div>
     
-                <div class="header__mobile-title hide-on-destop">Giỏ hàng</div>
+                <div class="header__mobile-title hide-on-destop hide-on-checkout">Giỏ hàng</div>
+
+                <div class="header__mobile-title hide-on-destop hide-on-cart">Thanh toán</div>
     
-                <div class="header__mobile-fix hide-on-destop" onclick="changeBottomCheckout(this)">Sửa</div>
+                <div class="header__mobile-fix hide-on-destop hide-on-checkout" onclick="changeBottomCheckout(this)">Sửa</div>
             </div>
         </header>
         <header class="header hide-on-mobile">

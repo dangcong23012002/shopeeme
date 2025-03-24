@@ -53,8 +53,13 @@ btnPrevSliderShop.addEventListener('click', () => {
 });
 
 function getAPIShop() {
+    let userID = getCookies("userID");
+    if (userID == undefined) {
+        userID = 0;
+    }
+
     var xhr = new XMLHttpRequest();
-    xhr.open('post', '/shop/get-data', true);
+    xhr.open('get', '/shop/get-data?name=' + getQueryStr() + '&userID=' + userID + '', true);
     xhr.onreadystatechange = () => {
         if (xhr.readyState == 4 && xhr.status == 200) {
             const data = JSON.parse(xhr.responseText);
@@ -96,7 +101,7 @@ function getShopInfo(data) {
                 <div class="shop__mobile-info-avatar">
                     <div class="shop__mobile-info-avatar-img" style="background-image: url(/img/${data.stores[0].sImageAvatar});"></div>
                     <div class="shop__mobile-info-avatar-favorite">
-                        <span>Yêu thích</span>
+                        <p>Yêu thích</p>
                     </div>
                 </div>
                 <div class="shop__mobile-info-shop">
@@ -303,7 +308,7 @@ function getShopTab(data) {
             htmlCategories1 += "             <a href='/product/detail/" + data.products[i].pK_iProductID + "' class='shop__mobile-shop-category-product-item'>";
             htmlCategories1 += "                 <div class='shop__mobile-shop-category-product-item-img' style='background-image: url(/img/" + data.products[i].sImageUrl + ");'></div>";
             htmlCategories1 += "                 <div class='shop__mobile-shop-category-product-item-name'>" + data.products[i].sProductName + "</div>";
-            htmlCategories1 += "                 <div class='shop__mobile-shop-category-product-item-price'>" + data.products[i].dPrice + "đ</div>";
+            htmlCategories1 += "                 <div class='shop__mobile-shop-category-product-item-price'>" + money_2(data.products[i].dPrice) + "</div>";
             htmlCategories1 += "                 <div class='shop__mobile-shop-category-product-item-statistical'>";
             htmlCategories1 += "                     <div class='shop__mobile-shop-category-product-item-stars'>";
             htmlCategories1 += "                         <i class='uis uis-star shop__mobile-shop-category-product-item-star'></i>";
@@ -345,7 +350,7 @@ function getShopTab(data) {
                 htmlCategories2 += "             <a href='/product/detail/" + data.products[i].pK_iProductID + "' class='shop__mobile-shop-category-product-item'>";
                 htmlCategories2 += "                 <div class='shop__mobile-shop-category-product-item-img' style='background-image: url(/img/" + data.products[i].sImageUrl + ");'></div>";
                 htmlCategories2 += "                 <div class='shop__mobile-shop-category-product-item-name'>" + data.products[i].sProductName + "</div>";
-                htmlCategories2 += "                 <div class='shop__mobile-shop-category-product-item-price'>" + data.products[i].dPrice + "đ</div>";
+                htmlCategories2 += "                 <div class='shop__mobile-shop-category-product-item-price'>" + money_2(data.products[i].dPrice) + "</div>";
                 htmlCategories2 += "                 <div class='shop__mobile-shop-category-product-item-statistical'>";
                 htmlCategories2 += "                     <div class='shop__mobile-shop-category-product-item-stars'>";
                 htmlCategories2 += "                         <i class='uis uis-star shop__mobile-shop-category-product-item-star'></i>";
@@ -389,7 +394,7 @@ function getShopTab(data) {
                 htmlCategories3 += "             <a href='/product/detail/" + data.products[i].pK_iProductID + "' class='shop__mobile-shop-category-product-item'>";
                 htmlCategories3 += "                 <div class='shop__mobile-shop-category-product-item-img' style='background-image: url(/img/" + data.products[i].sImageUrl + ");'></div>";
                 htmlCategories3 += "                 <div class='shop__mobile-shop-category-product-item-name'>" + data.products[i].sProductName + "</div>";
-                htmlCategories3 += "                 <div class='shop__mobile-shop-category-product-item-price'>" + data.products[i].dPrice + "đ</div>";
+                htmlCategories3 += "                 <div class='shop__mobile-shop-category-product-item-price'>" + money_2(data.products[i].dPrice) + "</div>";
                 htmlCategories3 += "                 <div class='shop__mobile-shop-category-product-item-statistical'>";
                 htmlCategories3 += "                     <div class='shop__mobile-shop-category-product-item-stars'>";
                 htmlCategories3 += "                         <i class='uis uis-star shop__mobile-shop-category-product-item-star'></i>";
@@ -418,7 +423,7 @@ function getShopTab(data) {
     let htmlTop10ProductSuggest = "";
     htmlTop10ProductSuggest += data.top10SuggestProducts.map((obj, index) => `
             <div class="col l-2-4 c-6 m-4">
-                <a class="home-product-item" href="/product/detail/${obj.pK_iProductID}">
+                <a class="home-product-item" href="/product/detail?id=${obj.pK_iProductID}">
                     <div class="home-product-item__img" style="background-image: url(/img/${obj.sImageUrl})">
                         <div class="home-product-item__img-loading">
                             <i class="uil uil-shopping-bag home-product-item__img-loading-icon"></i>
@@ -565,10 +570,14 @@ function setCategories(data) {
 
 // Lọc sản phẩm theo mã danh mục con
 function filterProductByCategoryID(categoryID) {
-    var formData = new FormData();
-    formData.append("categoryID", categoryID);
+    closeNavMenu();
+    let userID = getCookies("userID");
+    if (userID == undefined) {
+        userID = 0;
+    }
+
     var xhr = new XMLHttpRequest();
-    xhr.open("post", "/shop/get-data", true);
+    xhr.open('get', '/shop/get-data?name=' + getQueryStr() + '&userID=' + userID + '&categoryID=' + categoryID +'', true);
     xhr.onreadystatechange = () => {
         if (xhr.readyState == 4 && xhr.status == 200) {
             const data = JSON.parse(xhr.responseText);
@@ -581,7 +590,7 @@ function filterProductByCategoryID(categoryID) {
             getPagination(data);
         }
     };
-    xhr.send(formData);
+    xhr.send();
 }
 
 function setActiveCategories(data) {
@@ -613,7 +622,7 @@ function getProducts(data) {
         htmlProducts += 
         `
                 <div class="col l-2-4 c-6 m-4">
-                    <a class="home-product-item" href="/product/detail/${data.products[i].pK_iProductID}">
+                    <a class="home-product-item" href="/product/detail?id=${data.products[i].pK_iProductID}">
                         <div class="home-product-item__img" style="background-image: url(/img/${data.products[i].sImageUrl})">
                             <div class="home-product-item__img-loading">
                                 <i class="uil uil-shopping-bag home-product-item__img-loading-icon"></i>
@@ -738,10 +747,13 @@ function getPagination(data) {
 }
 
 function pageNumber(currentPage) {
+    let userID = getCookies("userID");
+    if (userID == undefined) {
+        userID = 0;
+    }
+    
     var xhr = new XMLHttpRequest();
-    var formData = new FormData();
-    formData.append("currentPage", currentPage);
-    xhr.open('post', '/shop/get-data', true);
+    xhr.open('get', '/shop/get-data?name=' + getQueryStr() + '&userID=' + userID + '&currentPage=' + currentPage + '', true);
     xhr.onreadystatechange = () => {
         if (xhr.readyState == 4 && xhr.status == 200) {
             const data = JSON.parse(xhr.responseText);
@@ -752,12 +764,12 @@ function pageNumber(currentPage) {
             getPagination(data);
         }
     };
-    xhr.send(formData);
+    xhr.send(null);
 }
 
 function sortPrice(sortType) {
     var xhr = new XMLHttpRequest();
-    xhr.open('get', '/shop/sort-price?sortType=' + sortType + '', true);
+    xhr.open('get', '/shop/sort-price?name=' + getQueryStr() + '&sortType=' + sortType + '', true);
     xhr.onreadystatechange = () => {
         if (xhr.readyState == 4 && xhr.status == 200) {
             const data = JSON.parse(xhr.responseText);
@@ -865,7 +877,7 @@ function setDataChat(data) {
                     data.chats.forEach(element => {
                         htmlChat += 
                         `
-                        <li class="chat__shop-item">
+                        <li class="chat__shop-item" onclick="showChatDetail(${element.pK_iChatID})">
                             <div class="chat__shop-item-img" style="background-image: url(/img/${element.sImageAvatar});"></div>
                             <div class="chat__shop-item-info">
                                 <div class="chat__shop-item-info-top">
@@ -873,7 +885,7 @@ function setDataChat(data) {
                                     <div class="chat__shop-item-time">${getDate(element.dTime)}</div>
                                 </div>
                                 <div class="chat__shop-item-info-bottom">
-                                    ${element.sChat}
+                                    ${element.sLastChat}
                                 </div>
                             </div>
                         </li>
@@ -937,7 +949,7 @@ function setDataChat(data) {
                         data.chats.forEach(element => {
                             htmlChat += 
                             `
-                            <li class="chat__shop-item" onclick=showChatDetail(${element.pK_iChatID})>
+                            <li class="chat__shop-item" onclick="showChatDetail(${element.pK_iChatID})">
                                 <div class="chat__shop-item-img" style="background-image: url(/img/${element.sImageAvatar});"></div>
                                 <div class="chat__shop-item-info">
                                     <div class="chat__shop-item-info-top">
@@ -978,6 +990,7 @@ function setDataChat(data) {
 }
 
 function showChatDetail(chatID) {
+    closeChatWindowMobile();
     var xhr = new XMLHttpRequest();
     xhr.open('get', '/chat/detail?chatID=' + chatID + '', true);
     xhr.onreadystatechange = () => {
@@ -1153,7 +1166,13 @@ function showChatWindowMobile() {
     document.querySelector(".chat__mobile-window").classList.toggle("show");
 }
 
+function closeChatWindowMobile() {
+    document.querySelector(".chat__header-menu-bar").classList.remove("active");
+    document.querySelector(".chat__mobile-window").classList.remove("show");
+}
+
 function addShopMobileShop(i) {
+    closeNavMenu();
     shopMobileTitle[i].classList.add("active");
     shopMobileTitle[1].classList.remove("active");
     shopMobileTitle[2].classList.remove("active");
@@ -1207,6 +1226,7 @@ function loadingSuggestProducts() {
 }
 
 function addShopMobileProduct(i) {
+    closeNavMenu();
     shopMobileTitle[0].classList.remove("active");
     shopMobileTitle[i].classList.add("active");
     shopMobileTitle[2].classList.remove("active");
@@ -1323,4 +1343,23 @@ function getTime(time) {
     minutes = minutes < 10 ? '0' + minutes : minutes;
     var current_time = hours + ":" + minutes;
     return current_time;
+}
+
+function getCookies(userID) {
+    const id = userID + "=";
+    const cDecoded = decodeURIComponent(document.cookie);
+    const arr = cDecoded.split(";");
+    let res; 
+    arr.forEach(val => {
+        if (val.indexOf(id) === 0) res = val.substring(id.length);
+    });
+    return res;
+}
+
+function getQueryStr() {
+    const url = window.location.href;
+    const params = new URL(url).searchParams;
+    const entries = new URLSearchParams(params).values();
+    const array = Array.from(entries)
+    return array[0];
 }

@@ -6,8 +6,13 @@ const newAddressForm = document.querySelector(".address-form__new");
 
 var data;
 function getAPICheckout() {
+    let userID = getCookies("userID");
+    if (userID == undefined) {
+        userID = 0;
+    }
+
     var xhr = new XMLHttpRequest();
-    xhr.open('post', '/checkout/get-data', true);
+    xhr.open('get', '/checkout/get-data?userID=' + userID + '', true);
     xhr.onreadystatechange = () => {
         if (xhr.readyState == 4 && xhr.status == 200) {
 
@@ -20,6 +25,8 @@ function getAPICheckout() {
             getCheckoutItemsDestop(data);
 
             setPaymentsType(data);
+
+            setCheckoutMobile(data);
 
         }
     };
@@ -687,9 +694,12 @@ function addConfirmSuccess() {
 
 // Checkout Items
 function getCheckoutItemsDestop(data) {
+    var checkout = JSON.parse(sessionStorage.getItem("checkout"));
+    console.log(checkout);
     let htmlCheckoutItem = "";
-    htmlCheckoutItem += data.checkouts.map(obj => 
-    `
+    for (let i = 0; i < checkout.length; i++) {
+        htmlCheckoutItem += 
+        `
                     <div class="checkout__product">
                         <div class="checkout__product-header">
                             <div class="checkout__product-header-name">Sản phẩm</div>
@@ -709,18 +719,18 @@ function getCheckoutItemsDestop(data) {
                             <div class="checkout__product-body-item">
                                 <div class="checkout__product-body-item-name">
                                     <div class="checkout__product-body-item-img"
-                                        style="background-image: url(/img/${obj.sImageUrl});"></div>
+                                        style="background-image: url(/img/${checkout[i][2]});"></div>
                                     <div class="checkout__product-body-item-desc">
                                         <div class="checkout__product-body-item-text">
-                                            ${obj.sProductName}
+                                            ${checkout[i][1]}
                                         </div>
                                         <span>Đổi ý miễn phí 15 ngày</span>
                                     </div>
                                 </div>
                                 <div class="checkout__product-body-item-type">Loại: Bạc</div>
-                                <div class="checkout__product-body-item-cost">${money(obj.dUnitPrice)} đ</div>
-                                <div class="checkout__product-body-item-quantity">${obj.iQuantity}</div>
-                                <div class="checkout__product-body-item-money">${money(obj.dMoney)} đ</div>
+                                <div class="checkout__product-body-item-cost">${money(checkout[i][3])} đ</div>
+                                <div class="checkout__product-body-item-quantity">${checkout[i][4]}</div>
+                                <div class="checkout__product-body-item-money">${money(checkout[i][5])} đ</div>
                             </div>
                             <div class="checkout__product-body-promotion">
                                 <div class="checkout__product-body-electronic-invoice">
@@ -756,7 +766,7 @@ function getCheckoutItemsDestop(data) {
                                             <div class="checkout__product-body-transport-type-top">
                                                 <span>Nhanh</span>
                                                 <a href="#" class="checkout__product-body-transport-change">Thay đổi</a>
-                                                <div class="checkout__product-body-transport-cost">${money(obj.dTransportPrice)} đ</div>
+                                                <div class="checkout__product-body-transport-cost">${money(checkout[i][6])} đ</div>
                                             </div>
                                             <div class="checkout__product-body-transport-type-bottom">
                                                 <div class="checkout__product-body-transport-type-bottom-sub">Đảm bảo nhận
@@ -791,14 +801,14 @@ function getCheckoutItemsDestop(data) {
                             </div>
                         </div>
                         <div class="checkout__product-bottom">
-                            <div class="checkout__product-bottom-sub">Tổng số tiền (${obj.iQuantity} sản phẩm): </div>
-                            <span>${money(obj.dMoney)} đ</span>
+                            <div class="checkout__product-bottom-sub">Tổng số tiền (${checkout[i][4]} sản phẩm): </div>
+                            <span>${money(checkout[i][5])} đ</span>
                         </div>
                     </div>
-    `
-    ).join('');
+        `;
+    }
     document.querySelector(".checkout__list").innerHTML = htmlCheckoutItem;
-    setTotalPrice(data);
+    setTotalPrice(checkout);
 }
 
 // Set Payment Type
@@ -1085,13 +1095,13 @@ function choosePaymentsType() {
 }
 
 // Set Price
-function setTotalPrice(data) {
-    var totalItemPrice = data.checkouts.reduce((total, item) => {
-        return total + item.dUnitPrice;
-    }, 0)
+function setTotalPrice(checkout) {
+    var totalItemPrice = checkout.reduce((total, item) => {
+        return total + item[5];
+    }, 0);
 
-    var totalTransportPrice = data.checkouts.reduce((total, transport) => {
-        return total + transport.dTransportPrice;
+    var totalTransportPrice = checkout.reduce((total, transport) => {
+        return total + transport[6];
     }, 0);
 
     document.querySelector(".checkout__payment-money-total-item-price").innerText = `${money(totalItemPrice)}`;
@@ -1104,9 +1114,14 @@ function setTotalPrice(data) {
 
 // Add To Order
 function addToOrder(totalPrice) {
+    let userID = getCookies("userID");
+    if (userID == undefined) {
+        userID = 0;
+    }
+
     document.querySelector(".checkout__payment-order-btn-submit").addEventListener("click", () => {
         var xhr = new XMLHttpRequest();
-        xhr.open('post', '/checkout/get-data', true);
+        xhr.open('get', '/checkout/get-data?userID=' + userID + '', true);
         xhr.onreadystatechange = () => {
             if (xhr.readyState == 4 && xhr.status == 200) {
                 const data = JSON.parse(xhr.responseText);
@@ -1140,6 +1155,8 @@ function addToOrder(totalPrice) {
 
 function addOrder(totalPrice, paymentTypeID, paymentID) {
     var formData = new FormData();
+    formData.append("userID", getCookies("userID"));
+    formData.append("shopID", sessionStorage.getItem("shopID"));
     formData.append("totalPrice", totalPrice);
     formData.append("paymentTypeID", paymentTypeID);
     formData.append("paymentID", paymentID);
@@ -1150,16 +1167,259 @@ function addOrder(totalPrice, paymentTypeID, paymentID) {
     xhr.onreadystatechange = () => {
         if (xhr.readyState == 4 && xhr.status == 200) {
             const result = JSON.parse(xhr.responseText);
+
             console.log(result);
-            toast({ title: "Thông báo", msg: `${result.status.message}`, type: "success", duration: 5000 });
-            if (data.paymentTypes[0].pK_iPaymentID == 4) {
-                window.location.assign("/payment/momo");
-            } else {
-                window.location.assign("/user/purchase");
-            }
+
+            addToOrderDetail(result.orderID);
         }
     };
     xhr.send(formData);
+}
+
+function addToOrderDetail(orderID) {
+    var checkout = JSON.parse(sessionStorage.getItem("checkout"));
+    for (let i = 0; i < checkout.length; i++) {
+        var formData = new FormData();
+        formData.append("userID", getCookies("userID"));
+        formData.append("orderID", orderID);
+        formData.append("productID", checkout[i][0]);
+        formData.append("quantity", checkout[i][4]);
+        formData.append("price", checkout[i][3]);
+        formData.append("money", checkout[i][5]);
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('post', '/checkout/add-to-order-detail', true);
+        xhr.send(formData);
+    }
+    sessionStorage.removeItem("checkout");
+    toast({ title: "Thông báo", msg: `Đặt hàng thành công!`, type: "success", duration: 5000 });
+    if (data.paymentTypes[0].pK_iPaymentID == 4) {
+        window.location.assign("/payment/momo");
+    } else {
+        window.location.assign("/user/purchase");
+    }
+}
+
+// JS Mobile
+function setCheckoutMobile(data) {
+    let htmlCheckoutMobile = "";
+    htmlCheckoutMobile += 
+            `<div class="checkout-mobile__address">`;
+            if (data.addresses.length == 0) {
+
+            } else {
+                htmlCheckoutMobile += 
+                `<div class="checkout-mobile__address-destination">
+                    <i class="uil uil-map-marker checkout-mobile__address-destination-icon"></i>
+                </div>
+                <div class="checkout-mobile__address-desc">
+                    <div class="checkout-mobile__address-desc-title">Địa chỉ nhận hàng</div>
+                    <span class="checkout-mobile__address-desc-name">${data.addresses[0].sFullName}</span> <span
+                        class="checkout-mobile__address-desc-divide">|</span>
+                    <span class="checkout-mobile__address-desc-phone">(+84) ${data.addresses[0].sPhone}</span>
+                    <div class="checkout-mobile__address-desc-direction">${data.addresses[0].sAddress}</div>
+                </div>
+                <div class="checkout-mobile__address-more" onclick="openAddressFormMobile()">
+                    <i class="uil uil-angle-right-b checkout-mobile__address-more-icon"></i>
+                </div>`;
+            }
+            htmlCheckoutMobile += `
+            </div>
+            <div class="address-form-mobile hide-on-mobile">
+                <div class="address-form-mobile__header">
+                    <div class="address-form-mobile__header-back" onclick="closeAddressFormMobile()">
+                        <i class="uil uil-arrow-left address-form-mobile__header-back-icon"></i>
+                    </div>
+                    <div class="address-form-mobile__header-title">Địa chỉ nhận hàng</div>
+                </div>
+                <div class="address-form-mobile__search">
+                    <input type="text" class="address-form-mobile__search-input" placeholder="Tìm Thành phố, Quận/Huyện">
+                </div>
+                <div class="address-form-mobile__body">
+                    <div class="address-form-mobile__body-title">Địa chỉ của tôi</div>
+                    <div class="address-form-mobile__body-list">
+                        <ul class="address-form__list">`;
+                        for (let i = 0; i < data.addresses.length; i++) {
+                            if (data.addresses[i].iDefault == 1) {
+                                htmlCheckoutMobile += 
+                            `<li class="address-form__item default">
+                                <div class="address-form__item-box">
+                                    <input type="radio" name="address" class="address-form__item-input" checked>
+                                </div>
+                                <div class="address-form__item-content">
+                                    <div class="address-form__item-header">
+                                        <div class="address-form__item-header-info">
+                                            <div class="address-form__item-name">${data.addresses[i].sFullName}</div>
+                                            <div class="address-form__item-phone">(+84) ${data.addresses[i].sPhone}</div>
+                                        </div>
+                                    </div>
+                                    <div class="address-form__item-body">
+                                        <div class="address-form__item-body-row">${data.addresses[i].sAddress}</div>
+                                    </div>
+                                    <button class="address-form__item-sub">Mặc định</button>
+                                </div>
+                            </li>`;
+                            }
+                        }
+                        htmlCheckoutMobile += `
+                        </ul>
+                    </div>
+                    <div class="address-form-mobile__body-add">
+                        <i class="uil uil-plus-circle address-form-mobile__body-add-icon"></i>
+                        <div class="address-form-mobile__body-add-sub">Thêm địa chỉ</div>
+                        <div class="address-form-mobile__body-add-more">
+                            <i class="uil uil-angle-right-b address-form-mobile__body-add-more"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="checkout-mobile__lable">
+                <div class="checkout-mobile__lable-box"></div>
+            </div>
+            <div class="checkout-mobile__list">`;
+            var checkout = JSON.parse(sessionStorage.getItem("checkout"));
+            for (let i = 0; i < checkout.length; i++) {
+                htmlCheckoutMobile += 
+                `<div class="checkout-mobile__item">
+                    <div class="checkout-mobile__item-header">
+                        <div class="checkout-mobile__item-header-favorite">Yêu thích</div>
+                        <div class="checkout-mobile__item-header-shop">Viet Mark</div>
+                    </div>
+                    <div class="checkout-mobile__item-product">
+                        <div class="checkout-mobile__item-product-thumb">
+                            <img class="checkout-mobile__item-product-img" src="/img/${checkout[i][2]}" />
+                        </div>
+                        <div class="checkout-mobile__item-product-info">
+                            <div class="checkout-mobile__item-product-info-name">
+                            ${checkout[i][1]}
+                            </div>
+                            <div class="checkout-mobile__item-product-bottom">
+                                <div class="checkout-mobile__item-product-bottom-change">
+                                    <span>Đổi ý miễn phí</span>
+                                </div>
+                                <div class="checkout-mobile__item-product-numb">
+                                    <div class="checkout-mobile__item-product-numb-qunatity">x${checkout[i][4]}</div>
+                                    <div class="checkout-mobile__item-product-numb-price">${money_2(checkout[i][3])}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="checkout-mobile__item-product-voucher">
+                        <div class="checkout-mobile__item-product-voucher-left">
+                            <i class="uil uil-ellipsis-v checkout-mobile__item-product-voucher-icon-sub"></i>
+                            <div class="checkout-mobile__item-product-voucher-sub">Voucher của Shop</div>
+                        </div>
+                        <div class="checkout-mobile__item-product-voucher-right">
+                            <div class="checkout-mobile__item-product-voucher-choose">Chọn Voucher</div>
+                            <i class="uil uil-angle-right-b checkout-mobile__item-product-voucher-icon-choose"></i>
+                        </div>
+                    </div>
+                    <div class="checkout-mobile__item-product-transport">
+                        <div class="checkout-mobile__item-product-transport-header">Vận chuyển</div>
+                        <div class="checkout-mobile__item-product-transport-type">
+                            <div class="checkout-mobile__item-product-transport-type-sub">Nhanh</div>
+                            <div class="checkout-mobile__item-product-transport-type-price">${money_2(checkout[i][6])}</div>
+                        </div>
+                        <div class="checkout-mobile__item-product-transport-time">Nhận hàng vào 7 Tháng 7 - 8 Tháng 7
+                        </div>
+                        <div class="checkout-mobile__item-product-transport-express">
+                            <div class="checkout-mobile__item-product-transport-express-sub">Hoặc chọn Hoả tốc để </div>
+                            <a href="#" class="checkout-mobile__item-product-transport-express-link">
+                                <i class="uil uil-truck"></i>
+                                <span>Nhận hàng vào hôm nay</span>
+                                <i
+                                    class="uil uil-angle-right-b checkout-mobile__item-product-transport-express-icon-more"></i>
+                            </a>
+                        </div>
+                        <div class="checkout-mobile__item-product-transport-inspection">
+                            <span>Được đồng kiểm.</span>
+                            <i
+                                class="uil uil-question-circle checkout-mobile__item-product-transport-inspection-icon"></i>
+                        </div>
+                    </div>
+                    <div class="checkout-mobile__item-product-message">
+                        <div class="checkout-mobile__item-product-message-sub">Tin nhắn:</div>
+                        <input type="text" class="checkout-mobile__item-product-message-input"
+                            placeholder="Để lại lời nhắn">
+                    </div>
+                    <div class="checkout-mobile__item-product-into-money">
+                        <div class="checkout-mobile__item-product-into-money-sub">Thành tiền (${checkout[i][4]} sản phẩm):</div>
+                        <div class="checkout-mobile__item-product-into-money-price">${money_2(checkout[i][5])}</div>
+                    </div>
+                </div>`;
+            }
+            htmlCheckoutMobile += `
+            </div>
+            <div class="checkout-mobile__voucher">
+                <div class="checkout-mobile__voucher-col">
+                    <i class="uil uil-ellipsis-v checkout-mobile__voucher-sub-icon"></i>
+                    <div class="checkout-mobile__voucher-title">Shopee Voucher</div>
+                </div>
+                <div class="checkout-mobile__voucher-col">
+                    <div class="checkout-mobile__voucher-choose">Chọn Voucher</div>
+                    <i class="uil uil-angle-right-b checkout-mobile__voucher-choose-icon"></i>
+                </div>
+            </div>
+            <div class="checkout-mobile__type">
+                <div class="checkout-mobile__type-header">
+                    <div class="checkout-mobile__type-header-col">
+                        <i class="uil uil-usd-circle checkout-mobile__type-header-sub-icon"></i>
+                        <div class="checkout-mobile__type-header-sub">Lựa chọn thanh toán</div>
+                    </div>
+                    <div class="checkout-mobile__type-header-col">
+                        <div class="checkout-mobile__type-header-sub">${data.paymentTypes[0].sPaymentName}</div>
+                        <i class="uil uil-angle-right-b checkout-mobile__type-header-icon"></i>
+                    </div>
+                </div>
+                <div class="checkout-mobile__type-pay">
+                    Dùng ShopeePay để tận hưởng nhiều voucer ưu đãi.
+                </div>
+            </div>
+            <div class="checkout-mobile__detail">
+                <div class="checkout-mobile__detail-header">
+                    <i class="uil uil-notes checkout-mobile__detail-header-icon"></i>
+                    <div class="checkout-mobile__detail-header-sub">Chi tiết thanh toán</div>
+                </div>
+                <div class="checkout-mobile__detail-body">
+                    <div class="checkout-mobile__detail-total-price-product">
+                        <div class="checkout-mobile__detail-total-price-product-sub">Tổng tiền hàng</div>
+                        <div class="checkout-mobile__detail-total-price-product-numb">${money_2(checkout.reduce((totalMoney, a) => totalMoney + a[5], 0))}</div>
+                    </div>
+                    <div class="checkout-mobile__detail-transport-price">
+                        <div class="checkout-mobile__detail-transport-price-sub">Phí vận chuyển</div>
+                        <div class="checkout-mobile__detail-transport-price-numb">${money_2(checkout.reduce((totalMoney, a) => totalMoney + a[6], 0))}</div>
+                    </div>
+                </div>
+                <div class="checkout-mobile__detail-bottom">
+                    <div class="checkout-mobile__detail-bottom-sub">Thành tiền</div>
+                    <div class="checkout-mobile__detail-bottom-price">${money_2(checkout.reduce((totalMoney, a) => totalMoney + a[5], 0) + checkout.reduce((totalMoney, a) => totalMoney + a[6], 0))}</div>
+                </div>
+            </div>
+            <div class="checkout-mobile__rules">
+                <i class="uil uil-newspaper checkout-mobile__rules-icon"></i>
+                <div class="checkout-mobile__rules-sub">
+                    Nhấn "Đặt hàng" đồng nghĩa với việc bạn đồng ý tuân theo <a href="#"
+                        class="checkout-mobile__rules-link">Điều khoản SMe</a>
+                </div>
+            </div>
+            <div class="checkout-mobile__footer">
+                <div class="checkout-mobile__footer-into-money">
+                    <div class="checkout-mobile__footer-into-money-sub">Thành tiền</div>
+                    <div class="checkout-mobile__footer-into-money-numb">${money_2(checkout.reduce((totalMoney, a) => totalMoney + a[5], 0) + checkout.reduce((totalMoney, a) => totalMoney + a[6], 0))}</div>
+                </div>
+                <div class="checkout-mobile__footer-btn">
+                    Đặt hàng
+                </div>
+            </div>`;
+    document.querySelector(".checkout-mobile").innerHTML = htmlCheckoutMobile;
+}
+
+function openAddressFormMobile() {
+    document.querySelector(".address-form-mobile").classList.remove("hide-on-mobile");
+}
+
+function closeAddressFormMobile() {
+    document.querySelector(".address-form-mobile").classList.add("hide-on-mobile");
 }
 
 // Modal
@@ -1169,4 +1429,15 @@ function openModal() {
 
 function closeModal() {
     document.querySelector(".modal").classList.remove("open");
+}
+
+function getCookies(userID) {
+    const id = userID + "=";
+    const cDecoded = decodeURIComponent(document.cookie);
+    const arr = cDecoded.split(";");
+    let res; 
+    arr.forEach(val => {
+        if (val.indexOf(id) === 0) res = val.substring(id.length);
+    });
+    return res;
 }

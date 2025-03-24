@@ -4,13 +4,21 @@
 // Write your JavaScript code.
 
 function getDataSite() {
+    let userID = getCookies("userID");
+    console.log(userID);
+    if (userID == undefined) {
+        userID = 0;
+    }
+    
     var xhr = new XMLHttpRequest();
-    xhr.open('post', '/home/get-data', true);
+    xhr.open('get', '/home/get-data?userID=' + userID + '', true);
     xhr.onreadystatechange = () => {
         if (xhr.readyState == 4 && xhr.status == 200) {
             const data = JSON.parse(xhr.responseText);
 
             console.log(data);
+
+            setHeaderMobile(data);
 
             setAccount(data);
 
@@ -29,6 +37,127 @@ function getDataSite() {
 }
 getDataSite();
 
+function setHeaderMobile(data) {
+    let htmlNavbar = "";
+    htmlNavbar +=
+                `<div class="header__mobile-container">
+                    <div class="header__mobile-left">
+                        <div class="header__mobile-menu" onclick="showNavMenu()">
+                            <i class="uil uil-bars header__mobile-menu-icon"></i>
+                        </div>
+                        <div class="header__mobile-menu-nav hide-on-destop">
+                            <div class="header__mobile-menu-container">
+                                <div class="header__mobile-menu-close" onclick="closeNavMenu()">
+                                    <i class="uil uil-multiply header__mobile-menu-close-icon"></i>
+                                </div>
+                                <div class="header__mobile-menu-list">
+                                    <div class="header__mobile-menu-item">
+                                        <a href="javascript:openShopMenu()" class="header__mobile-menu-item-link">
+                                            <span class="header__mobile-menu-item-name">Cửa hàng</span>
+                                            <i class="uil uil-angle-down header__mobile-menu-item-dropdown-icon"></i>
+                                        </a>
+                                    </div>
+                                    <div class="header__mobile-menu-item">
+                                        <a href="javascript:openIndustryMenu()" class="header__mobile-menu-item-link">
+                                            <span class="header__mobile-menu-item-name">Danh mục</span>
+                                            <i class="uil uil-angle-down header__mobile-menu-item-dropdown-icon"></i>
+                                        </a>
+                                    </div>`;
+                                    if (data.userID != 0) {
+                                        htmlNavbar += 
+                                    `<div class="header__mobile-menu-logout">
+                                        <a href="javascript:logoutUserAccount()" class="header__mobile-menu-logout-link">
+                                            <span class="header__mobile-menu-logout-name">Đăng xuất</span>
+                                            <i class="uil uil-signout header__mobile-menu-logout-icon"></i>
+                                        </a>
+                                    </div>`;
+                                    }
+                                    htmlNavbar += `
+                                </div>
+                            </div>
+                            <div class="header__mobile-menu-container-shop">
+                                <div class="header__mobile-menu-close" onclick="closeNavMenu()">
+                                    <i class="uil uil-multiply header__mobile-menu-close-icon"></i>
+                                </div>
+                                <div class="header__mobile-menu-list">
+                                    <div class="header__mobile-menu-back">
+                                        <a href="javascript:showNavMenu()" class="header__mobile-menu-back-link">
+                                            <div class="header__mobile-menu-back-icon-symb">
+                                                <i class="header__mobile-back-item-icon uil uil-arrow-left"></i>
+                                            </div>
+                                            <span class="header__mobile-menu-back-name">Quay lại</span>
+                                        </a>
+                                    </div>
+                                    <div class="header__mobile-menu-back">
+                                        <span class="header__mobile-menu-back-all">Xem tất cả cửa hàng</span>
+                                    </div>`;
+                                    data.stores.forEach(element => {
+                                        htmlNavbar += 
+                                    `<div class="header__mobile-menu-item">
+                                        <a href="/shop?name=${element.sStoreUsername}" class="header__mobile-menu-item-link">
+                                            <span class="header__mobile-menu-tab-name">${element.sStoreName}</span>
+                                        </a>
+                                    </div>
+                                        `;
+                                    });
+                                    htmlNavbar += `
+                                </div>
+                            </div>
+                            <div class="header__mobile-menu-container-industry">
+                                <div class="header__mobile-menu-close" onclick="closeNavMenu()">
+                                    <i class="uil uil-multiply header__mobile-menu-close-icon"></i>
+                                </div>
+                                <div class="header__mobile-menu-list">
+                                    <div class="header__mobile-menu-back">
+                                        <a href="javascript:showNavMenu()" class="header__mobile-menu-back-link">
+                                            <div class="header__mobile-menu-back-icon-symb">
+                                                <i class="header__mobile-back-item-icon uil uil-arrow-left"></i>
+                                            </div>
+                                            <span class="header__mobile-menu-back-name">Quay lại</span>
+                                        </a>
+                                    </div>
+                                    <div class="header__mobile-menu-back">
+                                        <span class="header__mobile-menu-back-all">Xem tất cả danh mục</span>
+                                    </div>`;
+                                    data.parentCategories.forEach(element => {
+                                        htmlNavbar += 
+                                    `<div class="header__mobile-menu-item">
+                                        <a href="/product?industryID=${element.pK_iParentCategoryID}" class="header__mobile-menu-item-link">
+                                            <span class="header__mobile-menu-tab-name">${element.sParentCategoryName}</span>
+                                        </a>
+                                    </div>`;
+                                    });
+                                    htmlNavbar += `
+                                </div>
+                            </div>
+                            <div class="header__mobile-menu-overlay"></div>
+                        </div>
+                    </div>
+                    <div class="header__mobile-logo">
+                        <a href="/" class="header__logo-link">
+                            <img class="header__logo-img" src="/img/sme_logo_white.png" alt="SMe Logo">
+                        </a>
+                    </div>
+                    <div class="header__mobile-right">`;
+                    if (data.userID == 0) {
+                        htmlNavbar += 
+                        `<div class="header__mobile-user-symbol">
+                            <a href="/user/login" class="header__mobile-user-link">  
+                                <i class="uil uil-user header__mobile-user-icon"></i>
+                            </a>
+                        </div>`;
+                    } else {
+                        htmlNavbar += 
+                        `<div class="header__mobile-user-avatar">
+                            <div class="header__mobile-user-avatar-img" style="background-image: url(/img/${data.userInfo[0].sImageProfile});"></div>
+                        </div>`;
+                    }
+                    htmlNavbar += `
+                    </div>
+                </div>`;
+    document.querySelector(".header__mobile").innerHTML = htmlNavbar;
+}
+
 function setAccount(data) {
     let htmlAccount = "";
     if (data.userID == 0) {
@@ -41,14 +170,16 @@ function setAccount(data) {
                                 <a class="header__navbar-item-link" href="/user/login">Đăng nhập</a>
                             </li>
             `;
+    } else if (data.userID != 0 && data.userInfo.length == 0) {
+        window.location.assign("/user/portal");
     } else {
-        if (data.roleID == 2) {
+        if (data.user[0].fK_iRoleID == 2) {
             htmlAccount +=
                 `
                 <div class="header__navbar-item">
                     <div class="header__navbar-user">
-                        <img src="/img/no_user.jpg" alt="" class="header__navbar-user-img">
-                        <span class="header__navbar-user-name">${data.username}</span>
+                        <img src="/img/${data.userInfo[0].sImageProfile}" alt="" class="header__navbar-user-img">
+                        <span class="header__navbar-user-name">${data.user[0].sUserName}</span>
                         <div class="header__navbar-user-manager">
                             <ul class="header__navbar-user-menu">
                                 <li class="header__navbar-user-item">
@@ -67,20 +198,20 @@ function setAccount(data) {
                                     <a href="/user/change">Đổi mật khẩu</a>
                                 </li>
                                 <li class="header__navbar-user-item header__navbar-user-item--separate">
-                                    <a href="/user/logout">Đăng xuất</a>
+                                    <a href="javascript:logoutUserAccount()">Đăng xuất</a>
                                 </li>
                             </ul>
                         </div>
                     </div>
                 </div>
                 `;
-        } else if (data.roleID == 3) {
+        } else if (data.user[0].fK_iRoleID == 3) {
             htmlAccount +=
                 `
                 <div class="header__navbar-item">
                     <div class="header__navbar-user">
-                        <img src="/img/no_user.jpg" alt="" class="header__navbar-user-img">
-                        <span class="header__navbar-user-name">${data.username}</span>
+                        <img src="/img/${data.userInfo[0].sImageProfile}" alt="" class="header__navbar-user-img">
+                        <span class="header__navbar-user-name">${data.user[0].sUserName}</span>
                         <div class="header__navbar-user-manager">
                             <ul class="header__navbar-user-menu">
                                 <li class="header__navbar-user-item">
@@ -96,20 +227,20 @@ function setAccount(data) {
                                     <a href="/picker">Kênh lấy hàng</a>
                                 </li>
                                 <li class="header__navbar-user-item header__navbar-user-item--separate">
-                                    <a href="/User/Logout">Đăng xuất</a>
+                                    <a href="javascript:logoutUserAccount()">Đăng xuất</a>
                                 </li>
                             </ul>
                         </div>
                     </div>
                 </div>
                 `;
-        } else if (data.roleID == 4) {
+        } else if (data.user[0].fK_iRoleID == 4) {
             htmlAccount +=
                 `
                                 <div class="header__navbar-item">
                                     <div class="header__navbar-user">
-                                        <img src="/img/no_user.jpg" alt="" class="header__navbar-user-img">
-                                        <span class="header__navbar-user-name">${data.username}</span>
+                                        <img src="/img/${data.userInfo[0].sImageProfile}" alt="" class="header__navbar-user-img">
+                                        <span class="header__navbar-user-name">${data.user[0].sUserName}</span>
                                         <div class="header__navbar-user-manager">
                                             <ul class="header__navbar-user-menu">
                                                 <li class="header__navbar-user-item">
@@ -125,7 +256,7 @@ function setAccount(data) {
                                                     <a href="/delivery">Kênh giao hàng</a>
                                                 </li>
                                                 <li class="header__navbar-user-item header__navbar-user-item--separate">
-                                                    <a href="/User/Logout">Đăng xuất</a>
+                                                    <a href="javascript:logoutUserAccount()">Đăng xuất</a>
                                                 </li>
                                             </ul>
                                         </div>
@@ -137,8 +268,8 @@ function setAccount(data) {
                 `
                                 <div class="header__navbar-item">
                                     <div class="header__navbar-user">
-                                        <img src="/img/no_user.jpg" alt="" class="header__navbar-user-img">
-                                        <span class="header__navbar-user-name">${data.username}</span>
+                                        <img src="/img/${data.userInfo[0].sImageProfile}" alt="" class="header__navbar-user-img">
+                                        <span class="header__navbar-user-name">${data.user[0].sUserName}</span>
                                         <div class="header__navbar-user-manager">
                                             <ul class="header__navbar-user-menu">
                                                 <li class="header__navbar-user-item">
@@ -154,7 +285,7 @@ function setAccount(data) {
                                                     <a href="/user/change">Đổi mật khẩu</a>
                                                 </li>
                                                 <li class="header__navbar-user-item header__navbar-user-item--separate">
-                                                    <a href="/User/Logout">Đăng xuất</a>
+                                                    <a href="javascript:logoutUserAccount()">Đăng xuất</a>
                                                 </li>
                                             </ul>
                                         </div>
@@ -167,7 +298,7 @@ function setAccount(data) {
 }
 
 function setAccountMobile(data) {
-    htmlAccountMobile = "";
+    let htmlAccountMobile = "";
     if (data.userID == 0) {
         htmlAccountMobile +=
             `
@@ -199,7 +330,7 @@ function setAccountMobile(data) {
                                                     <a href="#">Quản trị</a>
                                                 </li>
                                                 <li class="header__navbar-user-item header__navbar-user-item--separate">
-                                                    <a href="/User/Logout">Đăng xuất</a>
+                                                    <a href="javascript:logoutUserAccount()">Đăng xuất</a>
                                                 </li>
                                             </ul>
                                         </div>
@@ -226,7 +357,7 @@ function setAccountMobile(data) {
                                                     <a href="">Đơn mua</a>
                                                 </li>
                                                 <li class="header__navbar-user-item header__navbar-user-item--separate">
-                                                    <a href="/User/Logout">Đăng xuất</a>
+                                                    <a href="javascript:logoutUserAccount()">Đăng xuất</a>
                                                 </li>
                                             </ul>
                                         </div>
@@ -250,7 +381,7 @@ function setAccountMobile(data) {
                                                     <a href="">Đơn mua</a>
                                                 </li>
                                                 <li class="header__navbar-user-item header__navbar-user-item--separate">
-                                                    <a href="/User/Logout">Đăng xuất</a>
+                                                    <a href="javascript:logoutUserAccount()">Đăng xuất</a>
                                                 </li>
                                             </ul>
                                         </div>
@@ -261,6 +392,20 @@ function setAccountMobile(data) {
     if (document.querySelector(".header__mobile-user") != null) {
         document.querySelector(".header__mobile-user").innerHTML = htmlAccountMobile;
     }
+}
+
+function logoutUserAccount() {
+    openModal();
+    document.querySelector(".modal__body").innerHTML = `<div class="spinner"></div>`;
+    deleteCookies("userID");
+    setTimeout(() => {
+        closeModal();
+        toast({ title: "Thông báo", msg: `Đăng xuất thành công!`, type: "success", duration: 5000 });
+        document.querySelector(".modal__body").innerHTML = "";
+        setTimeout(() => {
+            window.location.assign('/');
+        }, 1000)
+    }, 2000);
 }
 
 function getCartsItem(data) {
@@ -285,7 +430,7 @@ function getCartsItem(data) {
                     <ul class="header__cart-list-item">
                 `;
         htmlCartDetail += data.cartDetails.map(obj => `
-                    <a href="/product/detail/${obj.pK_iProductID}" class="header__cart-item">
+                    <a href="/product/detail?id=${obj.pK_iProductID}" class="header__cart-item">
                         <div class="header__cart-item-img">
                             <img src="/img/${obj.sImageUrl}" class="header__cart-item-img" alt="">
                         </div>
@@ -300,7 +445,7 @@ function getCartsItem(data) {
                             </div>
                             <div class="header__cart-item-body">
                                 <span class="header__cart-item-description">
-                                    Phân loại hàng:Bạc
+                                    Phân loại hàng: ${obj.sCategoryName}
                                 </span>
                                 <span class="header__cart-item-remove">Xoá</span>
                             </div>
@@ -308,13 +453,11 @@ function getCartsItem(data) {
                     </a>
                 `).join('');
         htmlCartDetail +=
-            `
-                    </ul>
+                    `</ul>
                     <a href="/cart" class="header__cart-btn btn--primary">
                         Xem giỏ hàng
                     </a>
-                </div>
-                `;
+                </div>`;
     }
     document.querySelector(".header__cart-container").innerHTML = htmlCartDetail;
     document.querySelector(".header__cart-notice").innerText = data.cartCount;
@@ -363,7 +506,7 @@ function searchProducts(input) {
             htmlSearch +=
                                     `
                                     <li class="header__search-history-item">
-                                        <a href="/product/${element.pK_iParentCategoryID}">${element.sParentCategoryName}</a>
+                                        <a href="/product?industryID=${element.pK_iParentCategoryID}">${element.sParentCategoryName}</a>
                                     </li>
                                     `;
                                     });
@@ -372,7 +515,7 @@ function searchProducts(input) {
             htmlSearch +=
                                     `
                                     <li class="header__search-history-item">
-                                        <a href="/product/${element.fK_iParentCategoryID}/${element.pK_iCategoryID}">${element.sCategoryName}</a>
+                                        <a href="/product?industryID=${element.fK_iParentCategoryID}&categoryID=${element.pK_iCategoryID}">${element.sCategoryName}</a>
                                     </li>
                                     `;
                                     });
@@ -398,8 +541,10 @@ searchInput.onclick = () => {
 function setChatBtn(data) {
     if (data.userID == 0) {
         document.querySelector(".chat__btn").classList.add("hide-on-destop");
+        document.querySelector(".chat__btn").classList.add("hide-on-mobile");
     } else {
         document.querySelector(".chat__btn").classList.remove("hide-on-destop");
+        document.querySelector(".chat__btn").classList.remove("hide-on-mobile");
     }
 }
 
@@ -445,7 +590,7 @@ function setDataChat(data) {
                     data.chats.forEach(element => {
                         htmlChat += 
                         `
-                        <li class="chat__shop-item">
+                        <li class="chat__shop-item" onclick="showChatDetail(${element.pK_iChatID})">
                             <div class="chat__shop-item-img" style="background-image: url(/img/${element.sImageAvatar});"></div>
                             <div class="chat__shop-item-info">
                                 <div class="chat__shop-item-info-top">
@@ -453,7 +598,7 @@ function setDataChat(data) {
                                     <div class="chat__shop-item-time">${getDate(element.dTime)}</div>
                                 </div>
                                 <div class="chat__shop-item-info-bottom">
-                                    ${element.sChat}
+                                    ${element.sLastChat}
                                 </div>
                             </div>
                         </li>
@@ -517,7 +662,7 @@ function setDataChat(data) {
                         data.chats.forEach(element => {
                             htmlChat += 
                             `
-                            <li class="chat__shop-item" onclick=showChatDetail(${element.pK_iChatID})>
+                            <li class="chat__shop-item" onclick="showChatDetail(${element.pK_iChatID})">
                                 <div class="chat__shop-item-img" style="background-image: url(/img/${element.sImageAvatar});"></div>
                                 <div class="chat__shop-item-info">
                                     <div class="chat__shop-item-info-top">
@@ -558,6 +703,7 @@ function setDataChat(data) {
 }
 
 function showChatDetail(chatID) {
+    closeChatWindowMobile();
     var xhr = new XMLHttpRequest();
     xhr.open('get', '/chat/detail?chatID=' + chatID + '', true);
     xhr.onreadystatechange = () => {
@@ -800,8 +946,57 @@ function toast({ title = "", msg = "", type = "", duration = 3000}) {
     }
 }
 
-// Chat JS
+// Show Navbar Menu
+function showNavMenu() {
+    document.querySelector(".header__mobile-menu-overlay").classList.add("open");
+    document.querySelector(".header__mobile-menu-container").classList.add("open");
+    document.querySelector(".header__mobile-menu-container-shop").classList.remove("open");
+    document.querySelector(".header__mobile-menu-container-industry").classList.remove("open");
+}
 
+function closeNavMenu() {
+    document.querySelector(".header__mobile-menu-overlay").classList.remove("open");
+    document.querySelector(".header__mobile-menu-container").classList.remove("open");
+    document.querySelector(".header__mobile-menu-container-shop").classList.remove("open");
+    document.querySelector(".header__mobile-menu-container-industry").classList.remove("open");
+}
+
+function openShopMenu() {
+    document.querySelector(".header__mobile-menu-container").classList.remove("open");
+    document.querySelector(".header__mobile-menu-container-shop").classList.add("open");
+}
+
+function openIndustryMenu() {
+    document.querySelector(".header__mobile-menu-container").classList.remove("open");
+    document.querySelector(".header__mobile-menu-container-industry").classList.add("open");
+}
+
+// Show Navbar Menu Product
+function showNavProductMenu() {
+    document.querySelector(".header__mobile-product-menu-overlay").classList.add("open");
+    document.querySelector(".header__mobile-product-menu-container").classList.add("open");
+    document.querySelector(".header__mobile-product-menu-container-shop").classList.remove("open");
+    document.querySelector(".header__mobile-product-menu-container-category").classList.remove("open");
+}
+
+function closeNavProductMenu() {
+    document.querySelector(".header__mobile-product-menu-overlay").classList.remove("open");
+    document.querySelector(".header__mobile-product-menu-container").classList.remove("open");
+    document.querySelector(".header__mobile-product-menu-container-shop").classList.remove("open");
+    document.querySelector(".header__mobile-product-menu-container-category").classList.remove("open");
+}
+
+function openShopProductMenu() {
+    document.querySelector(".header__mobile-product-menu-container").classList.remove("open");
+    document.querySelector(".header__mobile-product-menu-container-shop").classList.add("open");
+}
+
+function openCategoryMenu() {
+    document.querySelector(".header__mobile-product-menu-container").classList.remove("open");
+    document.querySelector(".header__mobile-product-menu-container-category").classList.add("open");
+}
+
+// Chat JS
 function hideChatWindow() {
     document.querySelector(".chat__container").classList.toggle("hide-chat-window");
     document.querySelector(".chat__body-right").classList.toggle("hide-chat-window");
@@ -840,6 +1035,11 @@ function displayChat() {
 function showChatWindowMobile() {
     document.querySelector(".chat__header-menu-bar").classList.toggle("active");
     document.querySelector(".chat__mobile-window").classList.toggle("show");
+}
+
+function closeChatWindowMobile() {
+    document.querySelector(".chat__header-menu-bar").classList.remove("active");
+    document.querySelector(".chat__mobile-window").classList.remove("show");
 }
 
 // Load Product
@@ -983,4 +1183,19 @@ function getTime(time) {
     minutes = minutes < 10 ? '0' + minutes : minutes;
     var current_time = hours + ":" + minutes;
     return current_time;
+}
+
+function getCookies(userID) {
+    const id = userID + "=";
+    const cDecoded = decodeURIComponent(document.cookie);
+    const arr = cDecoded.split(";");
+    let res; 
+    arr.forEach(val => {
+        if (val.indexOf(id) === 0) res = val.substring(id.length);
+    });
+    return res;
+}
+
+function deleteCookies(name) {
+    document.cookie = name + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
 }

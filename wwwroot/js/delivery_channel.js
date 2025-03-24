@@ -1,17 +1,28 @@
 function getAPIDeliveryChannel() {
-    var xhr = new XMLHttpRequest();
-    xhr.open('post', '/delivery-api', true);
-    xhr.onreadystatechange = () => {
-        if (xhr.readyState == 4 && xhr.status == 200) {
-            const data = JSON.parse(xhr.responseText);
+    let userID = getCookies("userID");
+    if (userID == undefined) {
+        window.location.replace("/user/login");
+    } else {
+        var xhr = new XMLHttpRequest();
+        xhr.open('get', '/delivery-api?userID=' + userID + '', true);
+        xhr.onreadystatechange = () => {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                const data = JSON.parse(xhr.responseText);
 
-            console.log(data);
+                console.log(data);
 
-            setData(data);
-            
-        }
-    };
-    xhr.send(null);
+                if (data.user[0].sRoleName != "delivery") {
+                    window.location.replace("/user/login");
+                }
+
+                setData(data);
+
+                setDataMobile(data);
+
+            }
+        };
+        xhr.send(null);
+    }
 }
 getAPIDeliveryChannel();
 
@@ -592,4 +603,107 @@ function openDeliveredOrderListTab(data) {
     document.querySelector(".phone-header__pickup-order-list-arrow").addEventListener('click', () => {
         setData(data);
     });
+}
+
+// Mobile
+function setDataMobile(data) {
+    document.querySelector(".app__content").innerHTML = 
+        `<header class="header hide-on-destop">
+            <div class="header__container">
+                <div class="header__menu">
+                    <i class="uil uil-bars header__menu-icon" onclick="showNavMenu()"></i>
+                    <div class="header__menu-nav hide-on-destop">
+                        <div class="header__menu-container">
+                            <div class="header__menu-close" onclick="closeNavMenu()">
+                                <i class="uil uil-multiply header__menu-close-icon"></i>
+                            </div>
+                            <div class="header__menu-list">
+                                <div class="header__menu-item">
+                                    <a href="javascript:openShopMenu()" class="header__menu-item-link">
+                                        <span class="header__menu-item-name">Đơn hàng</span>
+                                        <i class="uil uil-angle-down header__menu-item-dropdown-icon"></i>
+                                    </a>
+                                </div>
+                                <div class="header__menu-item">
+                                    <a href="javascript:openIndustryMenu()" class="header__menu-item-link">
+                                        <span class="header__menu-item-name">Đang làm</span>
+                                        <i class="uil uil-angle-down header__menu-item-dropdown-icon"></i>
+                                    </a>
+                                </div>
+                                <div class="header__menu-item">
+                                    <a href="javascript:openIndustryMenu()" class="header__menu-item-link">
+                                        <span class="header__menu-item-name">Đã hoàn thành</span>
+                                        <i class="uil uil-angle-down header__menu-item-dropdown-icon"></i>
+                                    </a>
+                                </div>
+                                <div class="header__menu-item">
+                                    <a href="javascript:openIndustryMenu()" class="header__menu-item-link">
+                                        <span class="header__menu-item-name">Thông tin tài khoản</span>
+                                        <i class="uil uil-angle-down header__menu-item-dropdown-icon"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="header__menu-logout">
+                                <a href="javascript:logoutPickerAccount()" class="header__menu-logout-link">
+                                    <span class="header__menu-logout-name">Đăng xuất</span>
+                                    <i class="uil uil-signout header__menu-logout-icon"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="header__menu-overlay"></div>
+                    </div>
+                </div>
+                <div class="header__logo">
+                    <img src="/img/SPX_express_logo.png" class="header__logo-img" alt="">
+                </div>
+                <div class="header__user">
+                    <div class="header__user-symbol hide-on-destop hide-on-mobile">
+                        <a href="login.html" class="header__user-link">  
+                            <i class="uil uil-user header__user-icon"></i>
+                        </a>
+                    </div>
+                    <div class="header__user-avatar">
+                        <div class="header__user-avatar-img" style="background-image: url(/img/profile_avatar.jpg);"></div>
+                    </div>  
+                </div>
+            </div>
+        </header>
+        <div class="app__body">
+            <div class="pickup">
+                <div class="pickup__title">Danh sách cần làm</div>
+                <div class="pickup__list">
+                    <div class="pickup__item pickup__item-wait">
+                        <div class="pickup__item-numb">${data.ordersWaitDelivery.length}</div>
+                        <div class="pickup__item-numb-text">Chờ giao hàng</div>
+                    </div>
+                    <div class="pickup__item pickup__item-picking">
+                        <div class="pickup__item-numb">${data.ordersDelivering.length}</div>
+                        <div class="pickup__item-numb-text">Đang lấy hàng</div>
+                    </div>
+                    <div class="pickup__item pickup__item-abouted-warehouse">
+                        <div class="pickup__item-numb">${data.ordersDelivered.length}</div>
+                        <div class="pickup__item-numb-text">Đã hoàn thành</div>
+                    </div>
+                    <div class="pickup__item">
+                        <div class="pickup__item-numb">0</div>
+                        <div class="pickup__item-numb-text">Đã Huỷ</div>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+}
+
+function getCookies(userID) {
+    const id = userID + "=";
+    const cDecoded = decodeURIComponent(document.cookie);
+    const arr = cDecoded.split(";");
+    let res; 
+    arr.forEach(val => {
+        if (val.indexOf(id) === 0) res = val.substring(id.length);
+    });
+    return res;
+}
+
+function deleteCookies(name) {
+    document.cookie = name + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
 }
